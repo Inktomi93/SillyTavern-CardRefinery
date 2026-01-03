@@ -1,12 +1,12 @@
 {
-    "display_name": "Template Extension",
-    "loading_order": 1,
-    "requires": [],
-    "optional": [],
-    "js": "dist/index.js",
-    "css": "",
-    "author": "Cohee1207",
-    "version": "1.0.0",
-    "homePage": "https://github.com/SillyTavern/Extension-WebpackTemplate",
-    "auto_update": true
+  "display_name": "Template Extension",
+  "loading_order": 1,
+  "requires": [],
+  "optional": [],
+  "js": "dist/index.js",
+  "css": "",
+  "author": "Inktomi93",
+  "version": "1.0.0",
+  "homePage": "https://github.com/Inktomi93/SillyTavern-ExtensionBase",
+  "auto_update": true
 }

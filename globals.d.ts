@@ -1,10 +1,10 @@
 export {};
 
 // 1. Import when extension is user-scoped
-import '../../../../public/global';
+import "../../../../public/global";
 // 2. Import when extension is server-scoped
-import '../../../../global';
+import "../../../../global";
 
 declare global {
-    // Add global type declarations here
+  // Add global type declarations here
 }
