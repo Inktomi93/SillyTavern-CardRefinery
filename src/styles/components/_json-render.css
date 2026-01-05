@@ -3,16 +3,9 @@
  *
  * Premium results display for structured output rendering.
  * Includes hero scores, sections, fields, lists, cards, and code blocks.
+ *
+ * Note: Score color tokens (--cr-score-*) are defined in _variables.css
  */
-
-/* Score color tokens */
-:root {
-    --cr-score-high: #10b981;
-    --cr-score-good: #22c55e;
-    --cr-score-mid: #eab308;
-    --cr-score-low: #f97316;
-    --cr-score-bad: #ef4444;
-}
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    MAIN FORMATTED CONTAINER

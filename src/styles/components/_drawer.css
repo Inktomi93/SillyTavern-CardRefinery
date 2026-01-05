@@ -226,3 +226,115 @@
         display: none;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PRESET LIST (In drawer list mode)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cr-preset-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+
+    &__section-label {
+        padding: var(--cr-space-2) var(--cr-space-3);
+        font-size: var(--cr-text-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--cr-text-dim);
+        background: var(--cr-bg-tertiary);
+        border-bottom: 1px solid var(--cr-border-muted);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    &__item {
+        display: flex;
+        align-items: stretch;
+        border-bottom: 1px solid var(--cr-border-muted);
+        transition: background var(--cr-transition-fast);
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        &:hover {
+            background: var(--cr-bg-secondary);
+        }
+
+        &--builtin {
+            opacity: 0.85;
+        }
+    }
+
+    &__select {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        padding: var(--cr-space-3);
+        background: none;
+        border: none;
+        cursor: pointer;
+        text-align: left;
+        color: inherit;
+    }
+
+    &__info {
+        display: flex;
+        flex-direction: column;
+        gap: var(--cr-space-1);
+        min-width: 0;
+    }
+
+    &__name {
+        display: flex;
+        align-items: center;
+        gap: var(--cr-space-2);
+        font-weight: 500;
+        font-size: var(--cr-text-sm);
+        color: var(--cr-text);
+
+        & i {
+            font-size: var(--cr-text-xs);
+        }
+    }
+
+    &__stages {
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-muted);
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--cr-space-1);
+        padding: var(--cr-space-2);
+        opacity: 0;
+        transition: opacity var(--cr-transition-fast);
+    }
+
+    &__item:hover &__actions {
+        opacity: 1;
+    }
+
+    /* Always show actions on touch devices */
+    @media (--mobile) {
+        &__actions {
+            opacity: 1;
+        }
+    }
+
+    &__action {
+        flex-shrink: 0;
+    }
+}
+
+/* List mode body - no padding, let list fill space */
+.cr-drawer__body--list {
+    padding: 0;
+    overflow: hidden;
+}

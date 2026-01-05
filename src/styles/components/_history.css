@@ -56,10 +56,16 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--cr-space-3);
+    gap: var(--cr-space-2) var(--cr-space-3);
     padding: var(--cr-space-2) var(--cr-space-3);
     background: var(--cr-accent-muted);
     border-bottom: 1px solid var(--cr-accent);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+
+    @media (--mobile) {
+        padding: var(--cr-space-2);
+    }
 
     &__info {
         display: flex;
@@ -68,12 +74,21 @@
         font-size: var(--cr-text-sm);
         font-weight: 500;
         color: var(--cr-accent);
+
+        @media (--mobile) {
+            font-size: var(--cr-text-xs);
+        }
     }
 
     &__controls {
         display: flex;
         align-items: center;
         gap: var(--cr-space-2);
+        flex-wrap: wrap;
+
+        @media (--mobile) {
+            gap: var(--cr-space-1);
+        }
     }
 
     &__btn {

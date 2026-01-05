@@ -137,4 +137,13 @@
     --cr-panel-min: 280px;
     --cr-panel-max: 480px;
     --cr-header-height: 48px;
+
+    /* ═══════════════════════════════════════════════════════════════════════════
+       SCORE COLORS - For numeric score display (1-10 ratings)
+       ═══════════════════════════════════════════════════════════════════════════ */
+    --cr-score-high: #10b981; /* 9-10: Excellent */
+    --cr-score-good: #22c55e; /* 7-8: Good */
+    --cr-score-mid: #eab308; /* 5-6: Average */
+    --cr-score-low: #f97316; /* 3-4: Below average */
+    --cr-score-bad: #ef4444; /* 1-2: Poor */
 }

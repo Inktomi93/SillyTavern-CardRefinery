@@ -41,13 +41,7 @@
 
     &--sm {
         padding: 0.1em 0.4em;
-        font-size: 9px;
-    }
-
-    /* Additional badge variants (from BADGE VARIANTS section) */
-    &--small {
-        padding: 0.1em 0.4em;
-        font-size: 9px;
+        font-size: var(--cr-text-xs);
     }
 
     &--info {
@@ -58,5 +52,10 @@
     &--muted {
         background: var(--cr-bg-secondary);
         color: var(--cr-text-dim);
+    }
+
+    &--outline {
+        background: transparent;
+        border: 1px solid currentColor;
     }
 }

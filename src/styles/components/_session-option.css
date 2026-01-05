@@ -12,7 +12,7 @@
     padding: var(--cr-space-2) var(--cr-space-3);
     border-bottom: 1px solid var(--cr-border-muted);
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background var(--cr-transition-fast);
 
     &:last-child {
         border-bottom: none;
@@ -35,7 +35,7 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--cr-space-1);
     }
 
     &__name {
@@ -89,9 +89,9 @@
 
     &__actions {
         display: flex;
-        gap: 2px;
+        gap: var(--cr-space-1);
         opacity: 0;
-        transition: opacity 0.15s ease;
+        transition: opacity var(--cr-transition-fast);
 
         &--editing {
             opacity: 1;
@@ -112,5 +112,12 @@
 
     &:hover &__actions {
         opacity: 1;
+    }
+
+    /* Always show actions on touch devices */
+    @media (--mobile) {
+        &__actions {
+            opacity: 1;
+        }
     }
 }

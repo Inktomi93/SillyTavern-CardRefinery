@@ -16,7 +16,13 @@
     background: var(--cr-bg-secondary);
     border-bottom: 1px solid var(--cr-border-muted);
     flex-shrink: 0;
-    gap: var(--cr-space-3);
+    gap: var(--cr-space-2) var(--cr-space-3);
+
+    @media (--mobile) {
+        grid-template-columns: auto 1fr auto;
+        padding: var(--cr-space-2);
+        gap: var(--cr-space-2);
+    }
 
     &__left {
         display: flex;
@@ -29,16 +35,27 @@
         align-items: center;
         justify-content: center;
         gap: var(--cr-space-2);
+        min-width: 0; /* Allow shrinking on mobile */
 
         & i {
             color: var(--cr-accent);
             font-size: var(--cr-text-lg);
+
+            @media (--mobile) {
+                display: none; /* Hide icon on mobile to save space */
+            }
         }
 
         & h2 {
             font-size: var(--cr-text-base);
             font-weight: 600;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+
+            @media (--mobile) {
+                font-size: var(--cr-text-sm);
+            }
         }
     }
 

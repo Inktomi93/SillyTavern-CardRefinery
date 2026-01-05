@@ -2,22 +2,25 @@
  * Extension Panel Component
  *
  * Settings panel in ST Extensions section.
+ * Note: This panel lives inside ST's extension settings, so we use
+ * ST variables directly rather than cr- prefixed ones.
  */
 
 .cr-panel-version {
     color: var(--SmartThemeEmColor, #999);
-    font-size: 0.85em;
-    margin-bottom: 0.5em;
+    font-size: var(--cr-text-sm, 0.875rem);
+    margin-bottom: var(--cr-space-2, 0.5rem);
 }
 
 .cr-panel-desc {
-    margin: 0 0 1em;
-    font-size: 0.9em;
+    margin: 0 0 var(--cr-space-4, 1rem) 0;
+    font-size: var(--cr-text-sm, 0.875rem);
     color: var(--SmartThemeBodyColor);
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
 .cr-panel-actions {
     display: flex;
-    gap: 0.5em;
+    flex-wrap: wrap;
+    gap: var(--cr-space-2, 0.5rem);
 }

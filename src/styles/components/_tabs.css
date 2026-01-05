@@ -49,9 +49,23 @@
 
     &__badge {
         font-size: var(--cr-text-xs);
-        padding: 0.1em 0.5em;
+        padding: 0.15em 0.5em;
         background: var(--cr-accent-muted);
         color: var(--cr-accent);
         border-radius: var(--cr-radius-pill);
+        font-weight: 600;
+    }
+}
+
+/* Mobile responsiveness */
+@media (--mobile) {
+    .cr-tabs {
+        gap: var(--cr-space-1);
+        padding: var(--cr-space-1);
+    }
+
+    .cr-tab {
+        padding: var(--cr-space-2);
+        font-size: var(--cr-text-xs);
     }
 }

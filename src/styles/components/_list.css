@@ -110,9 +110,20 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex: 1;
+    min-height: 0;
     padding: var(--cr-space-8);
     text-align: center;
     color: var(--cr-text-muted);
+
+    &--compact {
+        padding: var(--cr-space-4);
+
+        & .cr-empty__icon {
+            font-size: 2rem;
+            margin-bottom: var(--cr-space-2);
+        }
+    }
 
     &__icon {
         font-size: 3rem;

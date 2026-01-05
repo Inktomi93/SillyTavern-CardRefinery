@@ -60,6 +60,14 @@
     padding-left: var(--cr-space-2);
     border-left: 1px solid var(--cr-border-muted);
 
+    @media (--mobile) {
+        margin-left: 0;
+        padding-left: 0;
+        border-left: none;
+        width: 100%;
+        flex: 1 1 100%;
+    }
+
     &__input {
         width: 120px;
         padding: var(--cr-space-1) var(--cr-space-2);
@@ -68,12 +76,24 @@
         border-radius: var(--cr-radius-sm);
         background: var(--cr-bg);
         color: var(--cr-text);
-        transition: border-color var(--cr-transition-fast);
+        transition:
+            border-color var(--cr-transition-fast),
+            width var(--cr-transition-fast);
+
+        @media (--mobile) {
+            flex: 1;
+            width: auto;
+            min-width: 0;
+        }
 
         &:focus {
             border-color: var(--cr-accent);
             outline: none;
             width: 180px;
+
+            @media (--mobile) {
+                width: auto;
+            }
         }
 
         &::placeholder {

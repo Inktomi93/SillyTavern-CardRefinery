@@ -26,12 +26,25 @@
     background: var(--cr-bg-secondary);
     border-bottom: 1px solid var(--cr-border-muted);
     flex-shrink: 0;
+    flex-wrap: wrap;
+
+    @media (--mobile) {
+        padding: var(--cr-space-2);
+    }
 }
 
 .cr-results-content {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
+    overflow: hidden; /* Let child handle scrolling */
+    display: flex;
+    flex-direction: column;
+
+    /* Direct children should fill the space */
+    & > * {
+        flex: 1;
+        min-height: 0;
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════

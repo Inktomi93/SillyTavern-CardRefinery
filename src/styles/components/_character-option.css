@@ -76,8 +76,8 @@
         background: var(--cr-accent);
         color: var(--cr-bg);
         border-radius: 50%;
-        font-size: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        font-size: var(--cr-text-xs);
+        box-shadow: var(--cr-shadow-sm);
     }
 
     /* Character info section */
@@ -86,7 +86,7 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: var(--cr-space-1);
     }
 
     &__name {
@@ -112,12 +112,12 @@
         display: flex;
         align-items: center;
         gap: var(--cr-space-1);
-        font-size: 10px;
+        font-size: var(--cr-text-xs);
         color: var(--cr-text-muted);
-        margin-top: 2px;
+        margin-top: var(--cr-space-1);
 
         & i {
-            font-size: 9px;
+            font-size: 0.6rem;
             opacity: 0.7;
         }
     }

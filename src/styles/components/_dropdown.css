@@ -10,8 +10,17 @@
     min-width: 200px;
     max-width: 280px;
 
+    @media (--mobile) {
+        min-width: 140px;
+        max-width: 220px;
+    }
+
     &--session {
         min-width: 180px;
+
+        @media (--mobile) {
+            min-width: 120px;
+        }
     }
 
     &--disabled &__trigger {
@@ -121,9 +130,19 @@
         max-height: 400px;
         overflow: hidden;
 
+        @media (--mobile) {
+            min-width: 280px;
+            max-height: 350px;
+        }
+
         &--session {
             min-width: 280px;
             max-height: 320px;
+
+            @media (--mobile) {
+                min-width: 240px;
+                max-height: 280px;
+            }
         }
     }
 
