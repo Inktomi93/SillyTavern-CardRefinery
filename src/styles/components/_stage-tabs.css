@@ -10,6 +10,10 @@
     gap: var(--cr-space-1);
     flex: 1 1 auto;
     min-width: fit-content; /* Don't shrink below content size */
+
+    @media (--mobile) {
+        gap: 0;
+    }
 }
 
 .cr-stage-tab {
@@ -26,6 +30,14 @@
     cursor: pointer;
     transition: all var(--cr-transition-fast);
     white-space: nowrap;
+
+    @media (--mobile) {
+        flex: 1;
+        justify-content: center;
+        padding: var(--cr-space-2);
+        font-size: var(--cr-text-xs);
+        gap: var(--cr-space-1);
+    }
 
     &:hover {
         color: var(--cr-text);
@@ -47,6 +59,10 @@
     &__label {
         flex: 1 1 auto;
         min-width: max-content; /* Prevent label from shrinking to 0 */
+
+        @media (--mobile) {
+            display: none; /* Hide labels on mobile, show only icons */
+        }
     }
 
     &__status {

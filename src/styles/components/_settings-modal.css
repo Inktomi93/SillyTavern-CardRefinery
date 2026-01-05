@@ -15,7 +15,14 @@
     min-width: 320px;
     padding: 0;
 
-    @media (min-width: 1024px) {
+    @media (--mobile) {
+        width: 100dvw;
+        max-width: none;
+        min-width: auto;
+        border-radius: 0;
+    }
+
+    @media (--desktop) {
         max-width: 1000px;
     }
 }
@@ -43,6 +50,10 @@
     background: var(--cr-bg-secondary);
     border-bottom: 1px solid var(--cr-border-muted);
 
+    @media (--mobile) {
+        padding: var(--cr-space-3);
+    }
+
     & h2 {
         display: flex;
         align-items: center;
@@ -50,6 +61,10 @@
         margin: 0;
         font-size: var(--cr-text-lg);
         font-weight: 600;
+
+        @media (--mobile) {
+            font-size: var(--cr-text-base);
+        }
 
         & i {
             color: var(--cr-accent);
@@ -67,6 +82,11 @@
     padding: var(--cr-space-4);
     scrollbar-width: thin;
     scrollbar-color: var(--cr-border) transparent;
+
+    @media (--mobile) {
+        padding: var(--cr-space-3);
+        gap: var(--cr-space-3);
+    }
 }
 
 /* Section */
@@ -79,6 +99,11 @@
     border: 1px solid var(--cr-border-muted);
     border-radius: var(--cr-radius);
 
+    @media (--mobile) {
+        padding: var(--cr-space-3);
+        gap: var(--cr-space-2);
+    }
+
     & h3 {
         display: flex;
         align-items: center;
@@ -88,6 +113,10 @@
         border-bottom: 1px solid var(--cr-border-muted);
         font-size: var(--cr-text-base);
         font-weight: 600;
+
+        @media (--mobile) {
+            font-size: var(--cr-text-sm);
+        }
 
         & i {
             color: var(--cr-accent);
@@ -194,6 +223,11 @@
     display: flex;
     gap: var(--cr-space-2);
     margin-bottom: var(--cr-space-3);
+
+    @media (--mobile) {
+        flex-direction: column;
+        gap: var(--cr-space-1);
+    }
 }
 
 .cr-gen-mode-option {
@@ -209,6 +243,11 @@
     cursor: pointer;
     transition: all var(--cr-transition);
     font-size: var(--cr-text-sm);
+
+    @media (--mobile) {
+        padding: var(--cr-space-3);
+        justify-content: flex-start;
+    }
 
     & input[type='radio'] {
         display: none;
@@ -310,7 +349,7 @@
     & i {
         color: var(--cr-accent);
         flex-shrink: 0;
-        margin-top: 2px;
+        margin-top: var(--cr-space-1);
     }
 
     & strong {
