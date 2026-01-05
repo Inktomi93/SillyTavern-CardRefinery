@@ -22,7 +22,7 @@
     }
 
     & i {
-        font-size: 0.625rem;
+        font-size: 0.625em; /* Relative to parent badge text */
     }
 }
 

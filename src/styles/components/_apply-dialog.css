@@ -188,7 +188,7 @@
 
     &__badge {
         font-size: var(--cr-text-xs);
-        padding: 2px 6px;
+        padding: var(--cr-space-1) var(--cr-space-2);
         border-radius: var(--cr-radius-sm);
         white-space: nowrap;
         flex-shrink: 0;
@@ -208,7 +208,7 @@
         font-size: var(--cr-text-xs);
         font-weight: 600;
         color: var(--cr-warning);
-        padding: 2px 6px;
+        padding: var(--cr-space-1) var(--cr-space-2);
         background: color-mix(in srgb, var(--cr-warning) 15%, transparent);
         border-radius: var(--cr-radius-sm);
         flex-shrink: 0;
