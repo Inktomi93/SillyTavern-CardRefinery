@@ -7,7 +7,6 @@ import {
     MODULE_NAME,
     DISPLAY_NAME,
     VERSION,
-    STAGE_LABELS,
     popup,
     toast,
     setDebugMode,
@@ -16,21 +15,8 @@ import {
     hasCMRS,
 } from '../../shared';
 import type { ProfileInfo, ApiStatus } from '../../shared';
-import {
-    getSettings,
-    save,
-    resetSettings,
-    deletePromptPreset,
-    deleteSchemaPreset,
-    presetRegistry,
-} from '../../data';
+import { getSettings, save, resetSettings } from '../../data';
 import { $, $$, on } from './base';
-import {
-    openDrawerForEdit,
-    openDrawerForDuplicate,
-    openDrawerForCreate,
-} from './preset-drawer';
-import type { PromptPreset, SchemaPreset } from '../../types';
 
 // =============================================================================
 // HTML TEMPLATES
@@ -164,56 +150,6 @@ function updateApiStatusBanner(modal: HTMLElement, useProfile: boolean): void {
     banner.innerHTML = renderApiStatusBanner(status);
 }
 
-function renderPresetItem(
-    preset: PromptPreset | SchemaPreset,
-    type: 'prompt' | 'schema',
-): string {
-    const DOMPurify = SillyTavern.libs.DOMPurify;
-    const stagesText =
-        preset.stages.length > 0
-            ? preset.stages.map((s) => STAGE_LABELS[s]).join(', ')
-            : 'All stages';
-
-    const isBuiltin = preset.isBuiltin;
-
-    return `
-        <div class="ct-preset-item ${isBuiltin ? 'ct-preset-item--builtin' : ''}"
-             data-id="${preset.id}"
-             data-type="${type}">
-            <div class="ct-preset-info">
-                <span class="ct-preset-name">
-                    ${DOMPurify.sanitize(preset.name)}
-                    ${isBuiltin ? '<span class="ct-badge ct-badge--small">builtin</span>' : ''}
-                </span>
-                <span class="ct-preset-stages">${stagesText}</span>
-            </div>
-            <div class="ct-preset-actions">
-                <button class="ct-preset-duplicate ct-btn ct-btn--icon menu_button"
-                        type="button"
-                        title="${isBuiltin ? 'Duplicate to create editable copy' : 'Duplicate preset'}">
-                    <i class="fa-solid fa-copy"></i>
-                </button>
-                ${
-                    !isBuiltin
-                        ? `
-                    <button class="ct-preset-edit ct-btn ct-btn--icon menu_button"
-                            type="button"
-                            title="Edit preset">
-                        <i class="fa-solid fa-pen"></i>
-                    </button>
-                    <button class="ct-preset-delete ct-btn ct-btn--icon menu_button"
-                            type="button"
-                            title="Delete preset">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                `
-                        : ''
-                }
-            </div>
-        </div>
-    `;
-}
-
 /**
  * Render settings modal content.
  */
@@ -224,9 +160,6 @@ export function renderSettingsModal(): string {
     const apiStatus = getApiStatus(
         settings.generationMode === 'profile' ? settings.profileId : null,
     );
-
-    const promptPresets = settings.promptPresets;
-    const schemaPresets = settings.schemaPresets;
 
     return `
         <div id="${MODULE_NAME}_settings_modal" class="ct-settings-modal">
@@ -384,68 +317,8 @@ export function renderSettingsModal(): string {
                         </section>
                     </div>
 
-                    <!-- Right Column: Presets & Debug -->
+                    <!-- Right Column: Shortcuts & Debug -->
                     <div class="ct-settings-column">
-                        <!-- Presets -->
-                        <section class="ct-settings-section">
-                            <h3>
-                                <i class="fa-solid fa-bookmark"></i>
-                                Presets
-                            </h3>
-
-                            <div class="ct-presets-tabs">
-                                <button class="ct-presets-tab ct-presets-tab--active"
-                                        data-tab="prompt"
-                                        type="button">
-                                    Prompt Presets
-                                </button>
-                                <button class="ct-presets-tab"
-                                        data-tab="schema"
-                                        type="button">
-                                    Schema Presets
-                                </button>
-                            </div>
-
-                            <div id="${MODULE_NAME}_presets_prompt" class="ct-presets-list">
-                                ${promptPresets.map((p) => renderPresetItem(p, 'prompt')).join('')}
-                            </div>
-
-                            <div id="${MODULE_NAME}_presets_schema" class="ct-presets-list ct-hidden">
-                                ${schemaPresets.map((p) => renderPresetItem(p, 'schema')).join('')}
-                            </div>
-
-                            <div class="ct-presets-actions">
-                                <button id="${MODULE_NAME}_create_prompt_preset"
-                                        class="ct-btn ct-btn--small menu_button menu_button--primary ct-create-preset-btn"
-                                        data-type="prompt"
-                                        type="button">
-                                    <i class="fa-solid fa-plus"></i>
-                                    New Prompt
-                                </button>
-                                <button id="${MODULE_NAME}_create_schema_preset"
-                                        class="ct-btn ct-btn--small menu_button menu_button--primary ct-create-preset-btn ct-hidden"
-                                        data-type="schema"
-                                        type="button">
-                                    <i class="fa-solid fa-plus"></i>
-                                    New Schema
-                                </button>
-                            </div>
-                            <div class="ct-presets-actions">
-                                <button id="${MODULE_NAME}_export_presets"
-                                        class="ct-btn ct-btn--small menu_button"
-                                        type="button">
-                                    <i class="fa-solid fa-file-export"></i>
-                                    Export Custom
-                                </button>
-                                <button id="${MODULE_NAME}_import_presets"
-                                        class="ct-btn ct-btn--small menu_button"
-                                        type="button">
-                                    <i class="fa-solid fa-file-import"></i>
-                                    Import
-                                </button>
-                            </div>
-                        </section>
-
                         <!-- Keyboard Shortcuts -->
                         <section class="ct-settings-section">
                             <h3>
@@ -697,252 +570,6 @@ function bindSettingsModalEvents(modal: HTMLElement): () => void {
         cleanups.push(
             on(maxTokensEnabled, 'change', () => {
                 maxTokensInput.disabled = !maxTokensEnabled.checked;
-            }),
-        );
-    }
-
-    // Preset tabs
-    const presetTabs = $$('.ct-presets-tab', modal);
-    const promptList = $(`#${MODULE_NAME}_presets_prompt`, modal);
-    const schemaList = $(`#${MODULE_NAME}_presets_schema`, modal);
-    const createPromptBtn = $(`#${MODULE_NAME}_create_prompt_preset`, modal);
-    const createSchemaBtn = $(`#${MODULE_NAME}_create_schema_preset`, modal);
-
-    for (const tab of presetTabs) {
-        cleanups.push(
-            on(tab, 'click', () => {
-                const tabType = (tab as HTMLElement).dataset.tab;
-
-                // Update active tab
-                presetTabs.forEach((t) =>
-                    t.classList.remove('ct-presets-tab--active'),
-                );
-                tab.classList.add('ct-presets-tab--active');
-
-                // Show/hide lists
-                if (promptList && schemaList) {
-                    promptList.classList.toggle(
-                        'ct-hidden',
-                        tabType !== 'prompt',
-                    );
-                    schemaList.classList.toggle(
-                        'ct-hidden',
-                        tabType !== 'schema',
-                    );
-                }
-
-                // Show/hide create buttons
-                if (createPromptBtn && createSchemaBtn) {
-                    createPromptBtn.classList.toggle(
-                        'ct-hidden',
-                        tabType !== 'prompt',
-                    );
-                    createSchemaBtn.classList.toggle(
-                        'ct-hidden',
-                        tabType !== 'schema',
-                    );
-                }
-            }),
-        );
-    }
-
-    // Helper to refresh a preset list
-    const refreshPresetList = (
-        type: 'prompt' | 'schema',
-        listEl: HTMLElement,
-    ) => {
-        const presets =
-            type === 'prompt'
-                ? presetRegistry.getPromptPresets()
-                : presetRegistry.getSchemaPresets();
-
-        listEl.innerHTML = presets
-            .map((p) =>
-                renderPresetItem(p as PromptPreset & SchemaPreset, type),
-            )
-            .join('');
-    };
-
-    // Create preset buttons
-    if (createPromptBtn && promptList) {
-        cleanups.push(
-            on(createPromptBtn, 'click', () => {
-                openDrawerForCreate('prompt', {
-                    onSave: () => refreshPresetList('prompt', promptList),
-                });
-            }),
-        );
-    }
-
-    if (createSchemaBtn && schemaList) {
-        cleanups.push(
-            on(createSchemaBtn, 'click', () => {
-                openDrawerForCreate('schema', {
-                    onSave: () => refreshPresetList('schema', schemaList),
-                });
-            }),
-        );
-    }
-
-    // Preset action buttons (event delegation for edit, duplicate, delete)
-    const handlePresetClick = async (
-        e: Event,
-        listType: 'prompt' | 'schema',
-        listEl: HTMLElement,
-    ) => {
-        const target = e.target as HTMLElement;
-        const item = target.closest('.ct-preset-item') as HTMLElement;
-        if (!item) return;
-
-        const id = item.dataset.id;
-        if (!id) return;
-
-        // Handle Edit - opens drawer
-        if (target.closest('.ct-preset-edit')) {
-            openDrawerForEdit(listType, id, {
-                onSave: () => refreshPresetList(listType, listEl),
-            });
-            return;
-        }
-
-        // Handle Duplicate - opens drawer in duplicate mode
-        if (target.closest('.ct-preset-duplicate')) {
-            openDrawerForDuplicate(listType, id, {
-                onSave: () => refreshPresetList(listType, listEl),
-            });
-            return;
-        }
-
-        // Handle Delete
-        if (target.closest('.ct-preset-delete')) {
-            const confirm = await popup.confirm(
-                'Delete Preset',
-                'Are you sure you want to delete this preset?',
-            );
-            if (!confirm) return;
-
-            if (listType === 'prompt') {
-                deletePromptPreset(id);
-            } else {
-                deleteSchemaPreset(id);
-            }
-            item.remove();
-            toast.success('Preset deleted');
-        }
-    };
-
-    if (promptList) {
-        cleanups.push(
-            on(promptList, 'click', (e) =>
-                handlePresetClick(e, 'prompt', promptList),
-            ),
-        );
-    }
-
-    if (schemaList) {
-        cleanups.push(
-            on(schemaList, 'click', (e) =>
-                handlePresetClick(e, 'schema', schemaList),
-            ),
-        );
-    }
-
-    // Export presets
-    const exportBtn = $(`#${MODULE_NAME}_export_presets`, modal);
-    if (exportBtn) {
-        cleanups.push(
-            on(exportBtn, 'click', () => {
-                const settings = getSettings();
-                const customPrompts = settings.promptPresets.filter(
-                    (p) => !p.isBuiltin,
-                );
-                const customSchemas = settings.schemaPresets.filter(
-                    (p) => !p.isBuiltin,
-                );
-
-                const data = {
-                    version: VERSION,
-                    promptPresets: customPrompts,
-                    schemaPresets: customSchemas,
-                };
-
-                const blob = new Blob([JSON.stringify(data, null, 2)], {
-                    type: 'application/json',
-                });
-                const url = URL.createObjectURL(blob);
-
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${MODULE_NAME}_presets.json`;
-                a.click();
-
-                URL.revokeObjectURL(url);
-                toast.success('Presets exported');
-            }),
-        );
-    }
-
-    // Import presets
-    const importBtn = $(`#${MODULE_NAME}_import_presets`, modal);
-    if (importBtn) {
-        cleanups.push(
-            on(importBtn, 'click', () => {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-
-                input.onchange = async (e) => {
-                    const file = (e.target as HTMLInputElement).files?.[0];
-                    if (!file) return;
-
-                    try {
-                        const text = await file.text();
-                        const data = JSON.parse(text);
-
-                        const settings = getSettings();
-                        let importCount = 0;
-
-                        if (Array.isArray(data.promptPresets)) {
-                            for (const preset of data.promptPresets) {
-                                if (!preset.isBuiltin) {
-                                    preset.id = crypto.randomUUID(); // Generate new ID
-                                    settings.promptPresets.push(preset);
-                                    importCount++;
-                                }
-                            }
-                        }
-
-                        if (Array.isArray(data.schemaPresets)) {
-                            for (const preset of data.schemaPresets) {
-                                if (!preset.isBuiltin) {
-                                    preset.id = crypto.randomUUID();
-                                    settings.schemaPresets.push(preset);
-                                    importCount++;
-                                }
-                            }
-                        }
-
-                        save();
-                        toast.success(`Imported ${importCount} presets`);
-
-                        // Refresh lists
-                        if (promptList) {
-                            promptList.innerHTML = settings.promptPresets
-                                .map((p) => renderPresetItem(p, 'prompt'))
-                                .join('');
-                        }
-                        if (schemaList) {
-                            schemaList.innerHTML = settings.schemaPresets
-                                .map((p) => renderPresetItem(p, 'schema'))
-                                .join('');
-                        }
-                    } catch (error) {
-                        toast.error('Failed to import presets');
-                        console.error('Import error:', error);
-                    }
-                };
-
-                input.click();
             }),
         );
     }

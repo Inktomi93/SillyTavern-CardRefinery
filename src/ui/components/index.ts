@@ -13,6 +13,7 @@ export * from './apply-suggestions';
 export * from './session-list';
 export * from './settings-modal';
 export * from './preset-drawer';
+export * from './preset-manager';
 export * from './api-status';
 
 // UI update coordination

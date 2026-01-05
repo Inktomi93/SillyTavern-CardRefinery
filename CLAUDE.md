@@ -86,11 +86,11 @@ src/
 - `popup.ts` - Main popup container, lifecycle management
 - `panel.ts` - Extension settings panel with launch button
 - `components/` - Modular UI components:
-  - `character-search.ts` - Character selection with fuzzy search
-  - `pipeline-tabs.ts` - Stage tabs and execution controls
-  - `stage-config.ts` - Prompt/schema configuration
-  - `results-panel.ts` - Results display and history
-  - `preset-editor.ts` - Preset management dialogs
+    - `character-search.ts` - Character selection with fuzzy search
+    - `pipeline-tabs.ts` - Stage tabs and execution controls
+    - `stage-config.ts` - Prompt/schema configuration
+    - `results-panel.ts` - Results display and history
+    - `preset-editor.ts` - Preset management dialogs
 
 ### CSS Architecture
 
@@ -155,11 +155,11 @@ export function bindComponentEvents(el: HTMLElement): () => void { ... }  // Ret
 
 ## Pipeline Stages
 
-| Stage   | Purpose                    | Output                           |
-| ------- | -------------------------- | -------------------------------- |
-| Score   | Evaluate character quality | Structured scores with feedback  |
-| Rewrite | Improve character content  | Enhanced text suggestions        |
-| Analyze | Deep character analysis    | Detailed breakdown and insights  |
+| Stage   | Purpose                    | Output                          |
+| ------- | -------------------------- | ------------------------------- |
+| Score   | Evaluate character quality | Structured scores with feedback |
+| Rewrite | Improve character content  | Enhanced text suggestions       |
+| Analyze | Deep character analysis    | Detailed breakdown and insights |
 
 Each stage can use:
 

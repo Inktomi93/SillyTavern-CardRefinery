@@ -97,7 +97,11 @@ function renderCharacterOption(
     const metaParts: string[] = [];
     if (creator) metaParts.push(creator);
     if (version) metaParts.push(`v${version}`);
-    if (metaParts.length === 0) metaParts.push(`${fieldCount} fields`);
+    if (metaParts.length === 0) {
+        metaParts.push(
+            `${fieldCount} ${fieldCount === 1 ? 'field' : 'fields'}`,
+        );
+    }
 
     return `
         <div class="ct-char-option ${isSelected ? 'ct-char-option--selected' : ''} ${index === highlightedIndex ? 'ct-char-option--highlighted' : ''}"

@@ -34,11 +34,11 @@ A SillyTavern extension for AI-powered character card analysis, scoring, and enh
 
 ### Pipeline Stages
 
-| Stage | Purpose | Output |
-|-------|---------|--------|
-| **Score** | Evaluate character quality | Structured scores with feedback |
-| **Rewrite** | Improve character content | Enhanced text suggestions |
-| **Analyze** | Deep character analysis | Detailed breakdown and insights |
+| Stage       | Purpose                    | Output                          |
+| ----------- | -------------------------- | ------------------------------- |
+| **Score**   | Evaluate character quality | Structured scores with feedback |
+| **Rewrite** | Improve character content  | Enhanced text suggestions       |
+| **Analyze** | Deep character analysis    | Detailed breakdown and insights |
 
 ## Development
 

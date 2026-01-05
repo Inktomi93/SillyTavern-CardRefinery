@@ -610,7 +610,8 @@ export function bindStageTabsEvents(container: HTMLElement): () => void {
                     setActiveStage(stage);
                     updateStageTabs();
                     updateStageConfig();
-                    updateResults(); // Also update results when switching stages
+                    updateResults();
+                    updatePipelineControls(); // Update Run button text to match active stage
                 }
             }),
         );

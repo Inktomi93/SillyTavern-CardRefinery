@@ -91,8 +91,7 @@ export function renderSessionList(): string {
                     type="button"
                     aria-expanded="${isExpanded}"
                     title="Saved workspaces - load to continue previous work">
-                <i class="fa-solid fa-folder-tree"></i>
-                <span>Saved Sessions (${sessions.length})</span>
+                <span>${sessions.length === 0 ? 'No saved sessions' : `Saved Sessions (${sessions.length})`}</span>
                 <i class="fa-solid fa-chevron-down ct-sessions__toggle-icon"></i>
             </button>
             <div class="ct-sessions__content">
@@ -149,7 +148,10 @@ export function updateSessionList(): void {
     // Update toggle text
     const toggle = container.querySelector('.ct-sessions__toggle span');
     if (toggle) {
-        toggle.textContent = `Saved Sessions (${sessions.length})`;
+        toggle.textContent =
+            sessions.length === 0
+                ? 'No saved sessions'
+                : `Saved Sessions (${sessions.length})`;
     }
 
     // Update list using morphdom for efficient updates

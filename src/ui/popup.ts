@@ -31,6 +31,8 @@ import {
     renderSessionList,
     bindSessionListEvents,
     updateSessionList,
+    renderPresetManager,
+    bindPresetManagerEvents,
     renderApiStatusCompact,
     bindApiStatusEvents,
     openSettingsModal,
@@ -117,6 +119,7 @@ function renderPopupContent(): string {
     <div class="ct-body">
         <aside class="ct-panel ct-panel--config ct-scrollable">
             ${renderStageConfig()}
+            ${renderPresetManager()}
             ${renderSessionList()}
         </aside>
         <main class="ct-panel ct-panel--results">
@@ -246,6 +249,7 @@ function bindAllEvents(container: HTMLElement): void {
     eventCleanups.push(bindStageTabsEvents(container));
     eventCleanups.push(bindStageConfigEvents(container));
     eventCleanups.push(bindResultsPanelEvents(container));
+    eventCleanups.push(bindPresetManagerEvents(container));
     eventCleanups.push(bindSessionListEvents(container));
 
     // Bind API status events
