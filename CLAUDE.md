@@ -112,6 +112,7 @@ The extension uses a PostCSS-powered modular CSS design system with `cr-` prefix
 - **Responsive** - Mobile-first with 768px breakpoint
 
 **PostCSS Plugins:**
+
 - `postcss-import` - Modular CSS via `@import`
 - `postcss-nested` - Sass-like nesting for cleaner BEM
 - `postcss-custom-media` - Responsive breakpoint variables
@@ -120,6 +121,7 @@ The extension uses a PostCSS-powered modular CSS design system with `cr-` prefix
 - `cssnano` - Production minification
 
 **To change the CSS prefix:**
+
 1. Update `CSS_PREFIX` in `src/shared/constants.ts`
 2. Find-replace in `src/styles/` and `src/ui/`: old prefix → new prefix
 3. Update `_variables.css` root selectors
@@ -147,10 +149,10 @@ Use the centralized logger from `src/shared/debug.ts`:
 ```typescript
 import { log } from './shared';
 
-log.info('Extension loaded');              // Always logs to console
-log.debug('Processing', { items: 42 });    // Only if debug mode on, always stored
-log.warn('Deprecated feature');            // Warning level
-log.error('Failed to save', error);        // Error level
+log.info('Extension loaded'); // Always logs to console
+log.debug('Processing', { items: 42 }); // Only if debug mode on, always stored
+log.warn('Deprecated feature'); // Warning level
+log.error('Failed to save', error); // Error level
 ```
 
 All logs are prefixed with `[SillyTavern-CardRefinery]` and stored for diagnostics (max 100 entries).
@@ -160,6 +162,7 @@ All logs are prefixed with `[SillyTavern-CardRefinery]` and stored for diagnosti
 Settings are stored in `SillyTavern.getContext().extensionSettings[MODULE_NAME]`. The settings module handles initialization, migration, and persistence.
 
 **Best practices:**
+
 - Never store API keys or secrets in extensionSettings (they're stored in plain text)
 - Use lodash.merge with structuredClone for default initialization
 - Call `saveSettingsDebounced()` after changes
@@ -170,7 +173,7 @@ const { extensionSettings, saveSettingsDebounced } = SillyTavern.getContext();
 // Initialize with defaults
 extensionSettings[MODULE_NAME] = SillyTavern.libs.lodash.merge(
     structuredClone(defaultSettings),
-    extensionSettings[MODULE_NAME]
+    extensionSettings[MODULE_NAME],
 );
 ```
 
@@ -201,6 +204,7 @@ export function bindComponentEvents(el: HTMLElement): () => void { ... }  // Ret
 ### Security Best Practices
 
 Following SillyTavern extension guidelines:
+
 - Sanitize user inputs with `DOMPurify.sanitize()` before DOM insertion
 - Never store secrets in `extensionSettings`
 - Validate input types before processing

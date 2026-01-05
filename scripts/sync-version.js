@@ -33,7 +33,9 @@ function writeJSON(path, data) {
 
 function getConstantsVersion() {
     const content = readFileSync(CONSTANTS_TS, 'utf-8');
-    const match = content.match(/export const VERSION = ['"](.+?)['"] as const/);
+    const match = content.match(
+        /export const VERSION = ['"](.+?)['"] as const/,
+    );
     return match ? match[1] : null;
 }
 
@@ -41,7 +43,7 @@ function setConstantsVersion(version) {
     let content = readFileSync(CONSTANTS_TS, 'utf-8');
     content = content.replace(
         /export const VERSION = ['"].+?['"] as const/,
-        `export const VERSION = '${version}' as const`
+        `export const VERSION = '${version}' as const`,
     );
     writeFileSync(CONSTANTS_TS, content);
 }
@@ -57,7 +59,8 @@ function checkVersions() {
         'constants.ts': constants,
     };
 
-    const allMatch = pkg.version === manifest.version && pkg.version === constants;
+    const allMatch =
+        pkg.version === manifest.version && pkg.version === constants;
 
     console.log('Version Status:');
     for (const [file, version] of Object.entries(versions)) {

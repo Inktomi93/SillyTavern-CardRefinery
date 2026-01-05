@@ -13,7 +13,11 @@ import { execSync } from 'node:child_process';
 
 function run(cmd, options = {}) {
     try {
-        return execSync(cmd, { encoding: 'utf-8', stdio: options.silent ? 'pipe' : 'inherit', ...options });
+        return execSync(cmd, {
+            encoding: 'utf-8',
+            stdio: options.silent ? 'pipe' : 'inherit',
+            ...options,
+        });
     } catch (error) {
         if (options.allowFail) return null;
         throw error;
@@ -44,15 +48,33 @@ function status() {
 
     // Show commits ahead/behind for both branches
     for (const branch of ['main', 'dev']) {
-        const ahead = run(`git rev-list --count origin/${branch}..${branch}`, { silent: true, allowFail: true })?.trim() || '?';
-        const behind = run(`git rev-list --count ${branch}..origin/${branch}`, { silent: true, allowFail: true })?.trim() || '?';
+        const ahead =
+            run(`git rev-list --count origin/${branch}..${branch}`, {
+                silent: true,
+                allowFail: true,
+            })?.trim() || '?';
+        const behind =
+            run(`git rev-list --count ${branch}..origin/${branch}`, {
+                silent: true,
+                allowFail: true,
+            })?.trim() || '?';
         const marker = branch === current ? '→ ' : '  ';
-        console.log(`${marker}${branch}: ${ahead} ahead, ${behind} behind origin`);
+        console.log(
+            `${marker}${branch}: ${ahead} ahead, ${behind} behind origin`,
+        );
     }
 
     // Show dev vs main
-    const devAhead = run('git rev-list --count main..dev', { silent: true, allowFail: true })?.trim() || '?';
-    const devBehind = run('git rev-list --count dev..main', { silent: true, allowFail: true })?.trim() || '?';
+    const devAhead =
+        run('git rev-list --count main..dev', {
+            silent: true,
+            allowFail: true,
+        })?.trim() || '?';
+    const devBehind =
+        run('git rev-list --count dev..main', {
+            silent: true,
+            allowFail: true,
+        })?.trim() || '?';
     console.log(`\ndev vs main: ${devAhead} ahead, ${devBehind} behind`);
 
     if (devAhead !== '0' && devAhead !== '?') {
@@ -67,7 +89,9 @@ function sync() {
     console.log('\n🔄 Syncing dev with main...\n');
 
     if (hasUncommittedChanges()) {
-        console.error('❌ You have uncommitted changes. Commit or stash them first.');
+        console.error(
+            '❌ You have uncommitted changes. Commit or stash them first.',
+        );
         process.exit(1);
     }
 
@@ -90,14 +114,18 @@ function promote() {
     console.log('\n🚀 Promoting dev to main...\n');
 
     if (hasUncommittedChanges()) {
-        console.error('❌ You have uncommitted changes. Commit or stash them first.');
+        console.error(
+            '❌ You have uncommitted changes. Commit or stash them first.',
+        );
         process.exit(1);
     }
 
     const current = getCurrentBranch();
 
     // Check if there's anything to merge
-    const commits = run('git rev-list --count main..dev', { silent: true }).trim();
+    const commits = run('git rev-list --count main..dev', {
+        silent: true,
+    }).trim();
     if (commits === '0') {
         console.log('✅ main is already up to date with dev');
         return;
@@ -112,7 +140,7 @@ function promote() {
 
     // Switch back to dev for continued development
     run('git checkout dev');
-    run('git pull origin main');  // Keep dev in sync
+    run('git pull origin main'); // Keep dev in sync
 
     if (current !== 'dev' && current !== 'main') {
         run(`git checkout ${current}`);

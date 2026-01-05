@@ -22,26 +22,26 @@ eventSource.emit(event_types.SETTINGS_UPDATED);
 
 ### Key Event Types
 
-| Event | When Fired | Data |
-|-------|-----------|------|
-| `APP_READY` | SillyTavern fully loaded | - |
-| `CHARACTER_EDITED` | Character data changed | character |
-| `CHARACTER_DELETED` | Character removed | character |
-| `CHAT_CHANGED` | Chat switched | chatId |
-| `MESSAGE_SENT` | User sends message | messageId |
-| `MESSAGE_RECEIVED` | AI response received | messageId |
-| `MESSAGE_EDITED` | Message edited | messageId |
-| `MESSAGE_DELETED` | Message deleted | messageId |
-| `GENERATION_STARTED` | Generation begins | - |
-| `GENERATION_STOPPED` | Generation aborted | - |
-| `GENERATION_ENDED` | Generation complete | - |
-| `SETTINGS_UPDATED` | Settings changed | - |
-| `SETTINGS_LOADED` | Settings loaded | - |
-| `EXTENSION_SETTINGS_LOADED` | Extension settings ready | - |
-| `STREAM_TOKEN_RECEIVED` | Streaming token | token |
-| `GROUP_UPDATED` | Group modified | group |
-| `WORLDINFO_UPDATED` | World info changed | - |
-| `ONLINE_STATUS_CHANGED` | API connection status | status |
+| Event                       | When Fired               | Data      |
+| --------------------------- | ------------------------ | --------- |
+| `APP_READY`                 | SillyTavern fully loaded | -         |
+| `CHARACTER_EDITED`          | Character data changed   | character |
+| `CHARACTER_DELETED`         | Character removed        | character |
+| `CHAT_CHANGED`              | Chat switched            | chatId    |
+| `MESSAGE_SENT`              | User sends message       | messageId |
+| `MESSAGE_RECEIVED`          | AI response received     | messageId |
+| `MESSAGE_EDITED`            | Message edited           | messageId |
+| `MESSAGE_DELETED`           | Message deleted          | messageId |
+| `GENERATION_STARTED`        | Generation begins        | -         |
+| `GENERATION_STOPPED`        | Generation aborted       | -         |
+| `GENERATION_ENDED`          | Generation complete      | -         |
+| `SETTINGS_UPDATED`          | Settings changed         | -         |
+| `SETTINGS_LOADED`           | Settings loaded          | -         |
+| `EXTENSION_SETTINGS_LOADED` | Extension settings ready | -         |
+| `STREAM_TOKEN_RECEIVED`     | Streaming token          | token     |
+| `GROUP_UPDATED`             | Group modified           | group     |
+| `WORLDINFO_UPDATED`         | World info changed       | -         |
+| `ONLINE_STATUS_CHANGED`     | API connection status    | status    |
 
 ---
 
@@ -51,20 +51,20 @@ Modal dialog system with various types.
 
 ### POPUP_TYPE Enum
 
-| Type | Purpose | Returns |
-|------|---------|---------|
-| `TEXT` | Display info with OK | `POPUP_RESULT` |
-| `CONFIRM` | Yes/No question | `POPUP_RESULT` |
-| `INPUT` | Text input prompt | `string \| null` |
-| `DISPLAY` | Info with X close | `POPUP_RESULT` |
-| `CROP` | Image cropping | `dataUrl \| null` |
+| Type      | Purpose              | Returns           |
+| --------- | -------------------- | ----------------- |
+| `TEXT`    | Display info with OK | `POPUP_RESULT`    |
+| `CONFIRM` | Yes/No question      | `POPUP_RESULT`    |
+| `INPUT`   | Text input prompt    | `string \| null`  |
+| `DISPLAY` | Info with X close    | `POPUP_RESULT`    |
+| `CROP`    | Image cropping       | `dataUrl \| null` |
 
 ### POPUP_RESULT Enum
 
 ```typescript
-POPUP_RESULT.AFFIRMATIVE  // 1 - OK/Yes clicked
-POPUP_RESULT.NEGATIVE     // 0 - No clicked
-POPUP_RESULT.CANCELLED    // null - Cancelled/closed
+POPUP_RESULT.AFFIRMATIVE; // 1 - OK/Yes clicked
+POPUP_RESULT.NEGATIVE; // 0 - No clicked
+POPUP_RESULT.CANCELLED; // null - Cancelled/closed
 ```
 
 ### Quick Usage
@@ -124,6 +124,7 @@ const worker = new ModuleWorkerWrapper(myFunction, 1000);
 ### extension_settings Structure
 
 Pre-defined namespaces for built-in extensions:
+
 - `memory`, `note`, `caption`, `expressions`
 - `tts`, `sd`, `translate`, `vectors`
 - `quickReply`, `regex`, `variables`
@@ -138,17 +139,17 @@ Token counting and encoding.
 ### Tokenizer Types
 
 ```typescript
-tokenizers.NONE       // 0 - No tokenization
-tokenizers.GPT2       // 1
-tokenizers.OPENAI     // 2 - GPT-3.5/4
-tokenizers.LLAMA      // 3 - Llama 1/2
-tokenizers.LLAMA3     // 12 - Llama 3
-tokenizers.CLAUDE     // 11 - Anthropic
-tokenizers.MISTRAL    // 7
-tokenizers.GEMMA      // 13
-tokenizers.QWEN2      // 15
-tokenizers.DEEPSEEK   // 18
-tokenizers.BEST_MATCH // 99 - Auto-detect
+tokenizers.NONE; // 0 - No tokenization
+tokenizers.GPT2; // 1
+tokenizers.OPENAI; // 2 - GPT-3.5/4
+tokenizers.LLAMA; // 3 - Llama 1/2
+tokenizers.LLAMA3; // 12 - Llama 3
+tokenizers.CLAUDE; // 11 - Anthropic
+tokenizers.MISTRAL; // 7
+tokenizers.GEMMA; // 13
+tokenizers.QWEN2; // 15
+tokenizers.DEEPSEEK; // 18
+tokenizers.BEST_MATCH; // 99 - Auto-detect
 ```
 
 ### Usage via Context
@@ -201,7 +202,7 @@ import { ChatCompletionService } from './custom-request.js';
 const data = ChatCompletionService.createRequestData({
     messages: [
         { role: 'system', content: 'You are helpful.' },
-        { role: 'user', content: 'Hello!' }
+        { role: 'user', content: 'Hello!' },
     ],
     max_tokens: 100,
     chat_completion_source: 'openai',
@@ -220,59 +221,59 @@ Common utility functions (100+ exports).
 
 ```typescript
 // Object manipulation
-deepMerge(target, source)
-ensurePlainObject(obj)
+deepMerge(target, source);
+ensurePlainObject(obj);
 
 // String helpers
-escapeHtml(str)              // Safe HTML rendering
-sanitizeSelector(str)        // CSS selector safe
-trimToEndSentence(input)     // Trim at sentence end
-collapseSpaces(str)          // Normalize whitespace
+escapeHtml(str); // Safe HTML rendering
+sanitizeSelector(str); // CSS selector safe
+trimToEndSentence(input); // Trim at sentence end
+collapseSpaces(str); // Normalize whitespace
 
 // Async helpers
-delay(ms)                    // Promise-based sleep
-debounce(fn, timeout)        // Debounce function
-debounceAsync(fn, timeout)   // Debounce async function
-throttle(fn, limit)          // Throttle function
-waitUntilCondition(fn, timeout, interval)
+delay(ms); // Promise-based sleep
+debounce(fn, timeout); // Debounce function
+debounceAsync(fn, timeout); // Debounce async function
+throttle(fn, limit); // Throttle function
+waitUntilCondition(fn, timeout, interval);
 
 // File helpers
-getFileText(file)            // File to text
-getBase64Async(file)         // File to base64
-parseJsonFile(file)          // File to JSON
-download(content, fileName, contentType)
+getFileText(file); // File to text
+getBase64Async(file); // File to base64
+parseJsonFile(file); // File to JSON
+download(content, fileName, contentType);
 
 // UUID and hashing
-uuidv4()                     // Generate UUID
-getStringHash(str, seed)     // Hash string
+uuidv4(); // Generate UUID
+getStringHash(str, seed); // Hash string
 
 // Array helpers
-onlyUnique(value, i, arr)    // Array filter unique
-removeFromArray(arr, item)   // Remove item
-shuffle(array)               // Randomize order
+onlyUnique(value, i, arr); // Array filter unique
+removeFromArray(arr, item); // Remove item
+shuffle(array); // Randomize order
 
 // DOM helpers
-isElementInViewport(el)
-flashHighlight(element, timespan)
-setValueByPath(obj, path, value)
+isElementInViewport(el);
+flashHighlight(element, timespan);
+setValueByPath(obj, path, value);
 
 // Validation
-isValidUrl(value)
-isUuid(value)
-isTrueBoolean(arg)
-isFalseBoolean(arg)
+isValidUrl(value);
+isUuid(value);
+isTrueBoolean(arg);
+isFalseBoolean(arg);
 
 // Text extraction
-extractTextFromPDF(blob)
-extractTextFromHTML(blob)
-extractTextFromMarkdown(blob)
-getReadableText(document)
+extractTextFromPDF(blob);
+extractTextFromHTML(blob);
+extractTextFromMarkdown(blob);
+getReadableText(document);
 
 // Comparison
-equalsIgnoreCaseAndAccents(a, b)
-includesIgnoreCaseAndAccents(text, search)
-sortIgnoreCaseAndAccents(a, b)
-versionCompare(src, min)
+equalsIgnoreCaseAndAccents(a, b);
+includesIgnoreCaseAndAccents(text, search);
+sortIgnoreCaseAndAccents(a, b);
+versionCompare(src, min);
 ```
 
 ### Classes
@@ -282,7 +283,7 @@ versionCompare(src, min)
 const sw = new Stopwatch();
 sw.start();
 // ... work ...
-console.log(sw.elapsed);  // ms elapsed
+console.log(sw.elapsed); // ms elapsed
 
 // Rate limiter
 const limiter = new RateLimiter(1000); // 1 req/sec
@@ -298,9 +299,9 @@ Loading overlay helpers.
 ```typescript
 import { showLoader, hideLoader } from './loader.js';
 
-showLoader();          // Show spinner overlay
+showLoader(); // Show spinner overlay
 await someAsyncWork();
-await hideLoader();    // Hide with animation
+await hideLoader(); // Hide with animation
 ```
 
 ---
@@ -313,7 +314,11 @@ Register custom slash commands for user interaction.
 
 ```typescript
 import { SlashCommand } from './slash-commands/SlashCommand.js';
-import { SlashCommandArgument, SlashCommandNamedArgument, ARGUMENT_TYPE } from './slash-commands/SlashCommandArgument.js';
+import {
+    SlashCommandArgument,
+    SlashCommandNamedArgument,
+    ARGUMENT_TYPE,
+} from './slash-commands/SlashCommandArgument.js';
 
 const command = SlashCommand.fromProps({
     name: 'mycommand',
@@ -322,7 +327,7 @@ const command = SlashCommand.fromProps({
         const { verbose, count } = namedArgs;
         const text = unnamedArgs;
         // Do something...
-        return 'result';  // Returned to pipe
+        return 'result'; // Returned to pipe
     },
     helpString: 'Does something useful with text.',
     returns: 'The processed result',
@@ -357,13 +362,13 @@ ctx.SlashCommandParser.addCommandObject(command);
 ### ARGUMENT_TYPE Enum
 
 ```typescript
-ARGUMENT_TYPE.STRING
-ARGUMENT_TYPE.NUMBER
-ARGUMENT_TYPE.BOOLEAN
-ARGUMENT_TYPE.VARIABLE_NAME
-ARGUMENT_TYPE.CLOSURE
-ARGUMENT_TYPE.LIST
-ARGUMENT_TYPE.DICTIONARY
+ARGUMENT_TYPE.STRING;
+ARGUMENT_TYPE.NUMBER;
+ARGUMENT_TYPE.BOOLEAN;
+ARGUMENT_TYPE.VARIABLE_NAME;
+ARGUMENT_TYPE.CLOSURE;
+ARGUMENT_TYPE.LIST;
+ARGUMENT_TYPE.DICTIONARY;
 ```
 
 ---
@@ -376,20 +381,20 @@ Character/group tagging system.
 
 ```typescript
 // Tag arrays (available via context)
-tags          // All tags: { id, name, color, ... }[]
-tag_map       // Map of entity key -> tag IDs
+tags; // All tags: { id, name, color, ... }[]
+tag_map; // Map of entity key -> tag IDs
 
 // Filter types
-tag_filter_type.AND   // All tags must match
-tag_filter_type.OR    // Any tag matches
-tag_filter_type.NOT   // Exclude tagged
+tag_filter_type.AND; // All tags must match
+tag_filter_type.OR; // Any tag matches
+tag_filter_type.NOT; // Exclude tagged
 
 // Functions
-getTagKeyForEntity(entity)           // Get tag key for char/group
-addTagsToEntity(tag, entityId)       // Add tag to entity
-removeTagFromEntity(tag, entityId)   // Remove tag
-searchCharByName(name)               // Find character by name
-getTagsList(key)                     // Get tags for entity
+getTagKeyForEntity(entity); // Get tag key for char/group
+addTagsToEntity(tag, entityId); // Add tag to entity
+removeTagFromEntity(tag, entityId); // Remove tag
+searchCharByName(name); // Find character by name
+getTagsList(key); // Get tags for entity
 ```
 
 ---
@@ -413,12 +418,12 @@ interface v1CharData {
     talkativeness: number;
     fav: boolean | string;
     create_date: string;
-    data: v2CharData;        // v2 extension
+    data: v2CharData; // v2 extension
     // ST-added fields
-    chat: string;            // Current chat filename
-    avatar: string;          // Avatar filename (unique ID)
-    json_data: string;       // Raw JSON
-    shallow?: boolean;       // Lazy-loaded flag
+    chat: string; // Current chat filename
+    avatar: string; // Avatar filename (unique ID)
+    json_data: string; // Raw JSON
+    shallow?: boolean; // Lazy-loaded flag
 }
 ```
 
@@ -472,7 +477,7 @@ const text = ctx.substituteParams('Hello {{user}}!');
 
 // Extended with custom macros
 const text = ctx.substituteParamsExtended('Value: {{myvar}}', {
-    myvar: 'custom value'
+    myvar: 'custom value',
 });
 ```
 
@@ -494,19 +499,19 @@ macros.registry.unregisterMacro('mymacro');
 
 ### Built-in Macros
 
-| Macro | Description |
-|-------|-------------|
-| `{{user}}` | User persona name |
-| `{{char}}` | Character name |
-| `{{time}}` | Current time |
-| `{{date}}` | Current date |
-| `{{random}}` | Random number |
-| `{{roll:XdY}}` | Dice roll |
+| Macro               | Description             |
+| ------------------- | ----------------------- |
+| `{{user}}`          | User persona name       |
+| `{{char}}`          | Character name          |
+| `{{time}}`          | Current time            |
+| `{{date}}`          | Current date            |
+| `{{random}}`        | Random number           |
+| `{{roll:XdY}}`      | Dice roll               |
 | `{{idle_duration}}` | Time since last message |
-| `{{lastMessage}}` | Last chat message |
-| `{{lastMessageId}}` | Last message ID |
-| `{{newline}}` | Line break |
-| `{{trim}}` | Trim whitespace |
+| `{{lastMessage}}`   | Last chat message       |
+| `{{lastMessageId}}` | Last message ID         |
+| `{{newline}}`       | Line break              |
+| `{{trim}}`          | Trim whitespace         |
 
 ---
 
@@ -561,9 +566,9 @@ const html = await renderTemplateAsync('mytemplate', { name: 'value' });
 const html = await renderTemplateAsync(
     'scripts/extensions/my-ext/template.html',
     { data: 'value' },
-    true,   // sanitize
-    true,   // localize
-    true    // fullPath
+    true, // sanitize
+    true, // localize
+    true, // fullPath
 );
 ```
 
@@ -576,22 +581,22 @@ Shared constants and enums.
 ### Debounce Timeouts
 
 ```typescript
-debounce_timeout.quick     // 100ms - keypresses
-debounce_timeout.short     // 200ms - responsive
-debounce_timeout.standard  // 300ms - default
-debounce_timeout.relaxed   // 1000ms - intensive tasks
-debounce_timeout.extended  // 5000ms - auto-save
+debounce_timeout.quick; // 100ms - keypresses
+debounce_timeout.short; // 200ms - responsive
+debounce_timeout.standard; // 300ms - default
+debounce_timeout.relaxed; // 1000ms - intensive tasks
+debounce_timeout.extended; // 5000ms - auto-save
 ```
 
 ### Other Constants
 
 ```typescript
-IGNORE_SYMBOL              // Exclude message from generation
-VIDEO_EXTENSIONS           // Supported video formats
-GENERATION_TYPE_TRIGGERS   // ['normal', 'continue', 'impersonate', ...]
-inject_ids.STORY_STRING    // Injection point IDs
-inject_ids.QUIET_PROMPT
-inject_ids.DEPTH_PROMPT
+IGNORE_SYMBOL; // Exclude message from generation
+VIDEO_EXTENSIONS; // Supported video formats
+GENERATION_TYPE_TRIGGERS; // ['normal', 'continue', 'impersonate', ...]
+inject_ids.STORY_STRING; // Injection point IDs
+inject_ids.QUIET_PROMPT;
+inject_ids.DEPTH_PROMPT;
 ```
 
 ---
@@ -615,7 +620,7 @@ function init() {
     if (!extension_settings[MODULE_NAME]) {
         extension_settings[MODULE_NAME] = defaultSettings;
     }
-    
+
     // Listen for changes
     eventSource.on(event_types.CHARACTER_EDITED, onCharacterChanged);
 }
@@ -647,6 +652,6 @@ ctx.SlashCommandParser.addCommandObject(
             return 'Score: 85';
         },
         helpString: 'Score the current character card',
-    })
+    }),
 );
 ```

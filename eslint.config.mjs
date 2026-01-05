@@ -3,6 +3,7 @@
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettierRecommended from 'eslint-plugin-prettier/recommended';
+import globals from 'globals';
 
 export default [
     {
@@ -15,6 +16,24 @@ export default [
         languageOptions: {
             globals: {
                 /* browser globals if needed */
+            },
+        },
+    },
+    // Node.js scripts
+    {
+        files: ['scripts/**/*.js'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
+    // Test files
+    {
+        files: ['tests/**/*.ts'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
             },
         },
     },

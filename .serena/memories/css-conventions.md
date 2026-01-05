@@ -51,6 +51,7 @@ src/styles/
 ## Custom Media Queries
 
 Defined in `_variables.css`:
+
 ```css
 @custom-media --mobile (max-width: 768px);
 @custom-media --tablet (max-width: 900px);
@@ -62,18 +63,26 @@ Defined in `_variables.css`:
 ## PostCSS Nested Syntax
 
 Use nested selectors for BEM:
+
 ```css
 .cr-dropdown {
     /* Base styles */
 
-    &--open { /* Modifier */ }
-    &__trigger { /* Element */ }
+    &--open {
+        /* Modifier */
+    }
+    &__trigger {
+        /* Element */
+    }
 
-    &:hover { /* Pseudo-class */ }
+    &:hover {
+        /* Pseudo-class */
+    }
 }
 ```
 
 ## Design System Architecture
+
 1. Design Tokens (CSS Variables) - Inherit from ST SmartTheme
 2. Base Reset & Typography
 3. Layout Primitives - `.cr-stack`, `.cr-row`, `.cr-grid`
@@ -81,13 +90,16 @@ Use nested selectors for BEM:
 5. Responsive Overrides - Mobile-first with 768px breakpoint
 
 ## Naming Convention
+
 - All classes prefixed with `cr-` (CardRefinery)
 - BEM naming: `.cr-component`, `.cr-component__element`, `.cr-component--modifier`
 - Utility classes: `.cr-text-muted`, `.cr-flex-1`, etc.
 - CSS_PREFIX constant defined in `src/shared/constants.ts` for easy updates
 
 ## Button Pattern
+
 Button modifiers extend ST's `.menu_button` using `:is()` for consolidated selectors:
+
 ```css
 :is(.cr-popup, .cr-settings-modal, .cr-drawer) .menu_button {
     /* Base normalization */
@@ -95,6 +107,7 @@ Button modifiers extend ST's `.menu_button` using `:is()` for consolidated selec
 ```
 
 Available modifiers:
+
 - `.menu_button--primary` - Accent colored action button
 - `.menu_button--danger` - Red/danger button
 - `.menu_button--icon` - Icon-only square button
