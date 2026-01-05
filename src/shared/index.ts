@@ -28,6 +28,7 @@ export {
     DEBOUNCE,
     MAX_SESSIONS_PER_CHARACTER,
     MAX_HISTORY_ENTRIES,
+    CSS_PREFIX,
 } from './constants';
 
 // =============================================================================

@@ -4,39 +4,39 @@
  * Status and type badges in various colors and sizes.
  */
 
-.ct-badge {
+.cr-badge {
     display: inline-flex;
     align-items: center;
     padding: 0.2em 0.6em;
-    font-size: var(--ct-text-xs);
+    font-size: var(--cr-text-xs);
     font-weight: 500;
-    border-radius: var(--ct-radius-pill);
+    border-radius: var(--cr-radius-pill);
     text-transform: uppercase;
     letter-spacing: 0.03em;
 
     &--default {
-        background: var(--ct-bg-tertiary);
-        color: var(--ct-text-muted);
+        background: var(--cr-bg-tertiary);
+        color: var(--cr-text-muted);
     }
 
     &--accent {
-        background: var(--ct-accent-muted);
-        color: var(--ct-accent);
+        background: var(--cr-accent-muted);
+        color: var(--cr-accent);
     }
 
     &--success {
-        background: var(--ct-success-bg);
-        color: var(--ct-success);
+        background: var(--cr-success-bg);
+        color: var(--cr-success);
     }
 
     &--warning {
-        background: var(--ct-warning-bg);
-        color: var(--ct-warning);
+        background: var(--cr-warning-bg);
+        color: var(--cr-warning);
     }
 
     &--danger {
-        background: var(--ct-danger-bg);
-        color: var(--ct-danger);
+        background: var(--cr-danger-bg);
+        color: var(--cr-danger);
     }
 
     &--sm {
@@ -51,12 +51,12 @@
     }
 
     &--info {
-        background: var(--ct-accent-muted);
-        color: var(--ct-accent);
+        background: var(--cr-accent-muted);
+        color: var(--cr-accent);
     }
 
     &--muted {
-        background: var(--ct-bg-secondary);
-        color: var(--ct-text-dim);
+        background: var(--cr-bg-secondary);
+        color: var(--cr-text-dim);
     }
 }

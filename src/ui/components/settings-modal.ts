@@ -27,27 +27,27 @@ import { $, $$, on } from './base';
 function renderApiStatusBanner(status: ApiStatus): string {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const statusClass = status.isReady
-        ? 'ct-api-banner--ready'
-        : 'ct-api-banner--error';
+        ? 'cr-api-banner--ready'
+        : 'cr-api-banner--error';
     const icon = status.isReady ? 'fa-circle-check' : 'fa-circle-xmark';
     const typeLabel = status.apiType === 'cc' ? 'Chat' : 'Text';
 
     return `
-        <div class="ct-api-banner ${statusClass}">
-            <div class="ct-api-banner__left">
+        <div class="cr-api-banner ${statusClass}">
+            <div class="cr-api-banner__left">
                 <i class="fa-solid ${icon}"></i>
-                <span class="ct-api-banner__name">${DOMPurify.sanitize(status.displayName)}</span>
-                <span class="ct-badge ct-badge--small">${typeLabel}</span>
+                <span class="cr-api-banner__name">${DOMPurify.sanitize(status.displayName)}</span>
+                <span class="cr-badge cr-badge--small">${typeLabel}</span>
             </div>
-            <div class="ct-api-banner__right">
-                <span class="ct-api-banner__model" title="${DOMPurify.sanitize(status.model)}">${DOMPurify.sanitize(status.modelDisplay)}</span>
-                <span class="ct-api-banner__limits">${status.maxOutput.toLocaleString()}t max</span>
+            <div class="cr-api-banner__right">
+                <span class="cr-api-banner__model" title="${DOMPurify.sanitize(status.model)}">${DOMPurify.sanitize(status.modelDisplay)}</span>
+                <span class="cr-api-banner__limits">${status.maxOutput.toLocaleString()}t max</span>
             </div>
         </div>
         ${
             status.error
                 ? `
-            <div class="ct-api-error">
+            <div class="cr-api-error">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <span>${DOMPurify.sanitize(status.error)}</span>
             </div>
@@ -65,7 +65,7 @@ function renderProfileInfo(profile: ProfileInfo | null): string {
 
     if (!profile) {
         return `
-            <div class="ct-profile-info ct-profile-info--empty">
+            <div class="cr-profile-info cr-profile-info--empty">
                 <i class="fa-solid fa-circle-question"></i>
                 <span>Select a profile above</span>
             </div>
@@ -75,25 +75,25 @@ function renderProfileInfo(profile: ProfileInfo | null): string {
     const typeLabel = profile.mode === 'cc' ? 'Chat' : 'Text';
 
     return `
-        <div class="ct-profile-info ${!profile.isSupported ? 'ct-profile-info--error' : ''}">
-            <div class="ct-profile-info__row">
-                <span class="ct-profile-info__label">API</span>
-                <span class="ct-profile-info__value">${DOMPurify.sanitize(profile.api)}</span>
+        <div class="cr-profile-info ${!profile.isSupported ? 'cr-profile-info--error' : ''}">
+            <div class="cr-profile-info__row">
+                <span class="cr-profile-info__label">API</span>
+                <span class="cr-profile-info__value">${DOMPurify.sanitize(profile.api)}</span>
             </div>
-            <div class="ct-profile-info__row">
-                <span class="ct-profile-info__label">Model</span>
-                <span class="ct-profile-info__value" title="${DOMPurify.sanitize(profile.model)}">${DOMPurify.sanitize(truncateModel(profile.model))}</span>
+            <div class="cr-profile-info__row">
+                <span class="cr-profile-info__label">Model</span>
+                <span class="cr-profile-info__value" title="${DOMPurify.sanitize(profile.model)}">${DOMPurify.sanitize(truncateModel(profile.model))}</span>
             </div>
-            <div class="ct-profile-info__row">
-                <span class="ct-profile-info__label">Type</span>
-                <span class="ct-badge ct-badge--small">${typeLabel}</span>
+            <div class="cr-profile-info__row">
+                <span class="cr-profile-info__label">Type</span>
+                <span class="cr-badge cr-badge--small">${typeLabel}</span>
             </div>
             ${
                 profile.presetName
                     ? `
-                <div class="ct-profile-info__row">
-                    <span class="ct-profile-info__label">Preset</span>
-                    <span class="ct-profile-info__value">${DOMPurify.sanitize(profile.presetName)}</span>
+                <div class="cr-profile-info__row">
+                    <span class="cr-profile-info__label">Preset</span>
+                    <span class="cr-profile-info__value">${DOMPurify.sanitize(profile.presetName)}</span>
                 </div>
             `
                     : ''
@@ -101,7 +101,7 @@ function renderProfileInfo(profile: ProfileInfo | null): string {
             ${
                 !profile.isSupported
                     ? `
-                <div class="ct-profile-info__error">
+                <div class="cr-profile-info__error">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     <span>${profile.validationError || 'Profile configuration is invalid'}</span>
                 </div>
@@ -161,27 +161,27 @@ export function renderSettingsModal(): string {
     );
 
     return `
-        <div id="${MODULE_NAME}_settings_modal" class="ct-settings-modal">
-            <div class="ct-settings-header">
+        <div id="${MODULE_NAME}_settings_modal" class="cr-settings-modal">
+            <div class="cr-settings-header">
                 <h2>
                     <i class="fa-solid fa-cog"></i>
                     ${DISPLAY_NAME} Settings
                 </h2>
             </div>
 
-            <div class="ct-settings-body">
+            <div class="cr-settings-body">
                 <!-- Keyboard Shortcuts -->
-                <section class="ct-settings-section">
+                <section class="cr-settings-section">
                     <h3>
                         <i class="fa-solid fa-keyboard"></i>
                         Keyboard Shortcuts
                     </h3>
-                    <div class="ct-shortcuts-list">
-                        <div class="ct-shortcut">
+                    <div class="cr-shortcuts-list">
+                        <div class="cr-shortcut">
                             <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
                             <span>Run current stage</span>
                         </div>
-                        <div class="ct-shortcut">
+                        <div class="cr-shortcut">
                             <kbd>Escape</kbd>
                             <span>Cancel generation</span>
                         </div>
@@ -189,7 +189,7 @@ export function renderSettingsModal(): string {
                 </section>
 
                 <!-- Generation Settings -->
-                <section class="ct-settings-section">
+                <section class="cr-settings-section">
                     <h3>
                         <i class="fa-solid fa-sliders"></i>
                         Generation
@@ -204,13 +204,13 @@ export function renderSettingsModal(): string {
                     ${
                         hasCMRS()
                             ? `
-                    <div class="ct-gen-mode-toggle">
-                        <label class="ct-gen-mode-option ${settings.generationMode === 'current' ? 'ct-gen-mode-option--active' : ''}" data-mode="current">
+                    <div class="cr-gen-mode-toggle">
+                        <label class="cr-gen-mode-option ${settings.generationMode === 'current' ? 'cr-gen-mode-option--active' : ''}" data-mode="current">
                             <input type="radio" name="${MODULE_NAME}_gen_mode" value="current" ${settings.generationMode === 'current' ? 'checked' : ''}>
                             <i class="fa-solid fa-sliders"></i>
                             <span>Current ST Settings</span>
                         </label>
-                        <label class="ct-gen-mode-option ${settings.generationMode === 'profile' ? 'ct-gen-mode-option--active' : ''}" data-mode="profile">
+                        <label class="cr-gen-mode-option ${settings.generationMode === 'profile' ? 'cr-gen-mode-option--active' : ''}" data-mode="profile">
                             <input type="radio" name="${MODULE_NAME}_gen_mode" value="profile" ${settings.generationMode === 'profile' ? 'checked' : ''}>
                             <i class="fa-solid fa-plug"></i>
                             <span>Connection Profile</span>
@@ -218,13 +218,13 @@ export function renderSettingsModal(): string {
                     </div>
 
                     <!-- Profile Selection -->
-                    <div id="${MODULE_NAME}_profile_section" class="ct-profile-section ${settings.generationMode === 'current' ? 'ct-hidden' : ''}">
+                    <div id="${MODULE_NAME}_profile_section" class="cr-profile-section ${settings.generationMode === 'current' ? 'cr-hidden' : ''}">
                         ${
                             profiles.length > 0
                                 ? `
-                        <div class="ct-setting-item">
-                            <label class="ct-setting-label">Select Profile</label>
-                            <select id="${MODULE_NAME}_profile_select" class="ct-select text_pole">
+                        <div class="cr-setting-item">
+                            <label class="cr-setting-label">Select Profile</label>
+                            <select id="${MODULE_NAME}_profile_select" class="cr-select text_pole">
                                 <option value="">-- Select a profile --</option>
                                 ${profiles
                                     .map(
@@ -244,7 +244,7 @@ export function renderSettingsModal(): string {
                         </div>
                         `
                                 : `
-                        <div class="ct-profile-empty">
+                        <div class="cr-profile-empty">
                             <i class="fa-solid fa-info-circle"></i>
                             <div>
                                 <strong>No connection profiles found</strong>
@@ -259,10 +259,10 @@ export function renderSettingsModal(): string {
                     }
 
                     <!-- Max Tokens Override -->
-                    <details class="ct-collapsible">
+                    <details class="cr-collapsible">
                         <summary>Response Length Override</summary>
-                        <div class="ct-setting-item">
-                            <label class="ct-setting-label">
+                        <div class="cr-setting-item">
+                            <label class="cr-setting-label">
                                 <input type="checkbox"
                                        id="${MODULE_NAME}_max_tokens_enabled"
                                        ${settings.maxTokensOverride !== null ? 'checked' : ''} />
@@ -270,13 +270,13 @@ export function renderSettingsModal(): string {
                             </label>
                             <input type="number"
                                    id="${MODULE_NAME}_max_tokens"
-                                   class="ct-number-input text_pole"
+                                   class="cr-number-input text_pole"
                                    value="${settings.maxTokensOverride ?? 4096}"
                                    min="100"
                                    max="32000"
                                    step="100"
                                    ${settings.maxTokensOverride === null ? 'disabled' : ''} />
-                            <span class="ct-setting-hint">
+                            <span class="cr-setting-hint">
                                 Leave unchecked to use the profile's preset settings
                             </span>
                         </div>
@@ -284,61 +284,61 @@ export function renderSettingsModal(): string {
                 </section>
 
                 <!-- System Prompt -->
-                <section class="ct-settings-section">
+                <section class="cr-settings-section">
                     <h3>
                         <i class="fa-solid fa-terminal"></i>
                         System Prompt
                     </h3>
-                    <p class="ct-setting-desc">
+                    <p class="cr-setting-desc">
                         The system prompt is sent with every generation. Your additions are appended after the base prompt.
                     </p>
 
-                    <div class="ct-setting-item">
-                        <label class="ct-setting-label">Your Additions</label>
+                    <div class="cr-setting-item">
+                        <label class="cr-setting-label">Your Additions</label>
                         <textarea id="${MODULE_NAME}_user_system_prompt"
-                                  class="ct-textarea text_pole"
+                                  class="cr-textarea text_pole"
                                   rows="4"
                                   placeholder="Add custom instructions...">${DOMPurify.sanitize(settings.userSystemPrompt)}</textarea>
                     </div>
 
-                    <details class="ct-collapsible">
+                    <details class="cr-collapsible">
                         <summary>Base Prompt (Read-only)</summary>
-                        <pre class="ct-readonly-text">${DOMPurify.sanitize(settings.baseSystemPrompt)}</pre>
+                        <pre class="cr-readonly-text">${DOMPurify.sanitize(settings.baseSystemPrompt)}</pre>
                     </details>
                 </section>
 
                 <!-- Refinement Prompt -->
-                <section class="ct-settings-section">
+                <section class="cr-settings-section">
                     <h3>
                         <i class="fa-solid fa-rotate"></i>
                         Refinement Prompt
                     </h3>
-                    <p class="ct-setting-desc">
+                    <p class="cr-setting-desc">
                         Instructions for refinement iterations. Your additions are appended after the base.
                     </p>
 
-                    <div class="ct-setting-item">
-                        <label class="ct-setting-label">Your Additions</label>
+                    <div class="cr-setting-item">
+                        <label class="cr-setting-label">Your Additions</label>
                         <textarea id="${MODULE_NAME}_user_refinement_prompt"
-                                  class="ct-textarea text_pole"
+                                  class="cr-textarea text_pole"
                                   rows="4"
                                   placeholder="Add custom refinement instructions...">${DOMPurify.sanitize(settings.userRefinementPrompt)}</textarea>
                     </div>
 
-                    <details class="ct-collapsible">
+                    <details class="cr-collapsible">
                         <summary>Base Prompt (Read-only)</summary>
-                        <pre class="ct-readonly-text">${DOMPurify.sanitize(settings.baseRefinementPrompt)}</pre>
+                        <pre class="cr-readonly-text">${DOMPurify.sanitize(settings.baseRefinementPrompt)}</pre>
                     </details>
                 </section>
 
                 <!-- Reset Settings -->
-                <section class="ct-settings-section">
+                <section class="cr-settings-section">
                     <h3>
                         <i class="fa-solid fa-rotate-left"></i>
                         Reset
                     </h3>
                     <button id="${MODULE_NAME}_reset_settings"
-                            class="ct-btn ct-btn--small ct-btn--danger menu_button"
+                            class="cr-btn cr-btn--small cr-btn--danger menu_button"
                             type="button">
                         <i class="fa-solid fa-rotate-left"></i>
                         Reset All Settings
@@ -346,10 +346,10 @@ export function renderSettingsModal(): string {
                 </section>
             </div>
 
-            <div class="ct-settings-footer">
-                <span class="ct-version">v${VERSION}</span>
+            <div class="cr-settings-footer">
+                <span class="cr-version">v${VERSION}</span>
                 <button id="${MODULE_NAME}_settings_close"
-                        class="ct-btn ct-btn--primary menu_button"
+                        class="cr-btn cr-btn--primary menu_button"
                         type="button">
                     <i class="fa-solid fa-check"></i>
                     Save & Close
@@ -469,7 +469,7 @@ function bindSettingsModalEvents(modal: HTMLElement): () => void {
     const cleanups: Array<() => void> = [];
 
     // Generation mode toggle
-    const modeOptions = $$('.ct-gen-mode-option', modal);
+    const modeOptions = $$('.cr-gen-mode-option', modal);
     const profileSection = $(`#${MODULE_NAME}_profile_section`, modal);
 
     for (const option of modeOptions) {
@@ -479,14 +479,14 @@ function bindSettingsModalEvents(modal: HTMLElement): () => void {
 
                 // Update active styling
                 modeOptions.forEach((o) =>
-                    o.classList.remove('ct-gen-mode-option--active'),
+                    o.classList.remove('cr-gen-mode-option--active'),
                 );
-                option.classList.add('ct-gen-mode-option--active');
+                option.classList.add('cr-gen-mode-option--active');
 
                 // Show/hide profile section
                 if (profileSection) {
                     profileSection.classList.toggle(
-                        'ct-hidden',
+                        'cr-hidden',
                         mode === 'current',
                     );
                 }

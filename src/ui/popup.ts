@@ -73,20 +73,20 @@ let popupElement: HTMLElement | null = null;
  */
 function renderPopupContent(): string {
     return `
-<div id="${MODULE_NAME}_popup" class="ct-popup">
-    <header class="ct-header">
-        <div class="ct-header__left">
+<div id="${MODULE_NAME}_popup" class="cr-popup">
+    <header class="cr-header">
+        <div class="cr-header__left">
             ${renderCharacterSelector()}
             ${renderSessionDropdown()}
         </div>
-        <div class="ct-header__center">
+        <div class="cr-header__center">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <h2>Character Tools</h2>
             <div id="${MODULE_NAME}_api_status_container">
                 ${renderApiStatusCompact()}
             </div>
         </div>
-        <div class="ct-header__right">
+        <div class="cr-header__right">
             <button id="${MODULE_NAME}_export_btn"
                     class="menu_button menu_button--icon menu_button--ghost"
                     type="button"
@@ -111,18 +111,18 @@ function renderPopupContent(): string {
         </div>
     </header>
 
-    <div class="ct-toolbar">
+    <div class="cr-toolbar">
         ${renderStageTabs()}
-        <div id="${MODULE_NAME}_pipeline_controls" class="ct-toolbar__controls">
+        <div id="${MODULE_NAME}_pipeline_controls" class="cr-toolbar__controls">
             ${renderPipelineControls()}
         </div>
     </div>
 
-    <div class="ct-body">
-        <aside class="ct-panel ct-panel--config ct-scrollable">
+    <div class="cr-body">
+        <aside class="cr-panel cr-panel--config cr-scrollable">
             ${renderStageConfig()}
         </aside>
-        <main class="ct-panel ct-panel--results">
+        <main class="cr-panel cr-panel--results">
             ${renderResultsPanel()}
         </main>
     </div>

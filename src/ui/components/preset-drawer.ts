@@ -83,10 +83,10 @@ let cleanupFns: Array<() => void> = [];
 
 function renderDrawer(): string {
     return `
-        <div id="${MODULE_NAME}_preset_drawer" class="ct-drawer" aria-hidden="true">
-            <div class="ct-drawer__backdrop"></div>
-            <aside class="ct-drawer__panel" role="dialog" aria-label="Preset Editor">
-                <div class="ct-drawer__content">
+        <div id="${MODULE_NAME}_preset_drawer" class="cr-drawer" aria-hidden="true">
+            <div class="cr-drawer__backdrop"></div>
+            <aside class="cr-drawer__panel" role="dialog" aria-label="Preset Editor">
+                <div class="cr-drawer__content">
                     ${renderDrawerHeader()}
                     ${renderDrawerBody()}
                     ${renderDrawerFooter()}
@@ -114,11 +114,11 @@ function renderDrawerHeader(): string {
     }
 
     return `
-        <header class="ct-drawer__header">
-            <div class="ct-drawer__title">
-                <i class="fa-solid ${icon} ct-text-accent"></i>
+        <header class="cr-drawer__header">
+            <div class="cr-drawer__title">
+                <i class="fa-solid ${icon} cr-text-accent"></i>
                 <h3>${title}</h3>
-                ${preset?.isBuiltin ? '<span class="ct-badge ct-badge--info ct-badge--small">builtin</span>' : ''}
+                ${preset?.isBuiltin ? '<span class="cr-badge cr-badge--info cr-badge--small">builtin</span>' : ''}
             </div>
             <button id="${MODULE_NAME}_drawer_close"
                     class="menu_button menu_button--icon menu_button--ghost"
@@ -135,14 +135,14 @@ function renderDrawerBody(): string {
     const isBuiltinDuplicate = mode === 'duplicate' && preset?.isBuiltin;
 
     return `
-        <div class="ct-drawer__body ct-scrollable">
+        <div class="cr-drawer__body cr-scrollable">
             ${
                 isBuiltinDuplicate
                     ? `
-                <div class="ct-alert ct-alert--info ct-mb-3">
-                    <i class="fa-solid fa-circle-info ct-alert__icon"></i>
-                    <div class="ct-alert__content">
-                        <div class="ct-alert__message">
+                <div class="cr-alert cr-alert--info cr-mb-3">
+                    <i class="fa-solid fa-circle-info cr-alert__icon"></i>
+                    <div class="cr-alert__content">
+                        <div class="cr-alert__message">
                             Builtin presets cannot be modified. You're creating an editable copy.
                         </div>
                     </div>
@@ -168,13 +168,13 @@ function renderNameField(): string {
     }
 
     return `
-        <div class="ct-form-group">
-            <label class="ct-label" for="${MODULE_NAME}_drawer_name">
-                Name <span class="ct-required">*</span>
+        <div class="cr-form-group">
+            <label class="cr-label" for="${MODULE_NAME}_drawer_name">
+                Name <span class="cr-required">*</span>
             </label>
             <input type="text"
                    id="${MODULE_NAME}_drawer_name"
-                   class="ct-input text_pole"
+                   class="cr-input text_pole"
                    value="${DOMPurify.sanitize(defaultName)}"
                    placeholder="Enter preset name..."
                    maxlength="100"
@@ -188,15 +188,15 @@ function renderStagesField(): string {
     const stages = preset?.stages || [];
 
     return `
-        <div class="ct-form-group">
-            <label class="ct-label">
+        <div class="cr-form-group">
+            <label class="cr-label">
                 Applicable Stages
-                <span class="ct-hint ct-text-dim">(empty = all stages)</span>
+                <span class="cr-hint cr-text-dim">(empty = all stages)</span>
             </label>
-            <div class="ct-stage-chips">
+            <div class="cr-stage-chips">
                 ${STAGES.map(
                     (s) => `
-                    <label class="ct-chip ${stages.length === 0 || stages.includes(s) ? 'ct-chip--active' : ''}">
+                    <label class="cr-chip ${stages.length === 0 || stages.includes(s) ? 'cr-chip--active' : ''}">
                         <input type="checkbox"
                                name="drawer_stages"
                                value="${s}"
@@ -216,12 +216,12 @@ function renderPromptEditor(): string {
     const promptText = (preset as PromptPreset)?.prompt || '';
 
     return `
-        <div class="ct-form-group ct-form-group--grow">
-            <div class="ct-row ct-row--between">
-                <label class="ct-label" for="${MODULE_NAME}_drawer_prompt">
-                    Prompt Template <span class="ct-required">*</span>
+        <div class="cr-form-group cr-form-group--grow">
+            <div class="cr-row cr-row--between">
+                <label class="cr-label" for="${MODULE_NAME}_drawer_prompt">
+                    Prompt Template <span class="cr-required">*</span>
                 </label>
-                <div class="ct-row ct-gap-1">
+                <div class="cr-row cr-gap-1">
                     <button id="${MODULE_NAME}_drawer_prompt_vars"
                             class="menu_button menu_button--sm menu_button--ghost"
                             type="button"
@@ -231,17 +231,17 @@ function renderPromptEditor(): string {
                     </button>
                 </div>
             </div>
-            <div class="ct-editor-wrap">
+            <div class="cr-editor-wrap">
                 <textarea id="${MODULE_NAME}_drawer_prompt"
-                          class="ct-textarea ct-textarea--editor text_pole"
+                          class="cr-textarea cr-textarea--editor text_pole"
                           placeholder="Enter your prompt template...
 
 Use {{character}} for character data, {{field_name}} for specific fields.
 The prompt will be sent to the LLM along with the selected character fields."
                           spellcheck="false">${DOMPurify.sanitize(promptText)}</textarea>
             </div>
-            <div class="ct-form-group__hint ct-row ct-row--between">
-                <span id="${MODULE_NAME}_drawer_prompt_tokens" class="ct-text-dim">Calculating tokens...</span>
+            <div class="cr-form-group__hint cr-row cr-row--between">
+                <span id="${MODULE_NAME}_drawer_prompt_tokens" class="cr-text-dim">Calculating tokens...</span>
             </div>
         </div>
     `;
@@ -260,15 +260,15 @@ function renderSchemaEditor(): string {
     }
 
     return `
-        <div class="ct-form-group ct-form-group--grow">
-            <div class="ct-row ct-row--between">
-                <label class="ct-label" for="${MODULE_NAME}_drawer_schema">
-                    JSON Schema <span class="ct-required">*</span>
+        <div class="cr-form-group cr-form-group--grow">
+            <div class="cr-row cr-row--between">
+                <label class="cr-label" for="${MODULE_NAME}_drawer_schema">
+                    JSON Schema <span class="cr-required">*</span>
                 </label>
             </div>
 
             <!-- Schema Toolbar -->
-            <div class="ct-editor-toolbar">
+            <div class="cr-editor-toolbar">
                 <button id="${MODULE_NAME}_drawer_generate"
                         class="menu_button menu_button--sm menu_button--primary"
                         type="button"
@@ -276,7 +276,7 @@ function renderSchemaEditor(): string {
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
                     AI Generate
                 </button>
-                <div class="ct-toolbar-divider"></div>
+                <div class="cr-toolbar-divider"></div>
                 <button id="${MODULE_NAME}_drawer_validate"
                         class="menu_button menu_button--sm"
                         type="button"
@@ -300,17 +300,17 @@ function renderSchemaEditor(): string {
             </div>
 
             <!-- Schema Editor with syntax highlighting -->
-            <div class="ct-code-editor" id="${MODULE_NAME}_drawer_schema_wrap">
-                <pre class="ct-code-editor__highlight" id="${MODULE_NAME}_drawer_schema_highlight" aria-hidden="true"><code class="language-json"></code></pre>
+            <div class="cr-code-editor" id="${MODULE_NAME}_drawer_schema_wrap">
+                <pre class="cr-code-editor__highlight" id="${MODULE_NAME}_drawer_schema_highlight" aria-hidden="true"><code class="language-json"></code></pre>
                 <textarea id="${MODULE_NAME}_drawer_schema"
-                          class="ct-code-editor__textarea ct-textarea--code text_pole"
+                          class="cr-code-editor__textarea cr-textarea--code text_pole"
                           placeholder='{"name": "MySchema", "strict": true, "schema": {...}}'
                           spellcheck="false">${DOMPurify.sanitize(schemaText)}</textarea>
             </div>
 
             <!-- Validation messages -->
-            <div id="${MODULE_NAME}_drawer_errors" class="ct-errors ct-hidden"></div>
-            <div id="${MODULE_NAME}_drawer_warnings" class="ct-warnings ct-hidden"></div>
+            <div id="${MODULE_NAME}_drawer_errors" class="cr-errors cr-hidden"></div>
+            <div id="${MODULE_NAME}_drawer_warnings" class="cr-warnings cr-hidden"></div>
         </div>
     `;
 }
@@ -328,9 +328,9 @@ function renderDrawerFooter(): string {
               : 'Create Copy';
 
     return `
-        <footer class="ct-drawer__footer">
-            <div class="ct-row ct-row--between ct-flex-1">
-                <div class="ct-row">
+        <footer class="cr-drawer__footer">
+            <div class="cr-row cr-row--between cr-flex-1">
+                <div class="cr-row">
                     ${
                         preset && !isBuiltin && mode === 'edit'
                             ? `
@@ -344,7 +344,7 @@ function renderDrawerFooter(): string {
                             : ''
                     }
                 </div>
-                <div class="ct-row ct-gap-2">
+                <div class="cr-row cr-gap-2">
                     <button id="${MODULE_NAME}_drawer_cancel"
                             class="menu_button"
                             type="button">
@@ -370,9 +370,9 @@ function renderListHeader(): string {
     const { type } = drawerState;
 
     return `
-        <header class="ct-drawer__header">
-            <div class="ct-drawer__title">
-                <i class="fa-solid fa-bookmark ct-text-accent"></i>
+        <header class="cr-drawer__header">
+            <div class="cr-drawer__title">
+                <i class="fa-solid fa-bookmark cr-text-accent"></i>
                 <h3>Manage Presets</h3>
             </div>
             <button id="${MODULE_NAME}_drawer_close"
@@ -382,13 +382,13 @@ function renderListHeader(): string {
                 <i class="fa-solid fa-times"></i>
             </button>
         </header>
-        <div class="ct-drawer__tabs">
-            <button class="ct-drawer__tab ${type === 'prompt' ? 'ct-drawer__tab--active' : ''}"
+        <div class="cr-drawer__tabs">
+            <button class="cr-drawer__tab ${type === 'prompt' ? 'cr-drawer__tab--active' : ''}"
                     data-tab="prompt" type="button">
                 <i class="fa-solid fa-message"></i>
                 Prompts
             </button>
-            <button class="ct-drawer__tab ${type === 'schema' ? 'ct-drawer__tab--active' : ''}"
+            <button class="cr-drawer__tab ${type === 'schema' ? 'cr-drawer__tab--active' : ''}"
                     data-tab="schema" type="button">
                 <i class="fa-solid fa-code"></i>
                 Schemas
@@ -414,24 +414,24 @@ function renderListBody(): string {
     const builtinCount = sorted.filter((p) => p.isBuiltin).length;
 
     return `
-        <div class="ct-drawer__body ct-drawer__body--list">
+        <div class="cr-drawer__body cr-drawer__body--list">
             ${
                 sorted.length === 0
                     ? `
-                <div class="ct-empty ct-empty--compact">
-                    <i class="fa-solid fa-bookmark ct-empty__icon"></i>
-                    <div class="ct-empty__title">No ${type} presets</div>
-                    <div class="ct-empty__text">Create one to get started</div>
+                <div class="cr-empty cr-empty--compact">
+                    <i class="fa-solid fa-bookmark cr-empty__icon"></i>
+                    <div class="cr-empty__title">No ${type} presets</div>
+                    <div class="cr-empty__text">Create one to get started</div>
                 </div>
             `
                     : `
-                <div class="ct-preset-list ct-scrollable">
-                    ${customCount > 0 ? '<div class="ct-preset-list__section-label">Custom</div>' : ''}
+                <div class="cr-preset-list cr-scrollable">
+                    ${customCount > 0 ? '<div class="cr-preset-list__section-label">Custom</div>' : ''}
                     ${sorted
                         .filter((p) => !p.isBuiltin)
                         .map((p) => renderPresetListItem(p, type))
                         .join('')}
-                    ${builtinCount > 0 ? '<div class="ct-preset-list__section-label">Built-in</div>' : ''}
+                    ${builtinCount > 0 ? '<div class="cr-preset-list__section-label">Built-in</div>' : ''}
                     ${sorted
                         .filter((p) => p.isBuiltin)
                         .map((p) => renderPresetListItem(p, type))
@@ -454,37 +454,37 @@ function renderPresetListItem(
             : 'All stages';
 
     return `
-        <div class="ct-preset-list__item ${preset.isBuiltin ? 'ct-preset-list__item--builtin' : ''}"
+        <div class="cr-preset-list__item ${preset.isBuiltin ? 'cr-preset-list__item--builtin' : ''}"
              data-id="${preset.id}"
              data-type="${type}">
-            <button class="ct-preset-list__select" type="button" title="Apply this preset">
-                <div class="ct-preset-list__info">
-                    <span class="ct-preset-list__name">
-                        ${preset.isBuiltin ? '<i class="fa-solid fa-lock ct-text-dim"></i>' : ''}
+            <button class="cr-preset-list__select" type="button" title="Apply this preset">
+                <div class="cr-preset-list__info">
+                    <span class="cr-preset-list__name">
+                        ${preset.isBuiltin ? '<i class="fa-solid fa-lock cr-text-dim"></i>' : ''}
                         ${DOMPurify.sanitize(preset.name)}
                     </span>
-                    <span class="ct-preset-list__stages">${stagesText}</span>
+                    <span class="cr-preset-list__stages">${stagesText}</span>
                 </div>
             </button>
-            <div class="ct-preset-list__actions">
+            <div class="cr-preset-list__actions">
                 ${
                     !preset.isBuiltin
                         ? `
-                    <button class="ct-preset-list__action ct-preset-list__action--edit menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    <button class="cr-preset-list__action cr-preset-list__action--edit menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button" title="Edit">
                         <i class="fa-solid fa-pen"></i>
                     </button>
                 `
                         : ''
                 }
-                <button class="ct-preset-list__action ct-preset-list__action--duplicate menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                <button class="cr-preset-list__action cr-preset-list__action--duplicate menu_button menu_button--icon menu_button--sm menu_button--ghost"
                         type="button" title="${preset.isBuiltin ? 'Create editable copy' : 'Duplicate'}">
                     <i class="fa-solid fa-copy"></i>
                 </button>
                 ${
                     !preset.isBuiltin
                         ? `
-                    <button class="ct-preset-list__action ct-preset-list__action--delete menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    <button class="cr-preset-list__action cr-preset-list__action--delete menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button" title="Delete">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -498,14 +498,14 @@ function renderPresetListItem(
 
 function renderListFooter(): string {
     return `
-        <footer class="ct-drawer__footer ct-drawer__footer--list">
+        <footer class="cr-drawer__footer cr-drawer__footer--list">
             <button id="${MODULE_NAME}_drawer_list_create"
                     class="menu_button menu_button--primary"
                     type="button">
                 <i class="fa-solid fa-plus"></i>
                 New Preset
             </button>
-            <div class="ct-row ct-gap-2">
+            <div class="cr-row cr-gap-2">
                 <button id="${MODULE_NAME}_drawer_list_import"
                         class="menu_button menu_button--ghost"
                         type="button"
@@ -655,7 +655,7 @@ export function closeDrawer(): void {
     const drawer = $(`#${MODULE_NAME}_preset_drawer`);
     if (!drawer) return;
 
-    drawer.classList.remove('ct-drawer--open');
+    drawer.classList.remove('cr-drawer--open');
     drawer.setAttribute('aria-hidden', 'true');
 
     // Cleanup after animation
@@ -699,11 +699,11 @@ function showDrawer(): void {
     }
 
     // Update drawer content based on mode
-    const panel = $('.ct-drawer__panel', drawer);
+    const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
         if (drawerState.mode === 'list') {
             panel.innerHTML = `
-                <div class="ct-drawer__content ct-drawer__content--list">
+                <div class="cr-drawer__content cr-drawer__content--list">
                     ${renderListHeader()}
                     ${renderListBody()}
                     ${renderListFooter()}
@@ -711,7 +711,7 @@ function showDrawer(): void {
             `;
         } else {
             panel.innerHTML = `
-                <div class="ct-drawer__content">
+                <div class="cr-drawer__content">
                     ${renderDrawerHeader()}
                     ${renderDrawerBody()}
                     ${renderDrawerFooter()}
@@ -729,7 +729,7 @@ function showDrawer(): void {
 
     // Show drawer with animation
     requestAnimationFrame(() => {
-        drawer.classList.add('ct-drawer--open');
+        drawer.classList.add('cr-drawer--open');
         drawer.setAttribute('aria-hidden', 'false');
 
         // Focus first input (only in edit modes)
@@ -756,7 +756,7 @@ function bindDrawerEvents(drawer: HTMLElement): void {
     }
 
     // Backdrop click
-    const backdrop = $('.ct-drawer__backdrop', drawer);
+    const backdrop = $('.cr-drawer__backdrop', drawer);
     if (backdrop) {
         cleanupFns.push(on(backdrop, 'click', closeDrawer));
     }
@@ -780,14 +780,14 @@ function bindDrawerEvents(drawer: HTMLElement): void {
     }
 
     // Stage chips
-    const stageChips = $$('.ct-chip input[name="drawer_stages"]', drawer);
+    const stageChips = $$('.cr-chip input[name="drawer_stages"]', drawer);
     for (const chip of stageChips) {
         cleanupFns.push(
             on(chip, 'change', () => {
-                const label = chip.closest('.ct-chip');
+                const label = chip.closest('.cr-chip');
                 if (label) {
                     label.classList.toggle(
-                        'ct-chip--active',
+                        'cr-chip--active',
                         (chip as HTMLInputElement).checked,
                     );
                 }
@@ -850,9 +850,9 @@ function bindPromptEvents(drawer: HTMLElement): void {
                 await popup.alert(
                     'Available Variables',
                     `
-                    <div class="ct-stack">
+                    <div class="cr-stack">
                         <p>Use these placeholders in your prompt:</p>
-                        <ul class="ct-list ct-text-sm">
+                        <ul class="cr-list cr-text-sm">
                             <li><code>{{character}}</code> - Full character summary</li>
                             <li><code>{{name}}</code> - Character name</li>
                             <li><code>{{description}}</code> - Character description</li>
@@ -1023,11 +1023,11 @@ function showValidationResult(result: {
 
     if (errorsDiv) {
         if (result.valid) {
-            errorsDiv.classList.add('ct-hidden');
+            errorsDiv.classList.add('cr-hidden');
             toast.success('Schema is valid');
         } else {
-            errorsDiv.innerHTML = `<div class="ct-error"><i class="fa-solid fa-times-circle"></i> ${result.error}</div>`;
-            errorsDiv.classList.remove('ct-hidden');
+            errorsDiv.innerHTML = `<div class="cr-error"><i class="fa-solid fa-times-circle"></i> ${result.error}</div>`;
+            errorsDiv.classList.remove('cr-hidden');
         }
     }
 
@@ -1036,12 +1036,12 @@ function showValidationResult(result: {
             warningsDiv.innerHTML = result.warnings
                 .map(
                     (w) =>
-                        `<div class="ct-warning"><i class="fa-solid fa-exclamation-triangle"></i> ${w}</div>`,
+                        `<div class="cr-warning"><i class="fa-solid fa-exclamation-triangle"></i> ${w}</div>`,
                 )
                 .join('');
-            warningsDiv.classList.remove('ct-hidden');
+            warningsDiv.classList.remove('cr-hidden');
         } else {
-            warningsDiv.classList.add('ct-hidden');
+            warningsDiv.classList.add('cr-hidden');
         }
     }
 }
@@ -1049,8 +1049,8 @@ function showValidationResult(result: {
 function clearValidationMessages(): void {
     const errorsDiv = $(`#${MODULE_NAME}_drawer_errors`);
     const warningsDiv = $(`#${MODULE_NAME}_drawer_warnings`);
-    errorsDiv?.classList.add('ct-hidden');
-    warningsDiv?.classList.add('ct-hidden');
+    errorsDiv?.classList.add('cr-hidden');
+    warningsDiv?.classList.add('cr-hidden');
 }
 
 // =============================================================================
@@ -1178,10 +1178,10 @@ function showFormErrors(errors: string[]): void {
         errorsDiv.innerHTML = errors
             .map(
                 (e) =>
-                    `<div class="ct-error"><i class="fa-solid fa-times-circle"></i> ${e}</div>`,
+                    `<div class="cr-error"><i class="fa-solid fa-times-circle"></i> ${e}</div>`,
             )
             .join('');
-        errorsDiv.classList.remove('ct-hidden');
+        errorsDiv.classList.remove('cr-hidden');
     }
 }
 
@@ -1217,13 +1217,13 @@ function bindListEvents(drawer: HTMLElement): void {
     }
 
     // Backdrop click
-    const backdrop = $('.ct-drawer__backdrop', drawer);
+    const backdrop = $('.cr-drawer__backdrop', drawer);
     if (backdrop) {
         cleanupFns.push(on(backdrop, 'click', closeDrawer));
     }
 
     // Tab switching
-    const tabs = $$('.ct-drawer__tab', drawer);
+    const tabs = $$('.cr-drawer__tab', drawer);
     for (const tab of tabs) {
         cleanupFns.push(
             on(tab, 'click', () => {
@@ -1234,12 +1234,12 @@ function bindListEvents(drawer: HTMLElement): void {
 
                 // Update tab styles
                 tabs.forEach((t) =>
-                    t.classList.remove('ct-drawer__tab--active'),
+                    t.classList.remove('cr-drawer__tab--active'),
                 );
-                tab.classList.add('ct-drawer__tab--active');
+                tab.classList.add('cr-drawer__tab--active');
 
                 // Re-render list body
-                const bodyContainer = $('.ct-drawer__body--list', drawer);
+                const bodyContainer = $('.cr-drawer__body--list', drawer);
                 if (bodyContainer) {
                     bodyContainer.outerHTML = renderListBody();
                 }
@@ -1248,13 +1248,13 @@ function bindListEvents(drawer: HTMLElement): void {
     }
 
     // Preset list actions (event delegation)
-    const listContainer = $('.ct-preset-list', drawer);
+    const listContainer = $('.cr-preset-list', drawer);
     if (listContainer) {
         cleanupFns.push(
             on(listContainer, 'click', async (e) => {
                 const target = e.target as HTMLElement;
                 const item = target.closest(
-                    '.ct-preset-list__item',
+                    '.cr-preset-list__item',
                 ) as HTMLElement;
                 if (!item) return;
 
@@ -1269,26 +1269,26 @@ function bindListEvents(drawer: HTMLElement): void {
                 if (!preset) return;
 
                 // Select preset (clicking main button)
-                if (target.closest('.ct-preset-list__select')) {
+                if (target.closest('.cr-preset-list__select')) {
                     drawerCallbacks.onSelect?.(preset);
                     closeDrawer();
                     return;
                 }
 
                 // Edit
-                if (target.closest('.ct-preset-list__action--edit')) {
+                if (target.closest('.cr-preset-list__action--edit')) {
                     switchToEditMode(type, id);
                     return;
                 }
 
                 // Duplicate
-                if (target.closest('.ct-preset-list__action--duplicate')) {
+                if (target.closest('.cr-preset-list__action--duplicate')) {
                     switchToDuplicateMode(type, id);
                     return;
                 }
 
                 // Delete
-                if (target.closest('.ct-preset-list__action--delete')) {
+                if (target.closest('.cr-preset-list__action--delete')) {
                     const confirmed = await popup.confirm(
                         'Delete Preset',
                         `Are you sure you want to delete "${preset.name}"?`,
@@ -1346,7 +1346,7 @@ function bindListEvents(drawer: HTMLElement): void {
 }
 
 function refreshListView(drawer: HTMLElement): void {
-    const bodyContainer = $('.ct-drawer__body--list', drawer);
+    const bodyContainer = $('.cr-drawer__body--list', drawer);
     if (bodyContainer) {
         bodyContainer.outerHTML = renderListBody();
     }
@@ -1366,10 +1366,10 @@ function switchToCreateMode(type: PresetType): void {
     const drawer = $(`#${MODULE_NAME}_preset_drawer`);
     if (!drawer) return;
 
-    const panel = $('.ct-drawer__panel', drawer);
+    const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
         panel.innerHTML = `
-            <div class="ct-drawer__content">
+            <div class="cr-drawer__content">
                 ${renderDrawerHeader()}
                 ${renderDrawerBody()}
                 ${renderDrawerFooter()}
@@ -1407,10 +1407,10 @@ function switchToEditMode(type: PresetType, presetId: string): void {
     const drawer = $(`#${MODULE_NAME}_preset_drawer`);
     if (!drawer) return;
 
-    const panel = $('.ct-drawer__panel', drawer);
+    const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
         panel.innerHTML = `
-            <div class="ct-drawer__content">
+            <div class="cr-drawer__content">
                 ${renderDrawerHeader()}
                 ${renderDrawerBody()}
                 ${renderDrawerFooter()}
@@ -1454,10 +1454,10 @@ function switchToDuplicateMode(type: PresetType, presetId: string): void {
     const drawer = $(`#${MODULE_NAME}_preset_drawer`);
     if (!drawer) return;
 
-    const panel = $('.ct-drawer__panel', drawer);
+    const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
         panel.innerHTML = `
-            <div class="ct-drawer__content">
+            <div class="cr-drawer__content">
                 ${renderDrawerHeader()}
                 ${renderDrawerBody()}
                 ${renderDrawerFooter()}

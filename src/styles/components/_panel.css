@@ -4,20 +4,20 @@
  * Settings panel in ST Extensions section.
  */
 
-.ct-panel-version {
+.cr-panel-version {
     color: var(--SmartThemeEmColor, #999);
     font-size: 0.85em;
     margin-bottom: 0.5em;
 }
 
-.ct-panel-desc {
+.cr-panel-desc {
     margin: 0 0 1em 0;
     font-size: 0.9em;
     color: var(--SmartThemeBodyColor);
     line-height: 1.4;
 }
 
-.ct-panel-actions {
+.cr-panel-actions {
     display: flex;
     gap: 0.5em;
 }

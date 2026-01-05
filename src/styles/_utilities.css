@@ -9,17 +9,17 @@
    STACK - Vertical flex layout with consistent gap
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-stack {
+.cr-stack {
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-3);
+    gap: var(--cr-space-3);
 
     &--tight {
-        gap: var(--ct-space-2);
+        gap: var(--cr-space-2);
     }
 
     &--loose {
-        gap: var(--ct-space-4);
+        gap: var(--cr-space-4);
     }
 }
 
@@ -27,11 +27,11 @@
    ROW - Horizontal flex layout
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-row {
+.cr-row {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: var(--ct-space-2);
+    gap: var(--cr-space-2);
 
     &--wrap {
         flex-wrap: wrap;
@@ -54,9 +54,9 @@
    GRID - Grid layouts
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-grid {
+.cr-grid {
     display: grid;
-    gap: var(--ct-space-3);
+    gap: var(--cr-space-3);
 
     &--2col {
         grid-template-columns: repeat(2, 1fr);
@@ -71,19 +71,19 @@
    FLEX UTILITIES
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-flex-1 {
+.cr-flex-1 {
     flex: 1 1 0%;
 }
 
-.ct-flex-auto {
+.cr-flex-auto {
     flex: 1 1 auto;
 }
 
-.ct-flex-none {
+.cr-flex-none {
     flex: none;
 }
 
-.ct-shrink-0 {
+.cr-shrink-0 {
     flex-shrink: 0;
 }
 
@@ -92,60 +92,60 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* Gap */
-.ct-gap-1 {
-    gap: var(--ct-space-1);
+.cr-gap-1 {
+    gap: var(--cr-space-1);
 }
-.ct-gap-2 {
-    gap: var(--ct-space-2);
+.cr-gap-2 {
+    gap: var(--cr-space-2);
 }
-.ct-gap-3 {
-    gap: var(--ct-space-3);
+.cr-gap-3 {
+    gap: var(--cr-space-3);
 }
-.ct-gap-4 {
-    gap: var(--ct-space-4);
+.cr-gap-4 {
+    gap: var(--cr-space-4);
 }
 
 /* Padding */
-.ct-p-2 {
-    padding: var(--ct-space-2);
+.cr-p-2 {
+    padding: var(--cr-space-2);
 }
-.ct-p-3 {
-    padding: var(--ct-space-3);
+.cr-p-3 {
+    padding: var(--cr-space-3);
 }
-.ct-p-4 {
-    padding: var(--ct-space-4);
+.cr-p-4 {
+    padding: var(--cr-space-4);
 }
 
 /* Margin top */
-.ct-mt-2 {
-    margin-top: var(--ct-space-2);
+.cr-mt-2 {
+    margin-top: var(--cr-space-2);
 }
-.ct-mt-3 {
-    margin-top: var(--ct-space-3);
+.cr-mt-3 {
+    margin-top: var(--cr-space-3);
 }
-.ct-mt-4 {
-    margin-top: var(--ct-space-4);
+.cr-mt-4 {
+    margin-top: var(--cr-space-4);
 }
-.ct-mt-auto {
+.cr-mt-auto {
     margin-top: auto;
 }
 
 /* Margin bottom */
-.ct-mb-2 {
-    margin-bottom: var(--ct-space-2);
+.cr-mb-2 {
+    margin-bottom: var(--cr-space-2);
 }
-.ct-mb-3 {
-    margin-bottom: var(--ct-space-3);
+.cr-mb-3 {
+    margin-bottom: var(--cr-space-3);
 }
-.ct-mb-4 {
-    margin-bottom: var(--ct-space-4);
+.cr-mb-4 {
+    margin-bottom: var(--cr-space-4);
 }
 
 /* Margin left/right */
-.ct-ml-auto {
+.cr-ml-auto {
     margin-left: auto;
 }
-.ct-mr-auto {
+.cr-mr-auto {
     margin-right: auto;
 }
 
@@ -153,10 +153,10 @@
    WIDTH UTILITIES
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-w-full {
+.cr-w-full {
     width: 100%;
 }
-.ct-min-w-0 {
+.cr-min-w-0 {
     min-width: 0;
 }
 
@@ -164,21 +164,21 @@
    OVERFLOW UTILITIES
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-overflow-auto {
+.cr-overflow-auto {
     overflow: auto;
 }
-.ct-overflow-hidden {
+.cr-overflow-hidden {
     overflow: hidden;
 }
-.ct-overflow-y-auto {
+.cr-overflow-y-auto {
     overflow-y: auto;
 }
 
 /* Scrollable container with styled scrollbar */
-.ct-scrollable {
+.cr-scrollable {
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: var(--ct-border) transparent;
+    scrollbar-color: var(--cr-border) transparent;
 
     &::-webkit-scrollbar {
         width: 6px;
@@ -190,11 +190,11 @@
     }
 
     &::-webkit-scrollbar-thumb {
-        background: var(--ct-border);
-        border-radius: var(--ct-radius-pill);
+        background: var(--cr-border);
+        border-radius: var(--cr-radius-pill);
 
         &:hover {
-            background: var(--ct-accent);
+            background: var(--cr-accent);
         }
     }
 }
@@ -204,61 +204,61 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 /* Colors */
-.ct-text-muted {
-    color: var(--ct-text-muted);
+.cr-text-muted {
+    color: var(--cr-text-muted);
 }
-.ct-text-dim {
-    color: var(--ct-text-dim);
+.cr-text-dim {
+    color: var(--cr-text-dim);
 }
-.ct-text-accent {
-    color: var(--ct-accent);
+.cr-text-accent {
+    color: var(--cr-accent);
 }
-.ct-text-success {
-    color: var(--ct-success);
+.cr-text-success {
+    color: var(--cr-success);
 }
-.ct-text-warning {
-    color: var(--ct-warning);
+.cr-text-warning {
+    color: var(--cr-warning);
 }
-.ct-text-danger {
-    color: var(--ct-danger);
+.cr-text-danger {
+    color: var(--cr-danger);
 }
 
 /* Sizes */
-.ct-text-xs {
-    font-size: var(--ct-text-xs);
+.cr-text-xs {
+    font-size: var(--cr-text-xs);
 }
-.ct-text-sm {
-    font-size: var(--ct-text-sm);
+.cr-text-sm {
+    font-size: var(--cr-text-sm);
 }
-.ct-text-lg {
-    font-size: var(--ct-text-lg);
+.cr-text-lg {
+    font-size: var(--cr-text-lg);
 }
 
 /* Styles */
-.ct-text-mono {
-    font-family: var(--ct-font-mono);
+.cr-text-mono {
+    font-family: var(--cr-font-mono);
 }
-.ct-text-center {
+.cr-text-center {
     text-align: center;
 }
-.ct-text-right {
+.cr-text-right {
     text-align: right;
 }
-.ct-font-medium {
+.cr-font-medium {
     font-weight: 500;
 }
-.ct-font-semibold {
+.cr-font-semibold {
     font-weight: 600;
 }
 
 /* Truncation */
-.ct-truncate {
+.cr-truncate {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
-.ct-line-clamp-2 {
+.cr-line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -269,11 +269,11 @@
    VISUAL UTILITIES
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-hidden {
+.cr-hidden {
     display: none !important;
 }
 
-.ct-sr-only {
+.cr-sr-only {
     position: absolute;
     width: 1px;
     height: 1px;

@@ -5,42 +5,42 @@
  * Used throughout the UI for navigation.
  */
 
-.ct-tabs {
+.cr-tabs {
     display: flex;
-    gap: var(--ct-space-2);
-    padding: var(--ct-space-2);
-    background: var(--ct-bg-secondary);
-    border-radius: var(--ct-radius);
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2);
+    background: var(--cr-bg-secondary);
+    border-radius: var(--cr-radius);
     overflow-x: auto;
 }
 
-.ct-tab {
+.cr-tab {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--ct-space-2);
-    padding: var(--ct-space-2) var(--ct-space-3);
-    font-size: var(--ct-text-sm);
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    font-size: var(--cr-text-sm);
     font-weight: 500;
-    color: var(--ct-text-muted);
+    color: var(--cr-text-muted);
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--ct-radius-sm);
+    border-radius: var(--cr-radius-sm);
     cursor: pointer;
-    transition: all var(--ct-transition-fast);
+    transition: all var(--cr-transition-fast);
     white-space: nowrap;
 
     &:hover {
-        color: var(--ct-text);
-        background: var(--ct-bg-tertiary);
+        color: var(--cr-text);
+        background: var(--cr-bg-tertiary);
     }
 
     &--active {
-        color: var(--ct-text);
-        background: var(--ct-bg);
-        border-color: var(--ct-accent);
-        box-shadow: var(--ct-shadow-sm);
+        color: var(--cr-text);
+        background: var(--cr-bg);
+        border-color: var(--cr-accent);
+        box-shadow: var(--cr-shadow-sm);
     }
 
     &__icon {
@@ -48,10 +48,10 @@
     }
 
     &__badge {
-        font-size: var(--ct-text-xs);
+        font-size: var(--cr-text-xs);
         padding: 0.1em 0.5em;
-        background: var(--ct-accent-muted);
-        color: var(--ct-accent);
-        border-radius: var(--ct-radius-pill);
+        background: var(--cr-accent-muted);
+        color: var(--cr-accent);
+        border-radius: var(--cr-radius-pill);
     }
 }

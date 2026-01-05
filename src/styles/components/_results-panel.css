@@ -9,7 +9,7 @@
    RESULTS WRAPPER
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-results-wrapper {
+.cr-results-wrapper {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -17,18 +17,18 @@
     overflow: hidden;
 }
 
-.ct-results-toolbar {
+.cr-results-toolbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--ct-space-2);
-    padding: var(--ct-space-2) var(--ct-space-3);
-    background: var(--ct-bg-secondary);
-    border-bottom: 1px solid var(--ct-border-muted);
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    background: var(--cr-bg-secondary);
+    border-bottom: 1px solid var(--cr-border-muted);
     flex-shrink: 0;
 }
 
-.ct-results-content {
+.cr-results-content {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
@@ -38,7 +38,7 @@
    RESULT CONTAINER
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-result {
+.cr-result {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -47,65 +47,65 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ct-space-2) var(--ct-space-3);
-        background: var(--ct-bg-secondary);
-        border-bottom: 1px solid var(--ct-border-muted);
+        padding: var(--cr-space-2) var(--cr-space-3);
+        background: var(--cr-bg-secondary);
+        border-bottom: 1px solid var(--cr-border-muted);
         flex-shrink: 0;
     }
 
     &__type {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-2);
-        font-size: var(--ct-text-xs);
-        color: var(--ct-text-muted);
+        gap: var(--cr-space-2);
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-muted);
     }
 
     &__actions {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-2);
+        gap: var(--cr-space-2);
     }
 
     &__content {
         flex: 1;
         overflow-y: auto;
-        padding: var(--ct-space-3);
+        padding: var(--cr-space-3);
     }
 
     &__raw {
         margin: 0;
-        padding: var(--ct-space-3);
-        font-family: var(--ct-font-mono);
-        font-size: var(--ct-text-xs);
+        padding: var(--cr-space-3);
+        font-family: var(--cr-font-mono);
+        font-size: var(--cr-text-xs);
         line-height: 1.6;
         white-space: pre-wrap;
         word-break: break-word;
-        background: var(--ct-bg-tertiary);
-        border-radius: var(--ct-radius);
-        color: var(--ct-text);
+        background: var(--cr-bg-tertiary);
+        border-radius: var(--cr-radius);
+        color: var(--cr-text);
         user-select: text;
     }
 
     &__json {
-        font-family: var(--ct-font-mono);
-        font-size: var(--ct-text-xs);
+        font-family: var(--cr-font-mono);
+        font-size: var(--cr-text-xs);
         line-height: 1.6;
         white-space: pre-wrap;
         word-break: break-word;
-        padding: var(--ct-space-3);
-        background: var(--ct-bg-secondary);
-        border-radius: var(--ct-radius);
+        padding: var(--cr-space-3);
+        background: var(--cr-bg-secondary);
+        border-radius: var(--cr-radius);
     }
 
     &__code {
         margin: 0;
-        padding: var(--ct-space-3);
-        font-family: var(--ct-font-mono);
-        font-size: var(--ct-text-xs);
+        padding: var(--cr-space-3);
+        font-family: var(--cr-font-mono);
+        font-size: var(--cr-text-xs);
         line-height: 1.5;
-        background: var(--ct-bg-tertiary);
-        border-radius: var(--ct-radius);
+        background: var(--cr-bg-tertiary);
+        border-radius: var(--cr-radius);
         overflow-x: auto;
 
         & code {
@@ -115,7 +115,7 @@
 
     /* Prose styling - minimal overrides, let showdown do its thing */
     &__prose {
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
         line-height: 1.7;
 
         & h1,
@@ -145,18 +145,18 @@
         }
 
         & code {
-            font-family: var(--ct-font-mono);
+            font-family: var(--cr-font-mono);
             font-size: 0.9em;
             padding: 0.15em 0.4em;
-            background: var(--ct-bg-secondary);
-            border-radius: var(--ct-radius-sm);
+            background: var(--cr-bg-secondary);
+            border-radius: var(--cr-radius-sm);
         }
 
         & pre {
             margin: 0.75em 0;
-            padding: var(--ct-space-2);
-            background: var(--ct-bg-secondary);
-            border-radius: var(--ct-radius);
+            padding: var(--cr-space-2);
+            background: var(--cr-bg-secondary);
+            border-radius: var(--cr-radius);
             overflow-x: auto;
 
             & code {
@@ -175,10 +175,10 @@
    TOGGLE BUTTON GROUPS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-:is(.ct-json-toggle, .ct-text-toggle) {
+:is(.cr-json-toggle, .cr-text-toggle) {
     display: flex;
-    background: var(--ct-bg-tertiary);
-    border-radius: var(--ct-radius-sm);
+    background: var(--cr-bg-tertiary);
+    border-radius: var(--cr-radius-sm);
     padding: 2px;
 
     & > button {
@@ -189,50 +189,50 @@
         height: 24px;
         border: none;
         background: transparent;
-        color: var(--ct-text-dim);
+        color: var(--cr-text-dim);
         cursor: pointer;
-        border-radius: var(--ct-radius-sm);
-        transition: all var(--ct-transition-fast);
+        border-radius: var(--cr-radius-sm);
+        transition: all var(--cr-transition-fast);
 
         &:hover {
-            color: var(--ct-text);
-            background: var(--ct-bg-secondary);
+            color: var(--cr-text);
+            background: var(--cr-bg-secondary);
         }
     }
 }
 
-:is(.ct-json-toggle__btn, .ct-text-toggle__btn)--active {
-    color: var(--ct-accent);
-    background: var(--ct-bg);
+:is(.cr-json-toggle__btn, .cr-text-toggle__btn)--active {
+    color: var(--cr-accent);
+    background: var(--cr-bg);
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* View mode toggle */
-.ct-view-toggle {
+.cr-view-toggle {
     display: flex;
-    gap: var(--ct-space-1);
-    background: var(--ct-bg-secondary);
-    padding: var(--ct-space-1);
-    border-radius: var(--ct-radius);
+    gap: var(--cr-space-1);
+    background: var(--cr-bg-secondary);
+    padding: var(--cr-space-1);
+    border-radius: var(--cr-radius);
 
     &__btn {
-        padding: var(--ct-space-1) var(--ct-space-2);
-        font-size: var(--ct-text-xs);
-        border-radius: calc(var(--ct-radius) - 2px);
+        padding: var(--cr-space-1) var(--cr-space-2);
+        font-size: var(--cr-text-xs);
+        border-radius: calc(var(--cr-radius) - 2px);
         background: transparent;
         border: none;
-        color: var(--ct-text-dim);
+        color: var(--cr-text-dim);
         cursor: pointer;
         transition: all 0.15s ease;
 
         &:hover {
-            color: var(--ct-text);
+            color: var(--cr-text);
         }
 
         &--active {
-            background: var(--ct-bg);
-            color: var(--ct-text);
-            box-shadow: var(--ct-shadow-sm);
+            background: var(--cr-bg);
+            color: var(--cr-text);
+            box-shadow: var(--cr-shadow-sm);
         }
     }
 }

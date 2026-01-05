@@ -426,25 +426,25 @@ export async function showApplyDialog(): Promise<void> {
 
     // Build dialog content
     const content = `
-        <div class="ct-apply-dialog">
-            <p class="ct-apply-dialog__intro">
+        <div class="cr-apply-dialog">
+            <p class="cr-apply-dialog__intro">
                 <strong>${updates.length} field${updates.length > 1 ? 's' : ''}</strong> modified. 
                 Select which fields to apply:
             </p>
             
-            <div class="ct-apply-dialog__fields">
+            <div class="cr-apply-dialog__fields">
                 ${updates
                     .map(
                         (update, i) => `
-                    <div class="ct-apply-field">
-                        <label class="ct-apply-field__header">
+                    <div class="cr-apply-field">
+                        <label class="cr-apply-field__header">
                             <input type="checkbox" 
-                                   class="ct-apply-checkbox"
+                                   class="cr-apply-checkbox"
                                    data-field-index="${i}" 
                                    ${update.selected ? 'checked' : ''}>
-                            <span class="ct-apply-field__label">${update.label}</span>
+                            <span class="cr-apply-field__label">${update.label}</span>
                         </label>
-                        <div class="ct-apply-field__preview">
+                        <div class="cr-apply-field__preview">
                             <pre>${DOMPurify.sanitize(update.rewritten.substring(0, 300))}${update.rewritten.length > 300 ? '...' : ''}</pre>
                         </div>
                     </div>
@@ -453,18 +453,18 @@ export async function showApplyDialog(): Promise<void> {
                     .join('')}
             </div>
             
-            <div class="ct-apply-dialog__actions">
-                <button class="menu_button menu_button--sm ct-select-all-btn" type="button">
+            <div class="cr-apply-dialog__actions">
+                <button class="menu_button menu_button--sm cr-selecr-all-btn" type="button">
                     Select All
                 </button>
-                <button class="menu_button menu_button--sm ct-select-none-btn" type="button">
+                <button class="menu_button menu_button--sm cr-selecr-none-btn" type="button">
                     Select None
                 </button>
             </div>
             
             <hr style="margin: 12px 0; border-color: var(--SmartThemeBorderColor);">
             
-            <p class="ct-text-sm ct-text-dim">
+            <p class="cr-text-sm cr-text-dim">
                 <strong>Apply Directly</strong> - Updates the character card in SillyTavern immediately.<br>
                 <strong>Download PNG</strong> - Downloads the original card image with updated metadata.<br>
                 <strong>Download JSON</strong> - Downloads a JSON file you can import elsewhere.
@@ -477,13 +477,13 @@ export async function showApplyDialog(): Promise<void> {
 
     // Use a short delay to allow the popup to render, then bind events
     setTimeout(() => {
-        const selectAllBtn = document.querySelector('.ct-select-all-btn');
-        const selectNoneBtn = document.querySelector('.ct-select-none-btn');
+        const selectAllBtn = document.querySelector('.cr-selecr-all-btn');
+        const selectNoneBtn = document.querySelector('.cr-selecr-none-btn');
 
         if (selectAllBtn) {
             selectAllBtn.addEventListener('click', () => {
                 document
-                    .querySelectorAll<HTMLInputElement>('.ct-apply-checkbox')
+                    .querySelectorAll<HTMLInputElement>('.cr-apply-checkbox')
                     .forEach((cb) => (cb.checked = true));
             });
         }
@@ -491,7 +491,7 @@ export async function showApplyDialog(): Promise<void> {
         if (selectNoneBtn) {
             selectNoneBtn.addEventListener('click', () => {
                 document
-                    .querySelectorAll<HTMLInputElement>('.ct-apply-checkbox')
+                    .querySelectorAll<HTMLInputElement>('.cr-apply-checkbox')
                     .forEach((cb) => (cb.checked = false));
             });
         }
@@ -517,7 +517,7 @@ export async function showApplyDialog(): Promise<void> {
     // Collect selected updates
     const selectedUpdates = updates.filter((_, i) => {
         const checkbox = document.querySelector(
-            `.ct-apply-checkbox[data-field-index="${i}"]`,
+            `.cr-apply-checkbox[data-field-index="${i}"]`,
         ) as HTMLInputElement;
         return checkbox?.checked ?? false;
     });
@@ -542,29 +542,29 @@ export async function showApplyDialog(): Promise<void> {
 // Add CSS for the dialog
 const style = document.createElement('style');
 style.textContent = `
-.ct-apply-dialog {
+.cr-apply-dialog {
     max-height: 60vh;
     overflow-y: auto;
 }
 
-.ct-apply-dialog__intro {
+.cr-apply-dialog__intro {
     margin-bottom: 12px;
 }
 
-.ct-apply-dialog__fields {
+.cr-apply-dialog__fields {
     display: flex;
     flex-direction: column;
     gap: 8px;
     margin-bottom: 12px;
 }
 
-.ct-apply-field {
+.cr-apply-field {
     border: 1px solid var(--SmartThemeBorderColor);
     border-radius: 4px;
     overflow: hidden;
 }
 
-.ct-apply-field__header {
+.cr-apply-field__header {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -573,20 +573,20 @@ style.textContent = `
     cursor: pointer;
 }
 
-.ct-apply-field__header input {
+.cr-apply-field__header input {
     margin: 0;
 }
 
-.ct-apply-field__label {
+.cr-apply-field__label {
     font-weight: 600;
 }
 
-.ct-apply-field__preview {
+.cr-apply-field__preview {
     padding: 8px;
     background: var(--SmartThemeBodyColor);
 }
 
-.ct-apply-field__preview pre {
+.cr-apply-field__preview pre {
     margin: 0;
     white-space: pre-wrap;
     word-break: break-word;
@@ -595,7 +595,7 @@ style.textContent = `
     overflow-y: auto;
 }
 
-.ct-apply-dialog__actions {
+.cr-apply-dialog__actions {
     display: flex;
     gap: 8px;
 }

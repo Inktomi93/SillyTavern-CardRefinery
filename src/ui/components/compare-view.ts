@@ -128,12 +128,12 @@ function highlightDiff(
         switch (op) {
             case -1: // DELETE - show in original only, marked as removed
                 originalParts.push(
-                    `<span class="ct-diff--removed">${sanitized}</span>`,
+                    `<span class="cr-diff--removed">${sanitized}</span>`,
                 );
                 break;
             case 1: // INSERT - show in rewritten only, marked as added
                 rewrittenParts.push(
-                    `<span class="ct-diff--added">${sanitized}</span>`,
+                    `<span class="cr-diff--added">${sanitized}</span>`,
                 );
                 break;
             case 0: // EQUAL - show in both, no highlighting
@@ -228,13 +228,13 @@ function renderComparisonRow(comparison: FieldComparison): string {
     if (!comparison.rewritten) {
         // No rewrite for this field
         return `
-            <div class="ct-compare-row ct-compare-row--unchanged">
-                <div class="ct-compare-row__header">
-                    <span class="ct-compare-row__label">${comparison.label}</span>
-                    <span class="ct-badge ct-badge--small ct-badge--muted">No changes</span>
+            <div class="cr-compare-row cr-compare-row--unchanged">
+                <div class="cr-compare-row__header">
+                    <span class="cr-compare-row__label">${comparison.label}</span>
+                    <span class="cr-badge cr-badge--small cr-badge--muted">No changes</span>
                 </div>
-                <div class="ct-compare-row__content ct-compare-row__content--single">
-                    <pre class="ct-compare-text">${DOMPurify.sanitize(comparison.original)}</pre>
+                <div class="cr-compare-row__content cr-compare-row__content--single">
+                    <pre class="cr-compare-text">${DOMPurify.sanitize(comparison.original)}</pre>
                 </div>
             </div>
         `;
@@ -250,26 +250,26 @@ function renderComparisonRow(comparison: FieldComparison): string {
     const hasStats = stats.additions > 0 || stats.deletions > 0;
 
     return `
-        <div class="ct-compare-row ${comparison.hasChanges ? 'ct-compare-row--changed' : ''}">
-            <div class="ct-compare-row__header">
-                <span class="ct-compare-row__label">${comparison.label}</span>
-                <div class="ct-compare-row__badges">
-                    ${comparison.hasChanges ? '<span class="ct-badge ct-badge--small ct-badge--accent">Modified</span>' : ''}
-                    ${hasStats ? `<span class="ct-diff-stats"><span class="ct-diff-stats__add">+${stats.additions}</span> <span class="ct-diff-stats__del">-${stats.deletions}</span></span>` : ''}
+        <div class="cr-compare-row ${comparison.hasChanges ? 'cr-compare-row--changed' : ''}">
+            <div class="cr-compare-row__header">
+                <span class="cr-compare-row__label">${comparison.label}</span>
+                <div class="cr-compare-row__badges">
+                    ${comparison.hasChanges ? '<span class="cr-badge cr-badge--small cr-badge--accent">Modified</span>' : ''}
+                    ${hasStats ? `<span class="cr-diff-stats"><span class="cr-diff-stats__add">+${stats.additions}</span> <span class="cr-diff-stats__del">-${stats.deletions}</span></span>` : ''}
                 </div>
             </div>
-            <div class="ct-compare-row__content">
-                <div class="ct-compare-col ct-compare-col--original">
-                    <div class="ct-compare-col__header">
+            <div class="cr-compare-row__content">
+                <div class="cr-compare-col cr-compare-col--original">
+                    <div class="cr-compare-col__header">
                         <i class="fa-solid fa-file"></i> Original
                     </div>
-                    <pre class="ct-compare-text">${originalHtml}</pre>
+                    <pre class="cr-compare-text">${originalHtml}</pre>
                 </div>
-                <div class="ct-compare-col ct-compare-col--rewritten">
-                    <div class="ct-compare-col__header">
+                <div class="cr-compare-col cr-compare-col--rewritten">
+                    <div class="cr-compare-col__header">
                         <i class="fa-solid fa-pen-fancy"></i> Rewritten
                     </div>
-                    <pre class="ct-compare-text">${rewrittenHtml}</pre>
+                    <pre class="cr-compare-text">${rewrittenHtml}</pre>
                 </div>
             </div>
         </div>
@@ -284,20 +284,20 @@ export function renderCompareView(): string {
 
     if (!state.character) {
         return `
-            <div class="ct-empty">
-                <i class="fa-solid fa-code-compare ct-empty__icon"></i>
-                <div class="ct-empty__title">No character selected</div>
-                <div class="ct-empty__text">Select a character to compare versions</div>
+            <div class="cr-empty">
+                <i class="fa-solid fa-code-compare cr-empty__icon"></i>
+                <div class="cr-empty__title">No character selected</div>
+                <div class="cr-empty__text">Select a character to compare versions</div>
             </div>
         `;
     }
 
     if (!state.stageResults.rewrite) {
         return `
-            <div class="ct-empty">
-                <i class="fa-solid fa-code-compare ct-empty__icon"></i>
-                <div class="ct-empty__title">No rewrite available</div>
-                <div class="ct-empty__text">Run the Rewrite stage first to see comparisons</div>
+            <div class="cr-empty">
+                <i class="fa-solid fa-code-compare cr-empty__icon"></i>
+                <div class="cr-empty__title">No rewrite available</div>
+                <div class="cr-empty__text">Run the Rewrite stage first to see comparisons</div>
             </div>
         `;
     }
@@ -306,14 +306,14 @@ export function renderCompareView(): string {
     const changedCount = comparisons.filter((c) => c.hasChanges).length;
 
     return `
-        <div class="ct-compare-view">
-            <div class="ct-compare-header">
-                <div class="ct-compare-stats">
-                    <span class="ct-badge ct-badge--accent">${changedCount} field${changedCount !== 1 ? 's' : ''} modified</span>
-                    <span class="ct-badge ct-badge--muted">${comparisons.length - changedCount} unchanged</span>
+        <div class="cr-compare-view">
+            <div class="cr-compare-header">
+                <div class="cr-compare-stats">
+                    <span class="cr-badge cr-badge--accent">${changedCount} field${changedCount !== 1 ? 's' : ''} modified</span>
+                    <span class="cr-badge cr-badge--muted">${comparisons.length - changedCount} unchanged</span>
                 </div>
             </div>
-            <div class="ct-compare-list ct-scrollable">
+            <div class="cr-compare-list cr-scrollable">
                 ${comparisons.map(renderComparisonRow).join('')}
             </div>
         </div>
@@ -337,37 +337,37 @@ export function bindCompareViewEvents(container: HTMLElement): () => void {
     const cleanups: Array<() => void> = [];
 
     // Click on a row to expand in popup
-    const compareList = $('.ct-compare-list', container);
+    const compareList = $('.cr-compare-list', container);
     if (compareList) {
         cleanups.push(
             on(compareList, 'click', (e) => {
                 const row = (e.target as HTMLElement).closest(
-                    '.ct-compare-row',
+                    '.cr-compare-row',
                 );
                 if (!row) return;
 
                 // Get the label from the row
-                const labelEl = row.querySelector('.ct-compare-row__label');
+                const labelEl = row.querySelector('.cr-compare-row__label');
                 const label = labelEl?.textContent || 'Field';
 
                 // Get content
                 const originalPre = row.querySelector(
-                    '.ct-compare-col--original pre',
+                    '.cr-compare-col--original pre',
                 );
                 const rewrittenPre = row.querySelector(
-                    '.ct-compare-col--rewritten pre',
+                    '.cr-compare-col--rewritten pre',
                 );
 
                 if (originalPre && rewrittenPre) {
                     popup.alert(
                         `Compare: ${label}`,
                         `
-                        <div class="ct-compare-popup">
-                            <div class="ct-compare-popup__side">
+                        <div class="cr-compare-popup">
+                            <div class="cr-compare-popup__side">
                                 <h4>Original</h4>
                                 <pre>${originalPre.innerHTML}</pre>
                             </div>
-                            <div class="ct-compare-popup__side">
+                            <div class="cr-compare-popup__side">
                                 <h4>Rewritten</h4>
                                 <pre>${rewrittenPre.innerHTML}</pre>
                             </div>

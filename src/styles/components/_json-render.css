@@ -7,28 +7,28 @@
 
 /* Score color tokens */
 :root {
-    --ct-score-high: #10b981;
-    --ct-score-good: #22c55e;
-    --ct-score-mid: #eab308;
-    --ct-score-low: #f97316;
-    --ct-score-bad: #ef4444;
+    --cr-score-high: #10b981;
+    --cr-score-good: #22c55e;
+    --cr-score-mid: #eab308;
+    --cr-score-low: #f97316;
+    --cr-score-bad: #ef4444;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    MAIN FORMATTED CONTAINER
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-formatted {
+.cr-formatted {
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-2);
-    font-size: var(--ct-text-sm);
+    gap: var(--cr-space-2);
+    font-size: var(--cr-text-sm);
     line-height: 1.55;
 
     &--empty {
-        padding: var(--ct-space-4);
+        padding: var(--cr-space-4);
         text-align: center;
-        color: var(--ct-text-dim);
+        color: var(--cr-text-dim);
         font-style: italic;
     }
 }
@@ -37,19 +37,19 @@
    HERO SCORE - Compact prominent score display
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-hero {
+.cr-hero {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--ct-space-3) var(--ct-space-4);
+    padding: var(--cr-space-3) var(--cr-space-4);
     background: linear-gradient(
         135deg,
-        var(--ct-bg-secondary) 0%,
-        var(--ct-bg-tertiary) 100%
+        var(--cr-bg-secondary) 0%,
+        var(--cr-bg-tertiary) 100%
     );
-    border-radius: var(--ct-radius);
-    border: 1px solid var(--ct-border);
+    border-radius: var(--cr-radius);
+    border: 1px solid var(--cr-border);
     text-align: center;
     overflow: hidden;
 
@@ -62,7 +62,7 @@
         transform: translate(-50%, -50%);
         width: 120px;
         height: 120px;
-        background: var(--score-color, var(--ct-accent));
+        background: var(--score-color, var(--cr-accent));
         opacity: 0.06;
         filter: blur(30px);
         border-radius: 50%;
@@ -70,12 +70,12 @@
     }
 
     &__label {
-        font-size: var(--ct-text-xs);
+        font-size: var(--cr-text-xs);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        color: var(--ct-text-muted);
-        margin-bottom: var(--ct-space-1);
+        color: var(--cr-text-muted);
+        margin-bottom: var(--cr-space-1);
     }
 
     &__score {
@@ -88,11 +88,11 @@
         font-size: 2.5rem;
         font-weight: 800;
         line-height: 1;
-        color: var(--score-color, var(--ct-accent));
+        color: var(--score-color, var(--cr-accent));
         text-shadow: 0 2px 12px
             color-mix(
                 in srgb,
-                var(--score-color, var(--ct-accent)) 25%,
+                var(--score-color, var(--cr-accent)) 25%,
                 transparent
             );
         font-variant-numeric: tabular-nums;
@@ -101,7 +101,7 @@
     &__max {
         font-size: 1rem;
         font-weight: 500;
-        color: var(--ct-text-dim);
+        color: var(--cr-text-dim);
         margin-left: 2px;
     }
 
@@ -110,8 +110,8 @@
         width: 100%;
         max-width: 160px;
         height: 4px;
-        margin-top: var(--ct-space-2);
-        background: var(--ct-bg-tertiary);
+        margin-top: var(--cr-space-2);
+        background: var(--cr-bg-tertiary);
         border-radius: 2px;
         overflow: hidden;
     }
@@ -127,59 +127,59 @@
    RENDER SECTIONS - Content groups with headers
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-/* Note: These extend the base .ct-section from _layout.css with render-specific styles */
-.ct-formatted .ct-section {
-    background: var(--ct-bg-secondary);
-    border: 1px solid var(--ct-border);
-    border-radius: var(--ct-radius);
+/* Note: These extend the base .cr-section from _layout.css with render-specific styles */
+.cr-formatted .cr-section {
+    background: var(--cr-bg-secondary);
+    border: 1px solid var(--cr-border);
+    border-radius: var(--cr-radius);
     overflow: hidden;
 
-    & .ct-section__header {
+    & .cr-section__header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: var(--ct-space-2);
-        padding: var(--ct-space-2) var(--ct-space-3);
-        background: var(--ct-bg-tertiary);
-        border-bottom: 1px solid var(--ct-border-muted);
+        gap: var(--cr-space-2);
+        padding: var(--cr-space-2) var(--cr-space-3);
+        background: var(--cr-bg-tertiary);
+        border-bottom: 1px solid var(--cr-border-muted);
         margin: 0;
     }
 
-    & .ct-section__title {
+    & .cr-section__title {
         margin: 0;
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
         font-weight: 700;
-        color: var(--ct-text);
+        color: var(--cr-text);
         text-transform: none;
         letter-spacing: normal;
     }
 
-    & .ct-section__body {
-        padding: var(--ct-space-3);
+    & .cr-section__body {
+        padding: var(--cr-space-3);
         display: flex;
         flex-direction: column;
-        gap: var(--ct-space-2);
+        gap: var(--cr-space-2);
 
         &--nested {
-            background: var(--ct-bg);
-            border-left: 2px solid var(--ct-accent);
+            background: var(--cr-bg);
+            border-left: 2px solid var(--cr-accent);
         }
     }
 }
 
-.ct-section__score {
+.cr-section__score {
     display: inline-flex;
     align-items: baseline;
     padding: 2px 8px;
     background: color-mix(
         in srgb,
-        var(--score-color, var(--ct-accent)) 15%,
+        var(--score-color, var(--cr-accent)) 15%,
         transparent
     );
-    border-radius: var(--ct-radius-sm);
+    border-radius: var(--cr-radius-sm);
     font-weight: 700;
-    font-size: var(--ct-text-sm);
-    color: var(--score-color, var(--ct-accent));
+    font-size: var(--cr-text-sm);
+    color: var(--score-color, var(--cr-accent));
     font-variant-numeric: tabular-nums;
 
     &-max {
@@ -194,27 +194,27 @@
    FIELDS - Key/value pairs
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-field {
+.cr-field {
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-1);
+    gap: var(--cr-space-1);
 
     &__label {
-        font-size: var(--ct-text-xs);
+        font-size: var(--cr-text-xs);
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
     }
 
     &__value {
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
         line-height: 1.6;
-        color: var(--ct-text);
+        color: var(--cr-text);
     }
 
     &--empty {
-        color: var(--ct-text-dim);
+        color: var(--cr-text-dim);
         font-style: italic;
     }
 }
@@ -223,19 +223,19 @@
    PARAGRAPHS - Body text
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-para {
+.cr-para {
     margin: 0;
-    font-size: var(--ct-text-sm);
+    font-size: var(--cr-text-sm);
     line-height: 1.6;
-    color: var(--ct-text);
+    color: var(--cr-text);
 
     & + & {
-        margin-top: var(--ct-space-1);
+        margin-top: var(--cr-space-1);
     }
 }
 
-.ct-text {
-    font-size: var(--ct-text-sm);
+.cr-text {
+    font-size: var(--cr-text-sm);
     line-height: 1.6;
     white-space: pre-wrap;
 }
@@ -244,7 +244,7 @@
    RENDER LISTS - Bullet and numbered lists
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-formatted .ct-list {
+.cr-formatted .cr-list {
     margin: 0;
     padding: 0;
     list-style: none;
@@ -254,8 +254,8 @@
 
     & li {
         position: relative;
-        padding-left: var(--ct-space-3);
-        font-size: var(--ct-text-sm);
+        padding-left: var(--cr-space-3);
+        font-size: var(--cr-text-sm);
         line-height: 1.5;
 
         &::before {
@@ -265,7 +265,7 @@
             top: 0.55em;
             width: 5px;
             height: 5px;
-            background: var(--ct-accent);
+            background: var(--cr-accent);
             border-radius: 50%;
             opacity: 0.7;
         }
@@ -277,7 +277,7 @@
 
         & li {
             counter-increment: list-counter;
-            padding-left: var(--ct-space-5);
+            padding-left: var(--cr-space-5);
 
             &::before {
                 content: counter(list-counter);
@@ -285,9 +285,9 @@
                 height: auto;
                 background: none;
                 border-radius: 0;
-                font-size: var(--ct-text-xs);
+                font-size: var(--cr-text-xs);
                 font-weight: 700;
-                color: var(--ct-accent);
+                color: var(--cr-accent);
                 opacity: 1;
                 top: 0;
             }
@@ -299,23 +299,23 @@
    RENDER CARDS - Complex items in arrays
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-cards {
+.cr-cards {
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-3);
+    gap: var(--cr-space-3);
 }
 
-.ct-formatted .ct-card {
-    padding: var(--ct-space-4);
-    background: var(--ct-bg-secondary);
-    border: 1px solid var(--ct-border);
-    border-radius: var(--ct-radius);
+.cr-formatted .cr-card {
+    padding: var(--cr-space-4);
+    background: var(--cr-bg-secondary);
+    border: 1px solid var(--cr-border);
+    border-radius: var(--cr-radius);
     transition:
-        border-color var(--ct-transition-fast),
-        box-shadow var(--ct-transition-fast);
+        border-color var(--cr-transition-fast),
+        box-shadow var(--cr-transition-fast);
 
     &:hover {
-        border-color: var(--ct-border);
+        border-color: var(--cr-border);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
@@ -323,29 +323,29 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: var(--ct-space-3);
-        margin-bottom: var(--ct-space-3);
+        gap: var(--cr-space-3);
+        margin-bottom: var(--cr-space-3);
     }
 
     &__title {
         font-weight: 700;
-        font-size: var(--ct-text-base);
-        color: var(--ct-text);
+        font-size: var(--cr-text-base);
+        color: var(--cr-text);
     }
 
     &__body {
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
         line-height: 1.7;
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
     }
 
     &__extra {
-        margin-top: var(--ct-space-3);
-        padding-top: var(--ct-space-3);
-        border-top: 1px solid var(--ct-border-muted);
+        margin-top: var(--cr-space-3);
+        padding-top: var(--cr-space-3);
+        border-top: 1px solid var(--cr-border-muted);
         display: flex;
         flex-direction: column;
-        gap: var(--ct-space-2);
+        gap: var(--cr-space-2);
     }
 }
 
@@ -353,19 +353,19 @@
    SCORES - Inline and badge scores
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-score {
+.cr-score {
     display: inline-flex;
     align-items: baseline;
     padding: 2px 8px;
     background: color-mix(
         in srgb,
-        var(--score-color, var(--ct-accent)) 15%,
+        var(--score-color, var(--cr-accent)) 15%,
         transparent
     );
-    border-radius: var(--ct-radius-sm);
+    border-radius: var(--cr-radius-sm);
     font-weight: 700;
-    font-size: var(--ct-text-sm);
-    color: var(--score-color, var(--ct-accent));
+    font-size: var(--cr-text-sm);
+    color: var(--score-color, var(--cr-accent));
     font-variant-numeric: tabular-nums;
 
     &__max {
@@ -377,25 +377,25 @@
 }
 
 /* Inline score (within text) */
-.ct-inline-score {
+.cr-inline-score {
     display: inline-flex;
     align-items: baseline;
     padding: 1px 6px;
     margin: 0 2px;
     background: color-mix(
         in srgb,
-        var(--score-color, var(--ct-accent)) 12%,
+        var(--score-color, var(--cr-accent)) 12%,
         transparent
     );
     border-radius: 4px;
     font-weight: 700;
     font-size: 0.95em;
-    color: var(--score-color, var(--ct-accent));
+    color: var(--score-color, var(--cr-accent));
     font-variant-numeric: tabular-nums;
 
     &__label {
         font-weight: 500;
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
         margin-right: 2px;
     }
 
@@ -410,33 +410,33 @@
    CODE BLOCKS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-code {
+.cr-code {
     position: relative;
-    background: var(--ct-bg-tertiary);
-    border: 1px solid var(--ct-border);
-    border-radius: var(--ct-radius);
+    background: var(--cr-bg-tertiary);
+    border: 1px solid var(--cr-border);
+    border-radius: var(--cr-radius);
     overflow: hidden;
 
     &__lang {
         position: absolute;
-        top: var(--ct-space-2);
-        right: var(--ct-space-2);
+        top: var(--cr-space-2);
+        right: var(--cr-space-2);
         padding: 2px 8px;
-        background: var(--ct-bg-secondary);
-        border-radius: var(--ct-radius-sm);
-        font-size: var(--ct-text-xs);
+        background: var(--cr-bg-secondary);
+        border-radius: var(--cr-radius-sm);
+        font-size: var(--cr-text-xs);
         font-weight: 600;
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
 
     &__pre {
         margin: 0;
-        padding: var(--ct-space-4);
+        padding: var(--cr-space-4);
         overflow-x: auto;
-        font-family: var(--ct-font-mono);
-        font-size: var(--ct-text-xs);
+        font-family: var(--cr-font-mono);
+        font-size: var(--cr-text-xs);
         line-height: 1.6;
 
         & code {
@@ -446,25 +446,25 @@
 }
 
 /* Inline code */
-.ct-inline-code {
+.cr-inline-code {
     padding: 2px 6px;
-    background: var(--ct-bg-tertiary);
+    background: var(--cr-bg-tertiary);
     border-radius: 4px;
-    font-family: var(--ct-font-mono);
+    font-family: var(--cr-font-mono);
     font-size: 0.9em;
-    color: var(--ct-accent);
+    color: var(--cr-accent);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    BOOLEANS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-bool {
+.cr-bool {
     &--yes {
         display: inline-flex;
         align-items: center;
-        gap: var(--ct-space-1);
-        color: var(--ct-success);
+        gap: var(--cr-space-1);
+        color: var(--cr-success);
         font-weight: 600;
 
         & i {
@@ -475,8 +475,8 @@
     &--no {
         display: inline-flex;
         align-items: center;
-        gap: var(--ct-space-1);
-        color: var(--ct-danger);
+        gap: var(--cr-space-1);
+        color: var(--cr-danger);
         font-weight: 600;
 
         & i {
@@ -489,28 +489,28 @@
    UTILITY CLASSES
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-null {
-    color: var(--ct-text-dim);
+.cr-null {
+    color: var(--cr-text-dim);
 }
 
-.ct-formatted .ct-empty {
-    color: var(--ct-text-dim);
+.cr-formatted .cr-empty {
+    color: var(--cr-text-dim);
     font-style: italic;
 }
 
-.ct-num {
-    font-family: var(--ct-font-mono);
+.cr-num {
+    font-family: var(--cr-font-mono);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
 }
 
-.ct-link {
-    color: var(--ct-accent);
+.cr-link {
+    color: var(--cr-accent);
     text-decoration: none;
     border-bottom: 1px solid transparent;
-    transition: border-color var(--ct-transition-fast);
+    transition: border-color var(--cr-transition-fast);
 
     &:hover {
-        border-bottom-color: var(--ct-accent);
+        border-bottom-color: var(--cr-accent);
     }
 }

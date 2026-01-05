@@ -63,7 +63,7 @@ function setDropdownOpen(open: boolean): void {
     isOpen = open;
     const dropdown = $(`#${MODULE_NAME}_char_dropdown`);
     if (dropdown) {
-        dropdown.classList.toggle('ct-dropdown--open', open);
+        dropdown.classList.toggle('cr-dropdown--open', open);
     }
     if (!open) {
         highlightedIndex = -1;
@@ -104,23 +104,23 @@ function renderCharacterOption(
     }
 
     return `
-        <div class="ct-char-option ${isSelected ? 'ct-char-option--selected' : ''} ${index === highlightedIndex ? 'ct-char-option--highlighted' : ''}"
+        <div class="cr-char-option ${isSelected ? 'cr-char-option--selected' : ''} ${index === highlightedIndex ? 'cr-char-option--highlighted' : ''}"
              data-avatar="${DOMPurify.sanitize(char.avatar)}"
              data-index="${index}"
              role="option"
              aria-selected="${isSelected}">
-            <div class="ct-char-option__avatar-wrap">
-                <img class="ct-char-option__avatar"
+            <div class="cr-char-option__avatar-wrap">
+                <img class="cr-char-option__avatar"
                      src="${avatarUrl}"
                      alt=""
                      onerror="this.src='/img/ai4.png'"
                      loading="lazy" />
-                ${isSelected ? '<i class="fa-solid fa-check ct-char-option__check"></i>' : ''}
+                ${isSelected ? '<i class="fa-solid fa-check cr-char-option__check"></i>' : ''}
             </div>
-            <div class="ct-char-option__info">
-                <span class="ct-char-option__name">${DOMPurify.sanitize(char.name)}</span>
-                ${descSnippet ? `<span class="ct-char-option__desc">${DOMPurify.sanitize(descSnippet)}</span>` : ''}
-                <span class="ct-char-option__meta">
+            <div class="cr-char-option__info">
+                <span class="cr-char-option__name">${DOMPurify.sanitize(char.name)}</span>
+                ${descSnippet ? `<span class="cr-char-option__desc">${DOMPurify.sanitize(descSnippet)}</span>` : ''}
+                <span class="cr-char-option__meta">
                     <i class="fa-solid fa-user-pen"></i>
                     ${DOMPurify.sanitize(metaParts.join(' • '))}
                 </span>
@@ -147,7 +147,7 @@ function renderDropdownList(): string {
 
     if (characters.length === 0) {
         return `
-            <div class="ct-dropdown__empty">
+            <div class="cr-dropdown__empty">
                 <i class="fa-solid ${searchQuery ? 'fa-search' : 'fa-users-slash'}"></i>
                 ${searchQuery ? `No matches for "${truncate(searchQuery, 20)}"` : 'No characters available'}
             </div>
@@ -172,43 +172,43 @@ export function renderCharacterSelector(): string {
         : 'Select character...';
 
     const avatarHtml = selectedChar
-        ? `<img class="ct-dropdown__trigger-avatar"
+        ? `<img class="cr-dropdown__trigger-avatar"
                src="${SillyTavern.getContext().getThumbnailUrl('avatar', selectedChar.avatar)}"
                alt=""
                onerror="this.src='/img/ai4.png'" />`
-        : '<i class="fa-solid fa-user ct-dropdown__trigger-icon"></i>';
+        : '<i class="fa-solid fa-user cr-dropdown__trigger-icon"></i>';
 
     return `
-        <div id="${MODULE_NAME}_char_dropdown" class="ct-dropdown ${isOpen ? 'ct-dropdown--open' : ''}">
+        <div id="${MODULE_NAME}_char_dropdown" class="cr-dropdown ${isOpen ? 'cr-dropdown--open' : ''}">
             <button id="${MODULE_NAME}_char_trigger"
-                    class="ct-dropdown__trigger"
+                    class="cr-dropdown__trigger"
                     type="button"
                     aria-haspopup="listbox"
                     aria-expanded="${isOpen}">
                 ${avatarHtml}
-                <span class="ct-dropdown__trigger-text ${!selectedChar ? 'ct-dropdown__trigger-text--placeholder' : ''}">${displayText}</span>
-                <i class="fa-solid fa-chevron-down ct-dropdown__trigger-chevron"></i>
+                <span class="cr-dropdown__trigger-text ${!selectedChar ? 'cr-dropdown__trigger-text--placeholder' : ''}">${displayText}</span>
+                <i class="fa-solid fa-chevron-down cr-dropdown__trigger-chevron"></i>
             </button>
-            <div class="ct-dropdown__panel" role="listbox">
-                <div class="ct-dropdown__search">
-                    <i class="fa-solid fa-search ct-dropdown__search-icon"></i>
+            <div class="cr-dropdown__panel" role="listbox">
+                <div class="cr-dropdown__search">
+                    <i class="fa-solid fa-search cr-dropdown__search-icon"></i>
                     <input type="text"
                            id="${MODULE_NAME}_char_search"
-                           class="ct-dropdown__search-input"
+                           class="cr-dropdown__search-input"
                            placeholder="Search characters..."
                            autocomplete="off"
                            value="${DOMPurify.sanitize(searchQuery)}" />
                     ${
                         searchQuery
                             ? `
-                        <button class="ct-dropdown__search-clear" type="button" aria-label="Clear">
+                        <button class="cr-dropdown__search-clear" type="button" aria-label="Clear">
                             <i class="fa-solid fa-times"></i>
                         </button>
                     `
                             : ''
                     }
                 </div>
-                <div id="${MODULE_NAME}_char_list" class="ct-dropdown__list ct-scrollable">
+                <div id="${MODULE_NAME}_char_list" class="cr-dropdown__list cr-scrollable">
                     ${renderDropdownList()}
                 </div>
             </div>
@@ -235,16 +235,16 @@ export function updateCharacterSelector(): void {
             : 'Select character...';
 
         const avatarHtml = selectedChar
-            ? `<img class="ct-dropdown__trigger-avatar"
+            ? `<img class="cr-dropdown__trigger-avatar"
                    src="${SillyTavern.getContext().getThumbnailUrl('avatar', selectedChar.avatar)}"
                    alt=""
                    onerror="this.src='/img/ai4.png'" />`
-            : '<i class="fa-solid fa-user ct-dropdown__trigger-icon"></i>';
+            : '<i class="fa-solid fa-user cr-dropdown__trigger-icon"></i>';
 
         trigger.innerHTML = `
             ${avatarHtml}
-            <span class="ct-dropdown__trigger-text ${!selectedChar ? 'ct-dropdown__trigger-text--placeholder' : ''}">${displayText}</span>
-            <i class="fa-solid fa-chevron-down ct-dropdown__trigger-chevron"></i>
+            <span class="cr-dropdown__trigger-text ${!selectedChar ? 'cr-dropdown__trigger-text--placeholder' : ''}">${displayText}</span>
+            <i class="fa-solid fa-chevron-down cr-dropdown__trigger-chevron"></i>
         `;
     }
 
@@ -314,7 +314,7 @@ export function bindCharacterSelectorEvents(
         // Keyboard navigation
         cleanups.push(
             on(searchInput, 'keydown', (e) => {
-                const items = $$('.ct-char-option', list!);
+                const items = $$('.cr-char-option', list!);
                 const maxIdx = items.length - 1;
 
                 switch (e.key) {
@@ -352,7 +352,7 @@ export function bindCharacterSelectorEvents(
     }
 
     // Clear search button
-    const clearBtn = $('.ct-dropdown__search-clear', container);
+    const clearBtn = $('.cr-dropdown__search-clear', container);
     if (clearBtn && searchInput) {
         cleanups.push(
             on(clearBtn, 'click', (e) => {
@@ -373,7 +373,7 @@ export function bindCharacterSelectorEvents(
         cleanups.push(
             on(list, 'click', (e) => {
                 const option = (e.target as HTMLElement).closest(
-                    '.ct-char-option',
+                    '.cr-char-option',
                 );
                 if (option) {
                     selectCharacterFromElement(option as HTMLElement);
@@ -398,7 +398,7 @@ export function bindCharacterSelectorEvents(
 function updateHighlight(items: Element[]): void {
     items.forEach((item, idx) => {
         item.classList.toggle(
-            'ct-char-option--highlighted',
+            'cr-char-option--highlighted',
             idx === highlightedIndex,
         );
         if (idx === highlightedIndex) {

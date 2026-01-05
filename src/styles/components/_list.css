@@ -9,7 +9,7 @@
    LIST CONTAINER
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-list {
+.cr-list {
     display: flex;
     flex-direction: column;
 }
@@ -18,38 +18,38 @@
    LIST ITEM
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-list-item {
+.cr-list-item {
     display: flex;
     align-items: flex-start;
-    gap: var(--ct-space-3);
-    padding: var(--ct-space-3);
-    border-bottom: 1px solid var(--ct-border-muted);
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-3);
+    border-bottom: 1px solid var(--cr-border-muted);
     cursor: pointer;
-    transition: background var(--ct-transition-fast);
+    transition: background var(--cr-transition-fast);
 
     &:last-child {
         border-bottom: none;
     }
 
     &:hover {
-        background: var(--ct-bg-secondary);
+        background: var(--cr-bg-secondary);
     }
 
     &--selected {
-        background: var(--ct-accent-muted);
-        border-left: 3px solid var(--ct-accent);
+        background: var(--cr-accent-muted);
+        border-left: 3px solid var(--cr-accent);
     }
 
     &--highlighted {
-        background: var(--ct-bg-tertiary);
-        outline: 2px solid var(--ct-accent);
+        background: var(--cr-bg-tertiary);
+        outline: 2px solid var(--cr-accent);
         outline-offset: -2px;
     }
 
     &__avatar {
         width: 48px;
         height: 48px;
-        border-radius: var(--ct-radius-sm);
+        border-radius: var(--cr-radius-sm);
         object-fit: cover;
         flex-shrink: 0;
 
@@ -68,32 +68,32 @@
         min-width: 0;
         display: flex;
         flex-direction: column;
-        gap: var(--ct-space-1);
+        gap: var(--cr-space-1);
     }
 
     &__title {
         font-weight: 600;
-        font-size: var(--ct-text-sm);
-        color: var(--ct-text);
+        font-size: var(--cr-text-sm);
+        color: var(--cr-text);
     }
 
     &__subtitle {
-        font-size: var(--ct-text-xs);
-        color: var(--ct-text-muted);
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-muted);
     }
 
     &__meta {
         display: flex;
-        gap: var(--ct-space-3);
-        font-size: var(--ct-text-xs);
-        color: var(--ct-text-dim);
+        gap: var(--cr-space-3);
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-dim);
     }
 
     &__actions {
         display: flex;
-        gap: var(--ct-space-1);
+        gap: var(--cr-space-1);
         opacity: 0;
-        transition: opacity var(--ct-transition-fast);
+        transition: opacity var(--cr-transition-fast);
     }
 
     &:hover &__actions {
@@ -105,28 +105,28 @@
    EMPTY STATE
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-empty {
+.cr-empty {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--ct-space-8);
+    padding: var(--cr-space-8);
     text-align: center;
-    color: var(--ct-text-muted);
+    color: var(--cr-text-muted);
 
     &__icon {
         font-size: 3rem;
         opacity: 0.3;
-        margin-bottom: var(--ct-space-4);
+        margin-bottom: var(--cr-space-4);
     }
 
     &__title {
         font-weight: 500;
-        margin-bottom: var(--ct-space-2);
+        margin-bottom: var(--cr-space-2);
     }
 
     &__text {
-        font-size: var(--ct-text-sm);
-        color: var(--ct-text-dim);
+        font-size: var(--cr-text-sm);
+        color: var(--cr-text-dim);
     }
 }

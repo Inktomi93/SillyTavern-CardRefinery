@@ -9,24 +9,24 @@
    BASE FORM CONTROLS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-popup {
+.cr-popup {
     & input[type='text'],
     & input[type='number'],
     & input[type='search'],
     & textarea,
     & select {
         width: 100%;
-        padding: var(--ct-space-2) var(--ct-space-3);
-        font-size: var(--ct-text-sm);
-        font-family: var(--ct-font);
-        color: var(--ct-text);
-        background: var(--ct-bg-secondary);
-        border: 1px solid var(--ct-border);
-        border-radius: var(--ct-radius-sm);
-        transition: border-color var(--ct-transition-fast);
+        padding: var(--cr-space-2) var(--cr-space-3);
+        font-size: var(--cr-text-sm);
+        font-family: var(--cr-font);
+        color: var(--cr-text);
+        background: var(--cr-bg-secondary);
+        border: 1px solid var(--cr-border);
+        border-radius: var(--cr-radius-sm);
+        transition: border-color var(--cr-transition-fast);
 
         &:focus {
-            border-color: var(--ct-accent);
+            border-color: var(--cr-accent);
             outline: none;
         }
     }
@@ -36,9 +36,9 @@
         resize: vertical;
         line-height: 1.5;
 
-        &.ct-textarea--code {
-            font-family: var(--ct-font-mono);
-            font-size: var(--ct-text-xs);
+        &.cr-textarea--code {
+            font-family: var(--cr-font-mono);
+            font-size: var(--cr-text-xs);
         }
     }
 }
@@ -47,38 +47,38 @@
    SEARCH INPUT
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-search {
+.cr-search {
     position: relative;
 
     &__icon {
         position: absolute;
-        left: var(--ct-space-3);
+        left: var(--cr-space-3);
         top: 50%;
         transform: translateY(-50%);
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
         pointer-events: none;
     }
 
     &__input {
-        padding-left: calc(var(--ct-space-3) * 2 + 1em);
+        padding-left: calc(var(--cr-space-3) * 2 + 1em);
     }
 
     &__clear {
         position: absolute;
-        right: var(--ct-space-1);
+        right: var(--cr-space-1);
         top: 50%;
         transform: translateY(-50%);
-        padding: var(--ct-space-1);
+        padding: var(--cr-space-1);
         background: none;
         border: none;
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
         cursor: pointer;
         opacity: 0.7;
-        transition: opacity var(--ct-transition-fast);
+        transition: opacity var(--cr-transition-fast);
 
         &:hover {
             opacity: 1;
-            color: var(--ct-text);
+            color: var(--cr-text);
         }
     }
 }
@@ -87,16 +87,16 @@
    CHECKBOX / TOGGLE
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-checkbox {
+.cr-checkbox {
     display: flex;
     align-items: center;
-    gap: var(--ct-space-2);
+    gap: var(--cr-space-2);
     cursor: pointer;
-    font-size: var(--ct-text-sm);
+    font-size: var(--cr-text-sm);
 
     & input[type='checkbox'] {
         width: auto;
-        accent-color: var(--ct-accent);
+        accent-color: var(--cr-accent);
     }
 }
 
@@ -104,20 +104,20 @@
    FORM GROUP
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-form-group {
+.cr-form-group {
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-1);
+    gap: var(--cr-space-1);
 
     &__label {
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
         font-weight: 500;
-        color: var(--ct-text);
+        color: var(--cr-text);
     }
 
     &__hint {
-        font-size: var(--ct-text-xs);
-        color: var(--ct-text-dim);
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-dim);
     }
 
     &--grow {
@@ -132,22 +132,22 @@
    SELECT DROPDOWN
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-select {
+.cr-select {
     width: auto;
     min-width: 120px;
-    padding: var(--ct-space-1) var(--ct-space-2);
-    font-size: var(--ct-text-xs);
-    font-family: var(--ct-font);
-    color: var(--ct-text);
-    background: var(--ct-bg-secondary);
-    border: 1px solid var(--ct-border);
-    border-radius: var(--ct-radius-sm);
+    padding: var(--cr-space-1) var(--cr-space-2);
+    font-size: var(--cr-text-xs);
+    font-family: var(--cr-font);
+    color: var(--cr-text);
+    background: var(--cr-bg-secondary);
+    border: 1px solid var(--cr-border);
+    border-radius: var(--cr-radius-sm);
     cursor: pointer;
-    transition: border-color var(--ct-transition-fast);
+    transition: border-color var(--cr-transition-fast);
 
     &:hover,
     &:focus {
-        border-color: var(--ct-accent);
+        border-color: var(--cr-accent);
         outline: none;
     }
 }
@@ -156,14 +156,14 @@
    TEXTAREA VARIANTS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-textarea {
+.cr-textarea {
     &--editor {
         width: 100%;
         height: 100%;
         min-height: 200px;
         resize: vertical;
-        font-family: var(--ct-font);
-        font-size: var(--ct-text-sm);
+        font-family: var(--cr-font);
+        font-size: var(--cr-text-sm);
         line-height: 1.6;
     }
 
@@ -176,42 +176,42 @@
    EDITOR COMPONENTS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-editor-wrap {
+.cr-editor-wrap {
     position: relative;
     flex: 1;
     min-height: 200px;
 }
 
-.ct-editor-toolbar {
+.cr-editor-toolbar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--ct-space-2);
-    padding: var(--ct-space-2);
-    background: var(--ct-bg-tertiary);
-    border: 1px solid var(--ct-border-muted);
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2);
+    background: var(--cr-bg-tertiary);
+    border: 1px solid var(--cr-border-muted);
     border-bottom: none;
-    border-radius: var(--ct-radius) var(--ct-radius) 0 0;
+    border-radius: var(--cr-radius) var(--cr-radius) 0 0;
 }
 
-.ct-toolbar-divider {
+.cr-toolbar-divider {
     width: 1px;
     height: 1.5em;
-    background: var(--ct-border-muted);
-    margin: 0 var(--ct-space-1);
+    background: var(--cr-border-muted);
+    margin: 0 var(--cr-space-1);
 }
 
 /* Code editor with syntax highlighting */
-.ct-code-editor {
+.cr-code-editor {
     position: relative;
     flex: 1;
     min-height: 250px;
-    font-family: var(--ct-font-mono);
-    font-size: var(--ct-text-xs);
+    font-family: var(--cr-font-mono);
+    font-size: var(--cr-text-xs);
     line-height: 1.6;
-    border: 1px solid var(--ct-border);
+    border: 1px solid var(--cr-border);
     border-top: none;
-    border-radius: 0 0 var(--ct-radius) var(--ct-radius);
+    border-radius: 0 0 var(--cr-radius) var(--cr-radius);
     overflow: hidden;
 
     &__highlight,
@@ -219,7 +219,7 @@
         position: absolute;
         inset: 0;
         margin: 0;
-        padding: var(--ct-space-3);
+        padding: var(--cr-space-3);
         font-family: inherit;
         font-size: inherit;
         line-height: inherit;
@@ -230,8 +230,8 @@
 
     &__highlight {
         pointer-events: none;
-        background: var(--ct-bg-secondary);
-        color: var(--ct-text);
+        background: var(--cr-bg-secondary);
+        color: var(--cr-text);
 
         & code {
             font-family: inherit;
@@ -242,31 +242,31 @@
     &__textarea {
         background: transparent;
         color: transparent;
-        caret-color: var(--ct-text);
+        caret-color: var(--cr-text);
         resize: none;
         border: none;
         outline: none;
         z-index: 1;
 
         &::selection {
-            background: var(--ct-accent-muted);
+            background: var(--cr-accent-muted);
         }
     }
 
     /* Syntax highlighting colors (hljs classes) */
     & .hljs-string {
-        color: var(--ct-success);
+        color: var(--cr-success);
     }
     & .hljs-number {
-        color: var(--ct-warning);
+        color: var(--cr-warning);
     }
     & .hljs-literal {
-        color: var(--ct-accent);
+        color: var(--cr-accent);
     }
     & .hljs-attr {
-        color: var(--ct-text);
+        color: var(--cr-text);
     }
     & .hljs-punctuation {
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
     }
 }

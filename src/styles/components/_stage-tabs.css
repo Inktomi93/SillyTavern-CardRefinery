@@ -5,38 +5,38 @@
  * Shows status indicators for each stage.
  */
 
-.ct-stage-tabs {
+.cr-stage-tabs {
     display: flex;
-    gap: var(--ct-space-1);
+    gap: var(--cr-space-1);
     flex: 1 1 auto;
     min-width: fit-content; /* Don't shrink below content size */
 }
 
-.ct-stage-tab {
+.cr-stage-tab {
     display: flex;
     align-items: center;
-    gap: var(--ct-space-2);
-    padding: var(--ct-space-2) var(--ct-space-3);
-    font-size: var(--ct-text-sm);
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    font-size: var(--cr-text-sm);
     font-weight: 500;
-    color: var(--ct-text-muted);
+    color: var(--cr-text-muted);
     background: transparent;
     border: 1px solid transparent;
-    border-radius: var(--ct-radius-sm);
+    border-radius: var(--cr-radius-sm);
     cursor: pointer;
-    transition: all var(--ct-transition-fast);
+    transition: all var(--cr-transition-fast);
     white-space: nowrap;
 
     &:hover {
-        color: var(--ct-text);
-        background: var(--ct-bg-secondary);
+        color: var(--cr-text);
+        background: var(--cr-bg-secondary);
     }
 
     &--active {
-        color: var(--ct-text);
-        background: var(--ct-bg);
-        border-color: var(--ct-accent);
-        box-shadow: var(--ct-shadow-sm);
+        color: var(--cr-text);
+        background: var(--cr-bg);
+        border-color: var(--cr-accent);
+        box-shadow: var(--cr-shadow-sm);
     }
 
     &__icon {
@@ -61,16 +61,16 @@
     }
 
     &--running &__status {
-        color: var(--ct-accent);
+        color: var(--cr-accent);
     }
 
     &--complete &__status {
-        color: var(--ct-success);
-        background: var(--ct-success-bg);
+        color: var(--cr-success);
+        background: var(--cr-success-bg);
     }
 
     &--error &__status {
-        color: var(--ct-danger);
-        background: var(--ct-danger-bg);
+        color: var(--cr-danger);
+        background: var(--cr-danger-bg);
     }
 }

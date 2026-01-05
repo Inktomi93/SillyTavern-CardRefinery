@@ -9,7 +9,7 @@
    BODY - Two-panel layout
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-body {
+.cr-body {
     display: flex;
     flex-direction: column;
     flex: 1;
@@ -24,7 +24,7 @@
    PANELS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-panel {
+.cr-panel {
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -33,13 +33,13 @@
     &--left,
     &--config {
         flex: 1 1 auto;
-        border-bottom: 1px solid var(--ct-border-muted);
+        border-bottom: 1px solid var(--cr-border-muted);
         overflow-y: auto;
 
         @media (--desktop) {
-            flex: 0 0 clamp(var(--ct-panel-min), 38%, var(--ct-panel-max));
+            flex: 0 0 clamp(var(--cr-panel-min), 38%, var(--cr-panel-max));
             border-bottom: none;
-            border-right: 1px solid var(--ct-border-muted);
+            border-right: 1px solid var(--cr-border-muted);
         }
     }
 
@@ -57,7 +57,7 @@
         flex: 1;
         min-height: 0;
         overflow-y: auto;
-        padding: var(--ct-space-3);
+        padding: var(--cr-space-3);
     }
 }
 
@@ -65,13 +65,13 @@
    SECTIONS - Content grouping with optional header
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-section {
+.cr-section {
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-3);
-    padding: var(--ct-space-3);
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-3);
     padding-top: 0; /* Header has its own padding */
-    border-bottom: 1px solid var(--ct-border);
+    border-bottom: 1px solid var(--cr-border);
 
     &:last-child {
         border-bottom: none;
@@ -81,27 +81,27 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: var(--ct-space-2);
-        margin: 0 calc(-1 * var(--ct-space-3));
+        gap: var(--cr-space-2);
+        margin: 0 calc(-1 * var(--cr-space-3));
         margin-bottom: 0;
-        padding: var(--ct-space-2) var(--ct-space-3);
-        background: var(--ct-bg-tertiary);
-        border-bottom: 1px solid var(--ct-border-muted);
+        padding: var(--cr-space-2) var(--cr-space-3);
+        background: var(--cr-bg-tertiary);
+        border-bottom: 1px solid var(--cr-border-muted);
     }
 
     &__title {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-2);
-        font-size: var(--ct-text-sm);
+        gap: var(--cr-space-2);
+        font-size: var(--cr-text-sm);
         font-weight: 600;
-        color: var(--ct-text);
+        color: var(--cr-text);
         text-transform: uppercase;
         letter-spacing: 0.025em;
 
         & i {
-            color: var(--ct-accent);
-            font-size: var(--ct-text-sm);
+            color: var(--cr-accent);
+            font-size: var(--cr-text-sm);
             width: 1.25em;
             text-align: center;
         }
@@ -109,7 +109,7 @@
 
     &__actions {
         display: flex;
-        gap: var(--ct-space-1);
+        gap: var(--cr-space-1);
     }
 }
 
@@ -117,26 +117,26 @@
    CARDS - Elevated content container
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-card {
-    background: var(--ct-bg-secondary);
-    border: 1px solid var(--ct-border-muted);
-    border-radius: var(--ct-radius);
+.cr-card {
+    background: var(--cr-bg-secondary);
+    border: 1px solid var(--cr-border-muted);
+    border-radius: var(--cr-radius);
     overflow: hidden;
 
     &--interactive {
         cursor: pointer;
         transition:
-            background var(--ct-transition-fast),
-            border-color var(--ct-transition-fast);
+            background var(--cr-transition-fast),
+            border-color var(--cr-transition-fast);
 
         &:hover {
-            background: var(--ct-bg-tertiary);
-            border-color: var(--ct-border);
+            background: var(--cr-bg-tertiary);
+            border-color: var(--cr-border);
         }
     }
 
     &--selected {
-        background: var(--ct-accent-muted);
-        border-color: var(--ct-accent);
+        background: var(--cr-accent-muted);
+        border-color: var(--cr-accent);
     }
 }

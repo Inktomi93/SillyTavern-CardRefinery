@@ -155,7 +155,7 @@ export function formatValue(value: unknown, field: CharacterField): string {
 }
 
 /**
- * Format object-type fields.
+ * Format objecr-type fields.
  */
 function formatObjectValue(value: unknown, key: string): string {
     if (!value || typeof value !== 'object') return '';

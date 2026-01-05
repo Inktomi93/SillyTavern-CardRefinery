@@ -5,45 +5,45 @@
  * Shows additions, removals, and diff statistics.
  */
 
-.ct-compare-view {
+.cr-compare-view {
     display: flex;
     flex-direction: column;
     height: 100%;
     min-height: 0;
 }
 
-.ct-compare-header {
+.cr-compare-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--ct-space-2) var(--ct-space-3);
-    border-bottom: 1px solid var(--ct-border);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    border-bottom: 1px solid var(--cr-border);
     flex-shrink: 0;
 }
 
-.ct-compare-stats {
+.cr-compare-stats {
     display: flex;
-    gap: var(--ct-space-2);
+    gap: var(--cr-space-2);
 }
 
-.ct-compare-list {
+.cr-compare-list {
     flex: 1;
     overflow-y: auto;
-    padding: var(--ct-space-2);
+    padding: var(--cr-space-2);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    COMPARE ROW
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-compare-row {
-    margin-bottom: var(--ct-space-3);
-    border: 1px solid var(--ct-border);
-    border-radius: var(--ct-radius);
+.cr-compare-row {
+    margin-bottom: var(--cr-space-3);
+    border: 1px solid var(--cr-border);
+    border-radius: var(--cr-radius);
     overflow: hidden;
 
     &--changed {
-        border-color: var(--ct-accent);
+        border-color: var(--cr-accent);
     }
 
     &--unchanged {
@@ -54,27 +54,27 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ct-space-2) var(--ct-space-3);
-        background: var(--ct-bg-secondary);
-        border-bottom: 1px solid var(--ct-border);
+        padding: var(--cr-space-2) var(--cr-space-3);
+        background: var(--cr-bg-secondary);
+        border-bottom: 1px solid var(--cr-border);
     }
 
     &__label {
         font-weight: 600;
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
     }
 
     &__badges {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-2);
+        gap: var(--cr-space-2);
     }
 
     &__content {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 1px;
-        background: var(--ct-border);
+        background: var(--cr-border);
 
         &--single {
             grid-template-columns: 1fr;
@@ -87,33 +87,33 @@
    COMPARE COLUMNS
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-compare-col {
-    background: var(--ct-bg);
-    padding: var(--ct-space-2);
+.cr-compare-col {
+    background: var(--cr-bg);
+    padding: var(--cr-space-2);
 
     &__header {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-2);
-        font-size: var(--ct-text-xs);
+        gap: var(--cr-space-2);
+        font-size: var(--cr-text-xs);
         font-weight: 600;
         text-transform: uppercase;
-        color: var(--ct-text-dim);
-        margin-bottom: var(--ct-space-2);
+        color: var(--cr-text-dim);
+        margin-bottom: var(--cr-space-2);
     }
 
     &--original &__header {
-        color: var(--ct-danger);
+        color: var(--cr-danger);
     }
 
     &--rewritten &__header {
-        color: var(--ct-success);
+        color: var(--cr-success);
     }
 }
 
-.ct-compare-text {
-    font-family: var(--ct-font-mono);
-    font-size: var(--ct-text-xs);
+.cr-compare-text {
+    font-family: var(--cr-font-mono);
+    font-size: var(--cr-text-xs);
     line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-word;
@@ -126,17 +126,17 @@
    DIFF HIGHLIGHTING
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-diff {
+.cr-diff {
     &--added {
-        background: rgba(var(--ct-success-rgb, 46, 160, 67), 0.2);
-        color: var(--ct-success);
+        background: rgba(var(--cr-success-rgb, 46, 160, 67), 0.2);
+        color: var(--cr-success);
         padding: 0 2px;
         border-radius: 2px;
     }
 
     &--removed {
-        background: rgba(var(--ct-danger-rgb, 248, 81, 73), 0.2);
-        color: var(--ct-danger);
+        background: rgba(var(--cr-danger-rgb, 248, 81, 73), 0.2);
+        color: var(--cr-danger);
         text-decoration: line-through;
         opacity: 0.8;
         padding: 0 2px;
@@ -145,19 +145,19 @@
 }
 
 /* GitHub-style +/- display */
-.ct-diff-stats {
+.cr-diff-stats {
     display: inline-flex;
-    gap: var(--ct-space-2);
-    font-size: var(--ct-text-xs);
-    font-family: var(--ct-font-mono);
+    gap: var(--cr-space-2);
+    font-size: var(--cr-text-xs);
+    font-family: var(--cr-font-mono);
     font-weight: 600;
 
     &__add {
-        color: var(--ct-success);
+        color: var(--cr-success);
     }
 
     &__del {
-        color: var(--ct-danger);
+        color: var(--cr-danger);
     }
 }
 
@@ -165,27 +165,27 @@
    COMPARE POPUP
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-compare-popup {
+.cr-compare-popup {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--ct-space-4);
+    gap: var(--cr-space-4);
 
     &__side {
         & h4 {
-            margin-bottom: var(--ct-space-2);
+            margin-bottom: var(--cr-space-2);
             font-weight: 600;
         }
 
         & pre {
-            font-size: var(--ct-text-xs);
+            font-size: var(--cr-text-xs);
             line-height: 1.6;
             white-space: pre-wrap;
             word-break: break-word;
             max-height: 400px;
             overflow-y: auto;
-            padding: var(--ct-space-2);
-            background: var(--ct-bg-secondary);
-            border-radius: var(--ct-radius);
+            padding: var(--cr-space-2);
+            background: var(--cr-bg-secondary);
+            border-radius: var(--cr-radius);
         }
     }
 }

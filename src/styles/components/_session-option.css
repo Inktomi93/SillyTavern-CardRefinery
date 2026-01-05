@@ -5,12 +5,12 @@
  * Shows name, metadata, and inline action buttons.
  */
 
-.ct-session-option {
+.cr-session-option {
     display: flex;
     align-items: center;
-    gap: var(--ct-space-2);
-    padding: var(--ct-space-2) var(--ct-space-3);
-    border-bottom: 1px solid var(--ct-border-muted);
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    border-bottom: 1px solid var(--cr-border-muted);
     cursor: pointer;
     transition: background 0.15s ease;
 
@@ -19,14 +19,14 @@
     }
 
     &:hover {
-        background: var(--ct-bg-tertiary);
+        background: var(--cr-bg-tertiary);
     }
 
     &--active {
-        background: var(--ct-accent-muted);
+        background: var(--cr-accent-muted);
 
         &:hover {
-            background: var(--ct-accent-muted);
+            background: var(--cr-accent-muted);
         }
     }
 
@@ -41,8 +41,8 @@
     &__name {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-2);
-        font-size: var(--ct-text-sm);
+        gap: var(--cr-space-2);
+        font-size: var(--cr-text-sm);
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
@@ -51,34 +51,34 @@
 
     &__indicator {
         font-size: 6px;
-        color: var(--ct-accent);
+        color: var(--cr-accent);
         flex-shrink: 0;
     }
 
     &__name-input {
         flex: 1;
-        padding: var(--ct-space-1) var(--ct-space-2);
-        font-size: var(--ct-text-sm);
-        border: 1px solid var(--ct-accent);
-        border-radius: var(--ct-radius-sm);
-        background: var(--ct-bg);
-        color: var(--ct-text);
+        padding: var(--cr-space-1) var(--cr-space-2);
+        font-size: var(--cr-text-sm);
+        border: 1px solid var(--cr-accent);
+        border-radius: var(--cr-radius-sm);
+        background: var(--cr-bg);
+        color: var(--cr-text);
         outline: none;
 
         &:focus {
-            box-shadow: 0 0 0 2px var(--ct-accent-muted);
+            box-shadow: 0 0 0 2px var(--cr-accent-muted);
         }
     }
 
     &__meta {
         display: flex;
-        gap: var(--ct-space-2);
-        font-size: var(--ct-text-xs);
-        color: var(--ct-text-muted);
+        gap: var(--cr-space-2);
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-muted);
 
         & span::after {
             content: '•';
-            margin-left: var(--ct-space-2);
+            margin-left: var(--cr-space-2);
             opacity: 0.5;
         }
 
@@ -98,15 +98,15 @@
         }
 
         & .menu_button--ghost {
-            padding: var(--ct-space-1);
+            padding: var(--cr-space-1);
 
             &:hover {
-                background: var(--ct-bg-secondary);
+                background: var(--cr-bg-secondary);
             }
         }
 
-        & .ct-session-delete:hover {
-            color: var(--ct-danger);
+        & .cr-session-delete:hover {
+            color: var(--cr-danger);
         }
     }
 

@@ -64,19 +64,19 @@ export function renderApiStatus(): string {
     const profiles = cmrsAvailable ? getAvailableProfiles() : [];
 
     const statusIcon = status.isReady
-        ? 'fa-circle-check ct-text-success'
-        : 'fa-circle-xmark ct-text-danger';
+        ? 'fa-circle-check cr-text-success'
+        : 'fa-circle-xmark cr-text-danger';
 
     const statusClass = status.isReady
-        ? 'ct-api-status--ready'
-        : 'ct-api-status--error';
+        ? 'cr-api-status--ready'
+        : 'cr-api-status--error';
 
     // Profile selector (if CMRS available)
     const profileSelector =
         cmrsAvailable && profiles.length > 0
             ? `
         <select id="${MODULE_NAME}_profile_select" 
-                class="ct-select ct-select--sm text_pole" 
+                class="cr-select cr-selecr--sm text_pole" 
                 aria-label="Connection profile">
             <option value="" ${!selectedProfileId ? 'selected' : ''}>
                 Current Settings
@@ -87,16 +87,16 @@ export function renderApiStatus(): string {
             : '';
 
     return `
-        <div id="${MODULE_NAME}_api_status" class="ct-api-status ${statusClass}">
-            <div class="ct-api-status__indicator">
+        <div id="${MODULE_NAME}_api_status" class="cr-api-status ${statusClass}">
+            <div class="cr-api-status__indicator">
                 <i class="fa-solid ${statusIcon}"></i>
-                <span class="ct-api-status__text">${DOMPurify.sanitize(status.modelDisplay)}</span>
+                <span class="cr-api-status__text">${DOMPurify.sanitize(status.modelDisplay)}</span>
             </div>
             ${profileSelector}
             ${
                 status.error
                     ? `
-                <span class="ct-api-status__error" title="${DOMPurify.sanitize(status.error)}">
+                <span class="cr-api-status__error" title="${DOMPurify.sanitize(status.error)}">
                     <i class="fa-solid fa-exclamation-triangle"></i>
                 </span>
             `
@@ -113,11 +113,11 @@ export function renderApiStatusCompact(): string {
     const status = getApiStatus(selectedProfileId);
 
     const statusIcon = status.isReady
-        ? 'fa-circle-check ct-text-success'
-        : 'fa-circle-xmark ct-text-danger';
+        ? 'fa-circle-check cr-text-success'
+        : 'fa-circle-xmark cr-text-danger';
 
     return `
-        <div class="ct-api-badge ${cx(!status.isReady && 'ct-api-badge--error')}" 
+        <div class="cr-api-badge ${cx(!status.isReady && 'cr-api-badge--error')}" 
              title="${status.statusText}${status.error ? ': ' + status.error : ''}">
             <i class="fa-solid ${statusIcon}"></i>
             <span>${status.modelDisplay}</span>

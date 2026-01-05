@@ -9,7 +9,7 @@
    DRAWER CONTAINER
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-drawer {
+.cr-drawer {
     position: absolute;
     inset: 0;
     z-index: 100; /* Above popup content but within dialog */
@@ -24,11 +24,11 @@
         pointer-events: auto;
         visibility: visible;
 
-        & .ct-drawer__backdrop {
+        & .cr-drawer__backdrop {
             opacity: 1;
         }
 
-        & .ct-drawer__panel {
+        & .cr-drawer__panel {
             transform: translateX(0);
         }
     }
@@ -39,7 +39,7 @@
         inset: 0;
         background: rgba(0, 0, 0, 0.6);
         opacity: 0;
-        transition: opacity var(--ct-transition);
+        transition: opacity var(--cr-transition);
         backdrop-filter: blur(4px);
     }
 
@@ -51,11 +51,11 @@
         bottom: 0;
         width: 100%;
         max-width: 640px;
-        background: var(--SmartThemeBlurTintColor, var(--ct-bg));
-        border-left: 1px solid var(--ct-border);
+        background: var(--SmartThemeBlurTintColor, var(--cr-bg));
+        border-left: 1px solid var(--cr-border);
         box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
         transform: translateX(100%);
-        transition: transform var(--ct-transition);
+        transition: transform var(--cr-transition);
         display: flex;
         flex-direction: column;
 
@@ -77,25 +77,25 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ct-space-3) var(--ct-space-4);
-        background: var(--ct-bg-secondary);
-        border-bottom: 1px solid var(--ct-border-muted);
+        padding: var(--cr-space-3) var(--cr-space-4);
+        background: var(--cr-bg-secondary);
+        border-bottom: 1px solid var(--cr-border-muted);
         flex-shrink: 0;
     }
 
     &__title {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-2);
+        gap: var(--cr-space-2);
 
         & h3 {
             margin: 0;
-            font-size: var(--ct-text-lg);
+            font-size: var(--cr-text-lg);
             font-weight: 600;
         }
 
         & i {
-            font-size: var(--ct-text-base);
+            font-size: var(--cr-text-base);
         }
     }
 
@@ -104,19 +104,19 @@
         flex: 1;
         min-height: 0;
         overflow-y: auto;
-        padding: var(--ct-space-4);
+        padding: var(--cr-space-4);
         display: flex;
         flex-direction: column;
-        gap: var(--ct-space-4);
+        gap: var(--cr-space-4);
     }
 
     /* Footer */
     &__footer {
         display: flex;
         align-items: center;
-        padding: var(--ct-space-3) var(--ct-space-4);
-        background: var(--ct-bg-secondary);
-        border-top: 1px solid var(--ct-border-muted);
+        padding: var(--cr-space-3) var(--cr-space-4);
+        background: var(--cr-bg-secondary);
+        border-top: 1px solid var(--cr-border-muted);
         flex-shrink: 0;
 
         &--list {
@@ -127,8 +127,8 @@
     /* Tabs (for list view) */
     &__tabs {
         display: flex;
-        background: var(--ct-bg-secondary);
-        border-bottom: 1px solid var(--ct-border-muted);
+        background: var(--cr-bg-secondary);
+        border-bottom: 1px solid var(--cr-border-muted);
         flex-shrink: 0;
     }
 
@@ -137,25 +137,25 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: var(--ct-space-2);
-        padding: var(--ct-space-3);
-        font-size: var(--ct-text-sm);
+        gap: var(--cr-space-2);
+        padding: var(--cr-space-3);
+        font-size: var(--cr-text-sm);
         font-weight: 500;
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
         background: none;
         border: none;
         border-bottom: 2px solid transparent;
         cursor: pointer;
-        transition: all var(--ct-transition-fast);
+        transition: all var(--cr-transition-fast);
 
         &:hover {
-            color: var(--ct-text);
-            background: var(--ct-bg-tertiary);
+            color: var(--cr-text);
+            background: var(--cr-bg-tertiary);
         }
 
         &--active {
-            color: var(--ct-accent);
-            border-bottom-color: var(--ct-accent);
+            color: var(--cr-accent);
+            border-bottom-color: var(--cr-accent);
         }
     }
 }
@@ -164,62 +164,62 @@
    PRESET MANAGEMENT
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-.ct-preset-manage {
+.cr-preset-manage {
     display: inline-flex;
     align-items: center;
-    gap: var(--ct-space-1);
-    padding: var(--ct-space-1);
-    color: var(--ct-text-muted);
+    gap: var(--cr-space-1);
+    padding: var(--cr-space-1);
+    color: var(--cr-text-muted);
     background: transparent;
     border: none;
-    border-radius: var(--ct-radius-sm);
+    border-radius: var(--cr-radius-sm);
     cursor: pointer;
-    transition: all var(--ct-transition-fast);
+    transition: all var(--cr-transition-fast);
 
     &:hover {
-        color: var(--ct-accent);
-        background: var(--ct-accent-muted);
+        color: var(--cr-accent);
+        background: var(--cr-accent-muted);
     }
 }
 
-.ct-preset-row {
+.cr-preset-row {
     display: flex;
     align-items: center;
-    gap: var(--ct-space-2);
+    gap: var(--cr-space-2);
 
-    & .ct-select {
+    & .cr-select {
         flex: 1;
         min-width: 0;
     }
 
     &__actions {
         display: flex;
-        gap: var(--ct-space-1);
+        gap: var(--cr-space-1);
         flex-shrink: 0;
     }
 }
 
 /* Chip/tag selector */
-.ct-chip {
+.cr-chip {
     display: inline-flex;
     align-items: center;
-    gap: var(--ct-space-1);
-    padding: var(--ct-space-1) var(--ct-space-2);
-    font-size: var(--ct-text-xs);
-    background: var(--ct-bg-secondary);
-    border: 1px solid var(--ct-border-muted);
-    border-radius: var(--ct-radius-pill);
+    gap: var(--cr-space-1);
+    padding: var(--cr-space-1) var(--cr-space-2);
+    font-size: var(--cr-text-xs);
+    background: var(--cr-bg-secondary);
+    border: 1px solid var(--cr-border-muted);
+    border-radius: var(--cr-radius-pill);
     cursor: pointer;
-    transition: all var(--ct-transition-fast);
+    transition: all var(--cr-transition-fast);
 
     &:hover {
-        border-color: var(--ct-accent);
+        border-color: var(--cr-accent);
     }
 
     &--active {
-        background: var(--ct-accent-muted);
-        border-color: var(--ct-accent);
-        color: var(--ct-accent);
+        background: var(--cr-accent-muted);
+        border-color: var(--cr-accent);
+        color: var(--cr-accent);
     }
 
     & input[type='checkbox'] {

@@ -10,21 +10,21 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 @media (--mobile) {
-    .ct-popup .menu_button {
+    .cr-popup .menu_button {
         min-height: 44px;
-        padding: var(--ct-space-3);
+        padding: var(--cr-space-3);
     }
 
-    .ct-tab {
+    .cr-tab {
         min-height: 44px;
     }
 
-    .ct-list-item {
-        padding: var(--ct-space-4);
+    .cr-list-item {
+        padding: var(--cr-space-4);
     }
 
     /* Always show action buttons on mobile (no hover) */
-    .ct-list-item__actions {
+    .cr-list-item__actions {
         opacity: 1;
     }
 }
@@ -34,9 +34,9 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 @media (--reduced-motion) {
-    .ct-popup *,
-    .ct-popup *::before,
-    .ct-popup *::after {
+    .cr-popup *,
+    .cr-popup *::before,
+    .cr-popup *::after {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
@@ -48,8 +48,8 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 @media (--high-contrast) {
-    .ct-popup {
-        --ct-border: var(--ct-text);
-        --ct-border-muted: var(--ct-text-muted);
+    .cr-popup {
+        --cr-border: var(--cr-text);
+        --cr-border-muted: var(--cr-text-muted);
     }
 }

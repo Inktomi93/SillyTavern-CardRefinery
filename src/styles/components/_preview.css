@@ -4,29 +4,29 @@
  * Content previews for popups and error displays.
  */
 
-.ct-preview-content {
+.cr-preview-content {
     max-height: 60vh;
     overflow-y: auto;
-    padding: var(--ct-space-3);
-    background: var(--ct-bg-secondary);
-    border-radius: var(--ct-radius);
+    padding: var(--cr-space-3);
+    background: var(--cr-bg-secondary);
+    border-radius: var(--cr-radius);
 
     & pre {
         margin: 0;
         padding: 0;
-        font-family: var(--ct-font-mono);
-        font-size: var(--ct-text-xs);
+        font-family: var(--cr-font-mono);
+        font-size: var(--cr-text-xs);
         line-height: 1.5;
         white-space: pre-wrap;
         word-break: break-word;
     }
 }
 
-.ct-error-box {
-    padding: var(--ct-space-3);
-    background: var(--ct-danger-bg);
-    border: 1px solid var(--ct-danger);
-    border-radius: var(--ct-radius);
-    color: var(--ct-danger);
-    font-size: var(--ct-text-sm);
+.cr-error-box {
+    padding: var(--cr-space-3);
+    background: var(--cr-danger-bg);
+    border: 1px solid var(--cr-danger);
+    border-radius: var(--cr-radius);
+    color: var(--cr-danger);
+    font-size: var(--cr-text-sm);
 }

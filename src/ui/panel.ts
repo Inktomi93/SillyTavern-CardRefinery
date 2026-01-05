@@ -30,20 +30,20 @@ function getPanelHTML(): string {
         </div>
         <div class="inline-drawer-content">
             <div class="flex-container flexFlowColumn">
-                <small class="ct-panel-version">Version ${VERSION}</small>
-                <p class="ct-panel-desc">
+                <small class="cr-panel-version">Version ${VERSION}</small>
+                <p class="cr-panel-desc">
                     AI-powered character card analysis, scoring, and enhancement.
                     Run the pipeline to evaluate and improve your character cards.
                 </p>
-                <div class="ct-panel-actions">
+                <div class="cr-panel-actions">
                     <button id="${MODULE_NAME}_open_btn" class="menu_button menu_button_icon">
                         <i class="fa-solid fa-play"></i>
                         <span>Open Character Tools</span>
                     </button>
                 </div>
-                <hr class="ct-panel-divider" />
-                <div class="ct-panel-debug">
-                    <label class="ct-panel-checkbox">
+                <hr class="cr-panel-divider" />
+                <div class="cr-panel-debug">
+                    <label class="cr-panel-checkbox">
                         <input type="checkbox" id="${MODULE_NAME}_debug_mode" ${settings.debugMode ? 'checked' : ''} />
                         <span>Enable debug logging</span>
                     </label>

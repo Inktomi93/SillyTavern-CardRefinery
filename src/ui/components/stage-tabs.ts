@@ -38,9 +38,9 @@ const STATUS_ICONS: Record<StageStatus, string> = {
 
 const STATUS_CLASSES: Record<StageStatus, string> = {
     pending: '',
-    running: 'ct-stage-tab--running',
-    complete: 'ct-stage-tab--complete',
-    error: 'ct-stage-tab--error',
+    running: 'cr-stage-tab--running',
+    complete: 'cr-stage-tab--complete',
+    error: 'cr-stage-tab--error',
 };
 
 // =============================================================================
@@ -54,17 +54,17 @@ function renderStageTab(stage: StageName): string {
 
     const statusIcon = STATUS_ICONS[status];
     const statusBadge = statusIcon
-        ? `<span class="ct-stage-tab__status"><i class="fa-solid ${statusIcon}"></i></span>`
+        ? `<span class="cr-stage-tab__status"><i class="fa-solid ${statusIcon}"></i></span>`
         : '';
 
     return `
-        <button class="ct-stage-tab ${cx(isActive && 'ct-stage-tab--active')} ${STATUS_CLASSES[status]}"
+        <button class="cr-stage-tab ${cx(isActive && 'cr-stage-tab--active')} ${STATUS_CLASSES[status]}"
                 data-stage="${stage}"
                 role="tab"
                 aria-selected="${isActive}"
                 type="button">
-            <i class="fa-solid ${STAGE_ICONS[stage]} ct-stage-tab__icon"></i>
-            <span class="ct-stage-tab__label">${STAGE_LABELS[stage]}</span>
+            <i class="fa-solid ${STAGE_ICONS[stage]} cr-stage-tab__icon"></i>
+            <span class="cr-stage-tab__label">${STAGE_LABELS[stage]}</span>
             ${statusBadge}
         </button>
     `;
@@ -75,7 +75,7 @@ function renderStageTab(stage: StageName): string {
  */
 export function renderStageTabs(): string {
     return `
-        <nav class="ct-stage-tabs" role="tablist" aria-label="Pipeline stages">
+        <nav class="cr-stage-tabs" role="tablist" aria-label="Pipeline stages">
             ${STAGES.map(renderStageTab).join('')}
         </nav>
     `;
@@ -102,8 +102,8 @@ export function renderPipelineControls(): string {
     // Generating state - show spinner and stop button
     if (state.isGenerating) {
         return `
-            <div class="ct-pipeline-controls ct-pipeline-controls--generating">
-                <div class="ct-pipeline-status">
+            <div class="cr-pipeline-controls cr-pipeline-controls--generating">
+                <div class="cr-pipeline-status">
                     <i class="fa-solid fa-spinner fa-spin"></i>
                     <span>Generating...</span>
                 </div>
@@ -120,14 +120,14 @@ export function renderPipelineControls(): string {
     // Iteration row - only shown when iterate is available
     const iterationRow = canIterate
         ? `
-        <div class="ct-iteration-row">
-            <div class="ct-iteration-row__label">
+        <div class="cr-iteration-row">
+            <div class="cr-iteration-row__label">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Iteration ${state.iterationCount + 1}</span>
             </div>
             <input type="text"
                    id="${MODULE_NAME}_guidance_input"
-                   class="ct-iteration-row__input"
+                   class="cr-iteration-row__input"
                    placeholder="Optional guidance to steer refinement..."
                    value="${DOMPurify.sanitize(getUserGuidance())}"
                    title="Focus areas or constraints for the next iteration" />
@@ -143,8 +143,8 @@ export function renderPipelineControls(): string {
         : '';
 
     return `
-        <div class="ct-pipeline-controls">
-            <div class="ct-pipeline-controls__main">
+        <div class="cr-pipeline-controls">
+            <div class="cr-pipeline-controls__main">
                 <button id="${MODULE_NAME}_run_stage"
                         class="menu_button menu_button--primary"
                         type="button"
@@ -176,7 +176,7 @@ export function renderPipelineControls(): string {
  * Update stage tabs display.
  */
 export function updateStageTabs(): void {
-    const tabsContainer = $('.ct-stage-tabs');
+    const tabsContainer = $('.cr-stage-tabs');
     if (!tabsContainer) return;
 
     tabsContainer.innerHTML = STAGES.map(renderStageTab).join('');
@@ -403,12 +403,12 @@ export function bindStageTabsEvents(container: HTMLElement): () => void {
     const cleanups: Array<() => void> = [];
 
     // Tab clicks
-    const tabsContainer = $('.ct-stage-tabs', container);
+    const tabsContainer = $('.cr-stage-tabs', container);
     if (tabsContainer) {
         cleanups.push(
             on(tabsContainer, 'click', (e) => {
                 const target = e.target as HTMLElement;
-                const tab = target.closest('.ct-stage-tab') as HTMLElement;
+                const tab = target.closest('.cr-stage-tab') as HTMLElement;
                 if (!tab) return;
 
                 const stage = tab.dataset.stage as StageName;

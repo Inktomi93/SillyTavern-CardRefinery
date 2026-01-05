@@ -4,29 +4,29 @@
  * Generating/loading states with spinner animation.
  */
 
-.ct-loading {
+.cr-loading {
     display: flex;
     align-items: center;
-    gap: var(--ct-space-3);
-    padding: var(--ct-space-3);
-    background: var(--ct-accent-muted);
-    border-radius: var(--ct-radius);
-    color: var(--ct-accent);
-    font-size: var(--ct-text-sm);
-    animation: ct-pulse 2s ease-in-out infinite;
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-3);
+    background: var(--cr-accent-muted);
+    border-radius: var(--cr-radius);
+    color: var(--cr-accent);
+    font-size: var(--cr-text-sm);
+    animation: cr-pulse 2s ease-in-out infinite;
 
     &__spinner {
-        animation: ct-spin 1s linear infinite;
+        animation: cr-spin 1s linear infinite;
     }
 }
 
-@keyframes ct-spin {
+@keyframes cr-spin {
     to {
         transform: rotate(360deg);
     }
 }
 
-@keyframes ct-pulse {
+@keyframes cr-pulse {
     0%,
     100% {
         opacity: 1;

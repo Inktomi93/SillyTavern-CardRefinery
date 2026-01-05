@@ -5,40 +5,40 @@
  * Shows avatar, name, description, and selection state.
  */
 
-.ct-char-option {
+.cr-char-option {
     display: flex;
     align-items: flex-start;
-    gap: var(--ct-space-3);
-    padding: var(--ct-space-3);
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-3);
     cursor: pointer;
-    border-radius: var(--ct-radius);
-    background: var(--ct-bg-secondary);
+    border-radius: var(--cr-radius);
+    background: var(--cr-bg-secondary);
     border: 1px solid transparent;
     transition:
-        background var(--ct-transition-fast),
-        border-color var(--ct-transition-fast),
-        box-shadow var(--ct-transition-fast),
-        transform var(--ct-transition-fast);
+        background var(--cr-transition-fast),
+        border-color var(--cr-transition-fast),
+        box-shadow var(--cr-transition-fast),
+        transform var(--cr-transition-fast);
 
     &:hover {
-        background: var(--ct-bg-tertiary);
-        border-color: var(--ct-border);
+        background: var(--cr-bg-tertiary);
+        border-color: var(--cr-border);
         transform: translateX(2px);
     }
 
     &--selected {
-        background: var(--ct-accent-muted);
-        border-color: var(--ct-accent);
+        background: var(--cr-accent-muted);
+        border-color: var(--cr-accent);
 
         &:hover {
-            background: var(--ct-accent-muted);
+            background: var(--cr-accent-muted);
         }
     }
 
     &--highlighted {
-        background: var(--ct-bg-tertiary);
-        border-color: var(--ct-accent);
-        box-shadow: 0 0 0 2px var(--ct-accent-muted);
+        background: var(--cr-bg-tertiary);
+        border-color: var(--cr-accent);
+        box-shadow: 0 0 0 2px var(--cr-accent-muted);
     }
 
     /* Avatar wrapper with selection indicator */
@@ -50,18 +50,18 @@
     &__avatar {
         width: 48px;
         height: 48px;
-        border-radius: var(--ct-radius);
+        border-radius: var(--cr-radius);
         object-fit: cover;
-        border: 2px solid var(--ct-border-muted);
-        transition: border-color var(--ct-transition-fast);
+        border: 2px solid var(--cr-border-muted);
+        transition: border-color var(--cr-transition-fast);
     }
 
     &:hover &__avatar {
-        border-color: var(--ct-accent);
+        border-color: var(--cr-accent);
     }
 
     &--selected &__avatar {
-        border-color: var(--ct-accent);
+        border-color: var(--cr-accent);
     }
 
     &__check {
@@ -73,8 +73,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: var(--ct-accent);
-        color: var(--ct-bg);
+        background: var(--cr-accent);
+        color: var(--cr-bg);
         border-radius: 50%;
         font-size: 10px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -90,17 +90,17 @@
     }
 
     &__name {
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
         font-weight: 600;
-        color: var(--ct-text);
+        color: var(--cr-text);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     &__desc {
-        font-size: var(--ct-text-xs);
-        color: var(--ct-text-dim);
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-dim);
         line-height: 1.4;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -111,9 +111,9 @@
     &__meta {
         display: flex;
         align-items: center;
-        gap: var(--ct-space-1);
+        gap: var(--cr-space-1);
         font-size: 10px;
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
         margin-top: 2px;
 
         & i {

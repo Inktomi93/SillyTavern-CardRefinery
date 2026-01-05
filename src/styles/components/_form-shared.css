@@ -4,111 +4,111 @@
  * Form elements used across settings modal and preset drawer.
  */
 
-.ct-label {
+.cr-label {
     display: block;
-    margin-bottom: var(--ct-space-1);
-    font-size: var(--ct-text-sm);
+    margin-bottom: var(--cr-space-1);
+    font-size: var(--cr-text-sm);
     font-weight: 500;
-    color: var(--ct-text);
+    color: var(--cr-text);
 }
 
-.ct-required {
-    color: var(--ct-danger);
+.cr-required {
+    color: var(--cr-danger);
 }
 
-.ct-input {
+.cr-input {
     width: 100%;
-    padding: var(--ct-space-2) var(--ct-space-3);
-    font-size: var(--ct-text-sm);
-    font-family: var(--ct-font);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    font-size: var(--cr-text-sm);
+    font-family: var(--cr-font);
 }
 
-.ct-hint {
+.cr-hint {
     display: block;
-    margin-top: var(--ct-space-1);
-    font-size: var(--ct-text-xs);
-    color: var(--ct-text-dim);
+    margin-top: var(--cr-space-1);
+    font-size: var(--cr-text-xs);
+    color: var(--cr-text-dim);
 }
 
-.ct-checkbox-group {
+.cr-checkbox-group {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--ct-space-3);
-    padding: var(--ct-space-2);
-    background: var(--ct-bg-tertiary);
-    border-radius: var(--ct-radius-sm);
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-2);
+    background: var(--cr-bg-tertiary);
+    border-radius: var(--cr-radius-sm);
 }
 
-.ct-checkbox-label {
+.cr-checkbox-label {
     display: flex;
     align-items: center;
-    gap: var(--ct-space-2);
-    font-size: var(--ct-text-sm);
-    color: var(--ct-text);
+    gap: var(--cr-space-2);
+    font-size: var(--cr-text-sm);
+    color: var(--cr-text);
     cursor: pointer;
 
     & input[type='checkbox'] {
         width: auto;
-        accent-color: var(--ct-accent);
+        accent-color: var(--cr-accent);
         cursor: pointer;
     }
 }
 
-.ct-schema-toolbar {
+.cr-schema-toolbar {
     display: flex;
-    gap: var(--ct-space-2);
-    margin-bottom: var(--ct-space-2);
+    gap: var(--cr-space-2);
+    margin-bottom: var(--cr-space-2);
 }
 
 /* Validation messages */
-.ct-errors,
-.ct-warnings {
+.cr-errors,
+.cr-warnings {
     display: flex;
     flex-direction: column;
-    gap: var(--ct-space-1);
-    padding: var(--ct-space-3);
-    border-radius: var(--ct-radius-sm);
+    gap: var(--cr-space-1);
+    padding: var(--cr-space-3);
+    border-radius: var(--cr-radius-sm);
 }
 
-.ct-errors {
-    background: var(--ct-danger-bg);
-    border: 1px solid var(--ct-danger);
+.cr-errors {
+    background: var(--cr-danger-bg);
+    border: 1px solid var(--cr-danger);
 }
 
-.ct-warnings {
-    background: var(--ct-warning-bg);
-    border: 1px solid var(--ct-warning);
+.cr-warnings {
+    background: var(--cr-warning-bg);
+    border: 1px solid var(--cr-warning);
 }
 
-.ct-error {
-    font-size: var(--ct-text-sm);
-    color: var(--ct-danger);
+.cr-error {
+    font-size: var(--cr-text-sm);
+    color: var(--cr-danger);
 }
 
-.ct-warning {
-    font-size: var(--ct-text-sm);
-    color: var(--ct-warning);
+.cr-warning {
+    font-size: var(--cr-text-sm);
+    color: var(--cr-warning);
 }
 
 /* Collapsible details */
-.ct-collapsible {
-    border: 1px solid var(--ct-border-muted);
-    border-radius: var(--ct-radius-sm);
+.cr-collapsible {
+    border: 1px solid var(--cr-border-muted);
+    border-radius: var(--cr-radius-sm);
 
     & summary {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: var(--ct-space-2) var(--ct-space-3);
-        font-size: var(--ct-text-sm);
+        padding: var(--cr-space-2) var(--cr-space-3);
+        font-size: var(--cr-text-sm);
         font-weight: 500;
         cursor: pointer;
-        background: var(--ct-bg-secondary);
+        background: var(--cr-bg-secondary);
         list-style: none;
-        transition: background var(--ct-transition-fast);
+        transition: background var(--cr-transition-fast);
 
         &:hover {
-            background: var(--ct-bg-tertiary);
+            background: var(--cr-bg-tertiary);
         }
 
         &::-webkit-details-marker {
@@ -117,28 +117,28 @@
     }
 
     &[open] summary {
-        border-bottom: 1px solid var(--ct-border-muted);
+        border-bottom: 1px solid var(--cr-border-muted);
     }
 
     &__content {
-        padding: var(--ct-space-3);
+        padding: var(--cr-space-3);
     }
 }
 
 /* Shortcut display */
-.ct-shortcut {
+.cr-shortcut {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--ct-space-2);
-    border-radius: var(--ct-radius-sm);
+    padding: var(--cr-space-2);
+    border-radius: var(--cr-radius-sm);
 
     &__keys {
         display: flex;
-        gap: var(--ct-space-1);
+        gap: var(--cr-space-1);
     }
 
     &__desc {
-        color: var(--ct-text-muted);
+        color: var(--cr-text-muted);
     }
 }

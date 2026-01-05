@@ -26,7 +26,7 @@ function setDropdownOpen(open: boolean): void {
     isOpen = open;
     const dropdown = $(`#${MODULE_NAME}_session_dropdown`);
     if (dropdown) {
-        dropdown.classList.toggle('ct-dropdown--open', open);
+        dropdown.classList.toggle('cr-dropdown--open', open);
     }
     if (!open) {
         editingSessionId = null;
@@ -63,57 +63,57 @@ function renderSessionOption(session: Session, isActive: boolean): string {
     const historyCount = session.history.length;
 
     return `
-        <div class="ct-session-option ${cx(isActive && 'ct-session-option--active')}"
+        <div class="cr-session-option ${cx(isActive && 'cr-session-option--active')}"
              data-session-id="${session.id}"
              role="option"
              aria-selected="${isActive}">
-            <div class="ct-session-option__content">
+            <div class="cr-session-option__content">
                 ${
                     isEditing
                         ? `
                     <input type="text"
-                           class="ct-session-option__name-input"
+                           class="cr-session-option__name-input"
                            value="${DOMPurify.sanitize(session.name || '')}"
                            placeholder="Session name..."
                            autocomplete="off"
                            data-session-id="${session.id}" />
                 `
                         : `
-                    <div class="ct-session-option__name">
-                        ${isActive ? '<i class="fa-solid fa-circle ct-session-option__indicator"></i>' : ''}
+                    <div class="cr-session-option__name">
+                        ${isActive ? '<i class="fa-solid fa-circle cr-session-option__indicator"></i>' : ''}
                         <span>${DOMPurify.sanitize(displayName)}</span>
                     </div>
                 `
                 }
-                <div class="ct-session-option__meta">
+                <div class="cr-session-option__meta">
                     <span>${fieldCount} fields</span>
                     <span>${historyCount} runs</span>
                 </div>
             </div>
-            <div class="ct-session-option__actions ${cx(isEditing && 'ct-session-option__actions--editing')}">
+            <div class="cr-session-option__actions ${cx(isEditing && 'cr-session-option__actions--editing')}">
                 ${
                     isEditing
                         ? `
-                    <button class="ct-session-save menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    <button class="cr-session-save menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button"
                             title="Save name"
                             data-session-id="${session.id}">
                         <i class="fa-solid fa-check"></i>
                     </button>
-                    <button class="ct-session-cancel menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    <button class="cr-session-cancel menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button"
                             title="Cancel">
                         <i class="fa-solid fa-times"></i>
                     </button>
                 `
                         : `
-                    <button class="ct-session-edit menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    <button class="cr-session-edit menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button"
                             title="Rename session"
                             data-session-id="${session.id}">
                         <i class="fa-solid fa-pencil"></i>
                     </button>
-                    <button class="ct-session-delete menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    <button class="cr-session-delete menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button"
                             title="Delete session"
                             data-session-id="${session.id}">
@@ -132,7 +132,7 @@ function renderDropdownList(): string {
 
     if (!state.character) {
         return `
-            <div class="ct-dropdown__empty">
+            <div class="cr-dropdown__empty">
                 <i class="fa-solid fa-user-slash"></i>
                 Select a character first
             </div>
@@ -141,7 +141,7 @@ function renderDropdownList(): string {
 
     if (sessions.length === 0) {
         return `
-            <div class="ct-dropdown__empty">
+            <div class="cr-dropdown__empty">
                 <i class="fa-solid fa-folder-open"></i>
                 No sessions yet
             </div>
@@ -174,25 +174,25 @@ export function renderSessionDropdown(): string {
     const sessionCount = state.sessions.length;
 
     return `
-        <div id="${MODULE_NAME}_session_dropdown" class="ct-dropdown ct-dropdown--session ${cx(isOpen && 'ct-dropdown--open')} ${cx(!hasCharacter && 'ct-dropdown--disabled')}">
+        <div id="${MODULE_NAME}_session_dropdown" class="cr-dropdown cr-dropdown--session ${cx(isOpen && 'cr-dropdown--open')} ${cx(!hasCharacter && 'cr-dropdown--disabled')}">
             <button id="${MODULE_NAME}_session_trigger"
-                    class="ct-dropdown__trigger ct-dropdown__trigger--session"
+                    class="cr-dropdown__trigger cr-dropdown__trigger--session"
                     type="button"
                     aria-haspopup="listbox"
                     aria-expanded="${isOpen}"
                     ${!hasCharacter ? 'disabled' : ''}>
-                <i class="fa-solid fa-folder ct-dropdown__trigger-icon"></i>
-                <span class="ct-dropdown__trigger-text ${cx(!activeSession && 'ct-dropdown__trigger-text--placeholder')}">${SillyTavern.libs.DOMPurify.sanitize(displayText)}</span>
-                ${sessionCount > 0 ? `<span class="ct-dropdown__count">${sessionCount}</span>` : ''}
-                <i class="fa-solid fa-chevron-down ct-dropdown__trigger-chevron"></i>
+                <i class="fa-solid fa-folder cr-dropdown__trigger-icon"></i>
+                <span class="cr-dropdown__trigger-text ${cx(!activeSession && 'cr-dropdown__trigger-text--placeholder')}">${SillyTavern.libs.DOMPurify.sanitize(displayText)}</span>
+                ${sessionCount > 0 ? `<span class="cr-dropdown__count">${sessionCount}</span>` : ''}
+                <i class="fa-solid fa-chevron-down cr-dropdown__trigger-chevron"></i>
             </button>
-            <div class="ct-dropdown__panel ct-dropdown__panel--session" role="listbox">
-                <div id="${MODULE_NAME}_session_list" class="ct-dropdown__list ct-dropdown__list--session ct-scrollable">
+            <div class="cr-dropdown__panel cr-dropdown__panel--session" role="listbox">
+                <div id="${MODULE_NAME}_session_list" class="cr-dropdown__list cr-dropdown__list--session cr-scrollable">
                     ${renderDropdownList()}
                 </div>
-                <div class="ct-dropdown__footer">
+                <div class="cr-dropdown__footer">
                     <button id="${MODULE_NAME}_new_session_btn"
-                            class="menu_button menu_button--sm menu_button--primary ct-dropdown__new-btn"
+                            class="menu_button menu_button--sm menu_button--primary cr-dropdown__new-btn"
                             type="button"
                             ${!hasCharacter ? 'disabled' : ''}>
                         <i class="fa-solid fa-plus"></i>
@@ -218,7 +218,7 @@ export function updateSessionDropdown(): void {
     const hasCharacter = !!state.character;
 
     // Update disabled state
-    dropdown.classList.toggle('ct-dropdown--disabled', !hasCharacter);
+    dropdown.classList.toggle('cr-dropdown--disabled', !hasCharacter);
 
     // Update trigger
     const trigger = $(`#${MODULE_NAME}_session_trigger`) as HTMLButtonElement;
@@ -234,10 +234,10 @@ export function updateSessionDropdown(): void {
 
         const sessionCount = state.sessions.length;
         trigger.innerHTML = `
-            <i class="fa-solid fa-folder ct-dropdown__trigger-icon"></i>
-            <span class="ct-dropdown__trigger-text ${cx(!activeSession && 'ct-dropdown__trigger-text--placeholder')}">${SillyTavern.libs.DOMPurify.sanitize(displayText)}</span>
-            ${sessionCount > 0 ? `<span class="ct-dropdown__count">${sessionCount}</span>` : ''}
-            <i class="fa-solid fa-chevron-down ct-dropdown__trigger-chevron"></i>
+            <i class="fa-solid fa-folder cr-dropdown__trigger-icon"></i>
+            <span class="cr-dropdown__trigger-text ${cx(!activeSession && 'cr-dropdown__trigger-text--placeholder')}">${SillyTavern.libs.DOMPurify.sanitize(displayText)}</span>
+            ${sessionCount > 0 ? `<span class="cr-dropdown__count">${sessionCount}</span>` : ''}
+            <i class="fa-solid fa-chevron-down cr-dropdown__trigger-chevron"></i>
         `;
     }
 
@@ -308,7 +308,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(list, 'click', async (e) => {
                 const target = e.target as HTMLElement;
-                const sessionOption = target.closest('.ct-session-option');
+                const sessionOption = target.closest('.cr-session-option');
                 if (!sessionOption) return;
 
                 const sessionId =
@@ -317,14 +317,14 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                 if (!sessionId) return;
 
                 // Handle edit button
-                if (target.closest('.ct-session-edit')) {
+                if (target.closest('.cr-session-edit')) {
                     e.stopPropagation();
                     editingSessionId = sessionId;
                     updateSessionDropdown();
                     // Focus the input
                     setTimeout(() => {
                         const input = $(
-                            `.ct-session-option__name-input[data-session-id="${sessionId}"]`,
+                            `.cr-session-option__name-input[data-session-id="${sessionId}"]`,
                         ) as HTMLInputElement;
                         if (input) {
                             input.focus();
@@ -335,10 +335,10 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                 }
 
                 // Handle save button
-                if (target.closest('.ct-session-save')) {
+                if (target.closest('.cr-session-save')) {
                     e.stopPropagation();
                     const input = $(
-                        `.ct-session-option__name-input[data-session-id="${sessionId}"]`,
+                        `.cr-session-option__name-input[data-session-id="${sessionId}"]`,
                     ) as HTMLInputElement;
                     if (input) {
                         await renameSession(sessionId, input.value);
@@ -350,7 +350,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                 }
 
                 // Handle cancel button
-                if (target.closest('.ct-session-cancel')) {
+                if (target.closest('.cr-session-cancel')) {
                     e.stopPropagation();
                     editingSessionId = null;
                     updateSessionDropdown();
@@ -358,7 +358,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                 }
 
                 // Handle delete button
-                if (target.closest('.ct-session-delete')) {
+                if (target.closest('.cr-session-delete')) {
                     e.stopPropagation();
                     const confirmed = await popup.confirm(
                         'Delete Session',
@@ -376,7 +376,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                 // Handle click on session to load it (if not active and not editing)
                 if (
                     !sessionOption.classList.contains(
-                        'ct-session-option--active',
+                        'cr-session-option--active',
                     ) &&
                     !editingSessionId
                 ) {
@@ -396,7 +396,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(list, 'keydown', async (e) => {
                 const target = e.target as HTMLElement;
-                if (!target.classList.contains('ct-session-option__name-input'))
+                if (!target.classList.contains('cr-session-option__name-input'))
                     return;
 
                 const sessionId = (target as HTMLInputElement).dataset

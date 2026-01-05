@@ -81,21 +81,21 @@ function renderResultContent(
 
     if (!result) {
         return `
-            <div class="ct-empty">
-                <i class="fa-solid ${STAGE_ICONS[stage]} ct-empty__icon"></i>
-                <div class="ct-empty__title">No results yet</div>
-                <div class="ct-empty__text">Run ${STAGE_LABELS[stage]} to see results</div>
+            <div class="cr-empty">
+                <i class="fa-solid ${STAGE_ICONS[stage]} cr-empty__icon"></i>
+                <div class="cr-empty__title">No results yet</div>
+                <div class="cr-empty__text">Run ${STAGE_LABELS[stage]} to see results</div>
             </div>
         `;
     }
 
     if (result.error) {
         return `
-            <div class="ct-alert ct-alert--danger">
-                <i class="fa-solid fa-exclamation-triangle ct-alert__icon"></i>
-                <div class="ct-alert__content">
-                    <div class="ct-alert__title">Error</div>
-                    <div class="ct-alert__message">${DOMPurify.sanitize(result.error)}</div>
+            <div class="cr-alert cr-alert--danger">
+                <i class="fa-solid fa-exclamation-triangle cr-alert__icon"></i>
+                <div class="cr-alert__content">
+                    <div class="cr-alert__title">Error</div>
+                    <div class="cr-alert__message">${DOMPurify.sanitize(result.error)}</div>
                 </div>
             </div>
         `;
@@ -132,32 +132,32 @@ function renderResultContent(
             } catch {
                 highlightedHtml = DOMPurify.sanitize(formattedJson);
             }
-            contentHtml = `<pre class="ct-result__code hljs"><code>${highlightedHtml}</code></pre>`;
+            contentHtml = `<pre class="cr-result__code hljs"><code>${highlightedHtml}</code></pre>`;
         }
 
         return `
-            <div class="ct-result">
-                <div class="ct-result__header">
-                    <span class="ct-result__type">
+            <div class="cr-result">
+                <div class="cr-result__header">
+                    <span class="cr-result__type">
                         <i class="fa-solid fa-brackets-curly"></i>
                         Structured Output
                     </span>
-                    <div class="ct-result__actions">
-                        <div class="ct-json-toggle">
-                            <button class="ct-json-toggle__btn ${jsonDisplayMode === 'smart' ? 'ct-json-toggle__btn--active' : ''}"
+                    <div class="cr-result__actions">
+                        <div class="cr-json-toggle">
+                            <button class="cr-json-toggle__btn ${jsonDisplayMode === 'smart' ? 'cr-json-toggle__btn--active' : ''}"
                                     data-mode="smart"
                                     type="button"
                                     title="Smart formatted view">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                             </button>
-                            <button class="ct-json-toggle__btn ${jsonDisplayMode === 'raw' ? 'ct-json-toggle__btn--active' : ''}"
+                            <button class="cr-json-toggle__btn ${jsonDisplayMode === 'raw' ? 'cr-json-toggle__btn--active' : ''}"
                                     data-mode="raw"
                                     type="button"
                                     title="Raw JSON view">
                                 <i class="fa-solid fa-code"></i>
                             </button>
                         </div>
-                        <button class="ct-result-copy menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                        <button class="cr-result-copy menu_button menu_button--icon menu_button--sm menu_button--ghost"
                                 data-content="${encodeURIComponent(formattedJson)}"
                                 type="button"
                                 title="Copy to clipboard">
@@ -165,7 +165,7 @@ function renderResultContent(
                         </button>
                     </div>
                 </div>
-                <div class="ct-result__content">
+                <div class="cr-result__content">
                     ${contentHtml}
                 </div>
             </div>
@@ -178,32 +178,32 @@ function renderResultContent(
         contentHtml = formatResponse(result.output);
     } else {
         // Raw text output - preserve whitespace and escape HTML
-        contentHtml = `<pre class="ct-result__raw">${DOMPurify.sanitize(result.output)}</pre>`;
+        contentHtml = `<pre class="cr-result__raw">${DOMPurify.sanitize(result.output)}</pre>`;
     }
 
     return `
-        <div class="ct-result">
-            <div class="ct-result__header">
-                <span class="ct-result__type">
+        <div class="cr-result">
+            <div class="cr-result__header">
+                <span class="cr-result__type">
                     <i class="fa-solid fa-file-lines"></i>
                     Analysis
                 </span>
-                <div class="ct-result__actions">
-                    <div class="ct-text-toggle">
-                        <button class="ct-text-toggle__btn ${textDisplayMode === 'formatted' ? 'ct-text-toggle__btn--active' : ''}"
+                <div class="cr-result__actions">
+                    <div class="cr-text-toggle">
+                        <button class="cr-text-toggle__btn ${textDisplayMode === 'formatted' ? 'cr-text-toggle__btn--active' : ''}"
                                 data-mode="formatted"
                                 type="button"
                                 title="Formatted view">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </button>
-                        <button class="ct-text-toggle__btn ${textDisplayMode === 'raw' ? 'ct-text-toggle__btn--active' : ''}"
+                        <button class="cr-text-toggle__btn ${textDisplayMode === 'raw' ? 'cr-text-toggle__btn--active' : ''}"
                                 data-mode="raw"
                                 type="button"
                                 title="Raw text (easy to copy)">
                             <i class="fa-solid fa-code"></i>
                         </button>
                     </div>
-                    <button class="ct-result-copy menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    <button class="cr-result-copy menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             data-content="${encodeURIComponent(result.output)}"
                             type="button"
                             title="Copy to clipboard">
@@ -211,7 +211,7 @@ function renderResultContent(
                     </button>
                 </div>
             </div>
-            <div class="ct-result__content">
+            <div class="cr-result__content">
                 ${contentHtml}
             </div>
         </div>
@@ -234,25 +234,25 @@ function renderHistoryItem(result: StageResult, index: number): string {
         state.stageResults[result.stage]?.timestamp === result.timestamp;
 
     return `
-        <div class="ct-list-item ${cx(
-            result.error && 'ct-list-item--error',
-            isViewing && 'ct-list-item--viewing',
-            isCurrentResult && 'ct-list-item--current',
+        <div class="cr-list-item ${cx(
+            result.error && 'cr-list-item--error',
+            isViewing && 'cr-list-item--viewing',
+            isCurrentResult && 'cr-list-item--current',
         )}"
              data-index="${index}">
-            <div class="ct-list-item__content">
-                <div class="ct-row ct-row--between">
-                    <span class="ct-list-item__title">
-                        <i class="fa-solid ${STAGE_ICONS[result.stage]} ct-text-accent"></i>
+            <div class="cr-list-item__content">
+                <div class="cr-row cr-row--between">
+                    <span class="cr-list-item__title">
+                        <i class="fa-solid ${STAGE_ICONS[result.stage]} cr-text-accent"></i>
                         ${STAGE_LABELS[result.stage]}
-                        ${isCurrentResult ? '<span class="ct-badge ct-badge--sm">current</span>' : ''}
+                        ${isCurrentResult ? '<span class="cr-badge cr-badge--sm">current</span>' : ''}
                     </span>
-                    <span class="ct-text-xs ct-text-dim" title="${fullTime}">${timeStr}</span>
+                    <span class="cr-text-xs cr-text-dim" title="${fullTime}">${timeStr}</span>
                 </div>
-                <div class="ct-list-item__subtitle ct-truncate">${DOMPurify.sanitize(preview)}</div>
+                <div class="cr-list-item__subtitle cr-truncate">${DOMPurify.sanitize(preview)}</div>
             </div>
-            <div class="ct-list-item__actions">
-                <button class="ct-history-restore menu_button menu_button--icon menu_button--sm menu_button--ghost"
+            <div class="cr-list-item__actions">
+                <button class="cr-history-restore menu_button menu_button--icon menu_button--sm menu_button--ghost"
                         data-index="${index}"
                         type="button"
                         title="Restore this result as current">
@@ -286,32 +286,32 @@ export function renderResultsPanel(): string {
     // History navigation bar (shown when viewing history)
     const historyNavBar = isViewingHistory
         ? `
-            <div class="ct-history-nav">
-                <div class="ct-history-nav__info">
+            <div class="cr-history-nav">
+                <div class="cr-history-nav__info">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Viewing history ${(state.viewingHistoryIndex ?? 0) + 1} of ${state.iterationHistory.length}</span>
                 </div>
-                <div class="ct-history-nav__controls">
-                    <button class="ct-history-nav__btn menu_button menu_button--icon menu_button--sm"
+                <div class="cr-history-nav__controls">
+                    <button class="cr-history-nav__btn menu_button menu_button--icon menu_button--sm"
                             id="${MODULE_NAME}_history_prev"
                             type="button"
                             title="Previous"
                             ${state.viewingHistoryIndex === 0 ? 'disabled' : ''}>
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
-                    <button class="ct-history-nav__btn menu_button menu_button--icon menu_button--sm"
+                    <button class="cr-history-nav__btn menu_button menu_button--icon menu_button--sm"
                             id="${MODULE_NAME}_history_next"
                             type="button"
                             title="Next">
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
-                    <button class="ct-history-nav__btn menu_button menu_button--primary menu_button--sm"
+                    <button class="cr-history-nav__btn menu_button menu_button--primary menu_button--sm"
                             id="${MODULE_NAME}_history_restore"
                             type="button"
                             title="Restore this as current result">
                         <i class="fa-solid fa-rotate-left"></i> Restore
                     </button>
-                    <button class="ct-history-nav__btn menu_button menu_button--sm"
+                    <button class="cr-history-nav__btn menu_button menu_button--sm"
                             id="${MODULE_NAME}_history_back"
                             type="button"
                             title="Back to current results">
@@ -326,14 +326,14 @@ export function renderResultsPanel(): string {
     const viewToggle =
         hasRewrite && !isViewingHistory
             ? `
-            <div class="ct-view-toggle">
-                <button class="ct-view-toggle__btn ${currentViewMode === 'result' ? 'ct-view-toggle__btn--active' : ''}"
+            <div class="cr-view-toggle">
+                <button class="cr-view-toggle__btn ${currentViewMode === 'result' ? 'cr-view-toggle__btn--active' : ''}"
                         data-view="result"
                         type="button"
                         title="Show stage result">
                     <i class="fa-solid fa-file-lines"></i> Result
                 </button>
-                <button class="ct-view-toggle__btn ${currentViewMode === 'compare' ? 'ct-view-toggle__btn--active' : ''}"
+                <button class="cr-view-toggle__btn ${currentViewMode === 'compare' ? 'cr-view-toggle__btn--active' : ''}"
                         data-view="compare"
                         type="button"
                         title="Compare original vs rewritten">
@@ -343,7 +343,7 @@ export function renderResultsPanel(): string {
             ${
                 hasUpdates
                     ? `
-                <button class="menu_button menu_button--primary menu_button--sm ct-apply-btn"
+                <button class="menu_button menu_button--primary menu_button--sm cr-apply-btn"
                         type="button"
                         title="Apply rewritten content to character card">
                     <i class="fa-solid fa-check"></i> Apply
@@ -367,16 +367,16 @@ export function renderResultsPanel(): string {
     // Only show history section if there's actual history
     const historySection = hasHistory
         ? `
-            <div class="ct-history ${cx(!state.historyExpanded && 'ct-history--collapsed')}">
-                <button class="ct-history__toggle"
+            <div class="cr-history ${cx(!state.historyExpanded && 'cr-history--collapsed')}">
+                <button class="cr-history__toggle"
                         type="button"
                         aria-expanded="${state.historyExpanded}"
                         title="Previous pipeline runs in this session">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Run History (${state.iterationHistory.length})</span>
-                    <i class="fa-solid fa-chevron-down ct-history__toggle-icon"></i>
+                    <i class="fa-solid fa-chevron-down cr-history__toggle-icon"></i>
                 </button>
-                <div id="${MODULE_NAME}_history_list" class="ct-history__list ct-list">
+                <div id="${MODULE_NAME}_history_list" class="cr-history__list cr-list">
                     ${state.iterationHistory
                         .map((r, i) => renderHistoryItem(r, i))
                         .join('')}
@@ -386,15 +386,15 @@ export function renderResultsPanel(): string {
         : '';
 
     return `
-        <div class="ct-results-wrapper">
+        <div class="cr-results-wrapper">
             <!-- History Navigation (when viewing history) -->
             ${historyNavBar}
 
             <!-- View Toggle -->
-            ${viewToggle ? `<div class="ct-results-toolbar">${viewToggle}</div>` : ''}
+            ${viewToggle ? `<div class="cr-results-toolbar">${viewToggle}</div>` : ''}
 
             <!-- Results/Compare content -->
-            <div id="${MODULE_NAME}_results_content" class="ct-results-content">
+            <div id="${MODULE_NAME}_results_content" class="cr-results-content">
                 ${content}
             </div>
 
@@ -413,24 +413,24 @@ export function updateResults(): void {
     const hasUpdates = hasRewrite && buildFieldUpdates().length > 0;
     const hasHistory = state.iterationHistory.length > 0;
 
-    const resultsWrapper = $('.ct-results-wrapper');
+    const resultsWrapper = $('.cr-results-wrapper');
     if (!resultsWrapper) return;
 
     // Update or create the view toggle toolbar
     let toolbar = resultsWrapper.querySelector(
-        '.ct-results-toolbar',
+        '.cr-results-toolbar',
     ) as HTMLElement | null;
 
     if (hasRewrite) {
         const viewToggleHtml = `
-            <div class="ct-view-toggle">
-                <button class="ct-view-toggle__btn ${currentViewMode === 'result' ? 'ct-view-toggle__btn--active' : ''}"
+            <div class="cr-view-toggle">
+                <button class="cr-view-toggle__btn ${currentViewMode === 'result' ? 'cr-view-toggle__btn--active' : ''}"
                         data-view="result"
                         type="button"
                         title="Show stage result">
                     <i class="fa-solid fa-file-lines"></i> Result
                 </button>
-                <button class="ct-view-toggle__btn ${currentViewMode === 'compare' ? 'ct-view-toggle__btn--active' : ''}"
+                <button class="cr-view-toggle__btn ${currentViewMode === 'compare' ? 'cr-view-toggle__btn--active' : ''}"
                         data-view="compare"
                         type="button"
                         title="Compare original vs rewritten">
@@ -440,7 +440,7 @@ export function updateResults(): void {
             ${
                 hasUpdates
                     ? `
-                <button class="menu_button menu_button--primary menu_button--sm ct-apply-btn"
+                <button class="menu_button menu_button--primary menu_button--sm cr-apply-btn"
                         type="button"
                         title="Apply rewritten content to character card">
                     <i class="fa-solid fa-check"></i> Apply
@@ -452,7 +452,7 @@ export function updateResults(): void {
 
         if (!toolbar) {
             toolbar = document.createElement('div');
-            toolbar.className = 'ct-results-toolbar';
+            toolbar.className = 'cr-results-toolbar';
             const resultsContent = $(`#${MODULE_NAME}_results_content`);
             if (resultsContent) {
                 resultsWrapper.insertBefore(toolbar, resultsContent);
@@ -479,23 +479,23 @@ export function updateResults(): void {
 
     // Update or create history section
     let historySection = resultsWrapper.querySelector(
-        '.ct-history',
+        '.cr-history',
     ) as HTMLElement | null;
 
     if (hasHistory) {
         if (!historySection) {
             historySection = document.createElement('div');
-            historySection.className = `ct-history ${!state.historyExpanded ? 'ct-history--collapsed' : ''}`;
+            historySection.className = `cr-history ${!state.historyExpanded ? 'cr-history--collapsed' : ''}`;
             historySection.innerHTML = `
-                <button class="ct-history__toggle"
+                <button class="cr-history__toggle"
                         type="button"
                         aria-expanded="${state.historyExpanded}"
                         title="Previous pipeline runs in this session">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Run History (${state.iterationHistory.length})</span>
-                    <i class="fa-solid fa-chevron-down ct-history__toggle-icon"></i>
+                    <i class="fa-solid fa-chevron-down cr-history__toggle-icon"></i>
                 </button>
-                <div id="${MODULE_NAME}_history_list" class="ct-history__list ct-list">
+                <div id="${MODULE_NAME}_history_list" class="cr-history__list cr-list">
                 </div>
             `;
             resultsWrapper.appendChild(historySection);
@@ -512,7 +512,7 @@ export function updateResults(): void {
 
         // Update toggle text
         const toggleSpan = historySection.querySelector(
-            '.ct-history__toggle span',
+            '.cr-history__toggle span',
         );
         if (toggleSpan) {
             toggleSpan.textContent = `Run History (${state.iterationHistory.length})`;
@@ -532,7 +532,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
     cleanups.push(
         on(container, 'click', (e) => {
             const btn = (e.target as HTMLElement).closest(
-                '.ct-view-toggle__btn',
+                '.cr-view-toggle__btn',
             );
             if (!btn) return;
 
@@ -558,7 +558,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
     cleanups.push(
         on(container, 'click', (e) => {
             const btn = (e.target as HTMLElement).closest(
-                '.ct-json-toggle__btn',
+                '.cr-json-toggle__btn',
             );
             if (!btn) return;
 
@@ -574,7 +574,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
     cleanups.push(
         on(container, 'click', (e) => {
             const btn = (e.target as HTMLElement).closest(
-                '.ct-text-toggle__btn',
+                '.cr-text-toggle__btn',
             );
             if (!btn) return;
 
@@ -591,7 +591,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
     // Apply button
     cleanups.push(
         on(container, 'click', (e) => {
-            const applyBtn = (e.target as HTMLElement).closest('.ct-apply-btn');
+            const applyBtn = (e.target as HTMLElement).closest('.cr-apply-btn');
             if (!applyBtn) return;
 
             showApplyDialog();
@@ -604,7 +604,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(resultsContent, 'click', async (e) => {
                 const copyBtn = (e.target as HTMLElement).closest(
-                    '.ct-result-copy',
+                    '.cr-result-copy',
                 );
                 if (!copyBtn) return;
 
@@ -638,13 +638,13 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
     }
 
     // History toggle
-    const historyToggle = $('.ct-history__toggle', container);
-    const historySection = $('.ct-history', container);
+    const historyToggle = $('.cr-history__toggle', container);
+    const historySection = $('.cr-history', container);
     if (historyToggle && historySection) {
         cleanups.push(
             on(historyToggle, 'click', () => {
                 toggleHistory();
-                historySection.classList.toggle('ct-history--collapsed');
+                historySection.classList.toggle('cr-history--collapsed');
                 historyToggle.setAttribute(
                     'aria-expanded',
                     String(getState().historyExpanded),
@@ -697,7 +697,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
                 const target = e.target as HTMLElement;
 
                 // Restore button on individual item
-                const restoreBtn = target.closest('.ct-history-restore');
+                const restoreBtn = target.closest('.cr-history-restore');
                 if (restoreBtn) {
                     e.stopPropagation();
                     const index = parseInt(
@@ -711,7 +711,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
                 }
 
                 // Click on item content - view in main panel
-                const item = target.closest('.ct-list-item');
+                const item = target.closest('.cr-list-item');
                 if (!item) return;
 
                 const index = parseInt(

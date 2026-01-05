@@ -5,11 +5,11 @@
  * Inherits ST's native font settings.
  */
 
-.ct-popup {
+.cr-popup {
     /* Use ST's native font settings */
-    font-family: var(--ct-font);
-    font-size: var(--ct-font-size);
-    color: var(--ct-text);
+    font-family: var(--cr-font);
+    font-size: var(--cr-font-size);
+    color: var(--cr-text);
     line-height: 1.5;
     box-sizing: border-box;
 
@@ -28,24 +28,24 @@
         margin: 0;
         font-weight: 600;
         line-height: 1.3;
-        color: var(--ct-text);
+        color: var(--cr-text);
     }
 
     & h2 {
-        font-size: var(--ct-text-lg);
+        font-size: var(--cr-text-lg);
     }
 
     & h3 {
-        font-size: var(--ct-text-base);
+        font-size: var(--cr-text-base);
     }
 
     & h4 {
-        font-size: var(--ct-text-sm);
+        font-size: var(--cr-text-sm);
     }
 
     /* Links */
     & a {
-        color: var(--ct-accent);
+        color: var(--cr-accent);
         text-decoration: none;
 
         &:hover {

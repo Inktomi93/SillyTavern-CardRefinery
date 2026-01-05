@@ -69,10 +69,10 @@ function renderFieldSelector(): string {
 
     if (!state.character) {
         return `
-            <div class="ct-empty">
-                <i class="fa-solid fa-user-slash ct-empty__icon"></i>
-                <div class="ct-empty__title">No character selected</div>
-                <div class="ct-empty__text">Select a character to see available fields</div>
+            <div class="cr-empty">
+                <i class="fa-solid fa-user-slash cr-empty__icon"></i>
+                <div class="cr-empty__title">No character selected</div>
+                <div class="cr-empty__text">Select a character to see available fields</div>
             </div>
         `;
     }
@@ -81,10 +81,10 @@ function renderFieldSelector(): string {
 
     if (fields.length === 0) {
         return `
-            <div class="ct-empty">
-                <i class="fa-solid fa-file-circle-question ct-empty__icon"></i>
-                <div class="ct-empty__title">No fields</div>
-                <div class="ct-empty__text">This character has no populated fields</div>
+            <div class="cr-empty">
+                <i class="fa-solid fa-file-circle-question cr-empty__icon"></i>
+                <div class="cr-empty__title">No fields</div>
+                <div class="cr-empty__text">This character has no populated fields</div>
             </div>
         `;
     }
@@ -93,7 +93,7 @@ function renderFieldSelector(): string {
     requestAnimationFrame(() => loadFieldTokens(fields));
 
     return `
-        <div class="ct-field-list ct-scrollable">
+        <div class="cr-field-list cr-scrollable">
             ${fields.map((field) => renderFieldItem(field)).join('')}
         </div>
     `;
@@ -113,7 +113,7 @@ async function loadFieldTokens(fields: PopulatedField[]): Promise<void> {
 
     // Update each token display element
     for (const { key, tokens } of results) {
-        const el = $(`.ct-field-tokens[data-field="${key}"]`);
+        const el = $(`.cr-field-tokens[data-field="${key}"]`);
         if (el) {
             el.textContent = formatTokenCount(tokens);
         }
@@ -134,35 +134,35 @@ function renderFieldItem(field: PopulatedField): string {
         const allSelected = selectedIndices.length === greetings.length;
 
         return `
-            <div class="ct-field-group ct-field-group--expandable" data-field="${field.key}">
-                <div class="ct-field-item ct-field-item--parent">
-                    <label class="ct-field-label">
+            <div class="cr-field-group cr-field-group--expandable" data-field="${field.key}">
+                <div class="cr-field-item cr-field-item--parent">
+                    <label class="cr-field-label">
                         <input type="checkbox"
-                               class="ct-field-checkbox ct-field-checkbox--parent"
+                               class="cr-field-checkbox cr-field-checkbox--parent"
                                data-field="${field.key}"
                                ${allSelected ? 'checked' : ''}
                                ${selectedIndices.length > 0 && !allSelected ? 'indeterminate' : ''} />
-                        <span class="ct-field-name">${DOMPurify.sanitize(field.label)}</span>
+                        <span class="cr-field-name">${DOMPurify.sanitize(field.label)}</span>
                     </label>
-                    <span class="ct-field-count">${greetings.length} greetings</span>
-                    <button class="ct-field-expand" type="button" aria-label="Expand">
+                    <span class="cr-field-count">${greetings.length} greetings</span>
+                    <button class="cr-field-expand" type="button" aria-label="Expand">
                         <i class="fa-solid fa-chevron-down"></i>
                     </button>
                 </div>
-                <div class="ct-field-children">
+                <div class="cr-field-children">
                     ${greetings
                         .map(
                             (greeting, i) => `
-                        <div class="ct-field-item ct-field-item--child">
-                            <label class="ct-field-label">
+                        <div class="cr-field-item cr-field-item--child">
+                            <label class="cr-field-label">
                                 <input type="checkbox"
-                                       class="ct-field-checkbox ct-field-checkbox--child"
+                                       class="cr-field-checkbox cr-field-checkbox--child"
                                        data-field="${field.key}"
                                        data-index="${i}"
                                        ${selectedIndices.includes(i) ? 'checked' : ''} />
-                                <span class="ct-field-name">Greeting ${i + 1}</span>
+                                <span class="cr-field-name">Greeting ${i + 1}</span>
                             </label>
-                            <button class="ct-field-preview-btn" type="button" data-field="${field.key}" data-index="${i}" title="Preview greeting">
+                            <button class="cr-field-preview-btn" type="button" data-field="${field.key}" data-index="${i}" title="Preview greeting">
                                 <i class="fa-solid fa-eye"></i>
                             </button>
                         </div>
@@ -182,23 +182,23 @@ function renderFieldItem(field: PopulatedField): string {
             : field.value;
 
     return `
-        <div class="ct-field-group ct-field-group--expandable" data-field="${field.key}">
-            <div class="ct-field-item ct-field-item--has-preview">
-                <label class="ct-field-label">
+        <div class="cr-field-group cr-field-group--expandable" data-field="${field.key}">
+            <div class="cr-field-item cr-field-item--has-preview">
+                <label class="cr-field-label">
                     <input type="checkbox"
-                           class="ct-field-checkbox"
+                           class="cr-field-checkbox"
                            data-field="${field.key}"
                            ${isSelected ? 'checked' : ''} />
-                    <span class="ct-field-name">${DOMPurify.sanitize(field.label)}</span>
+                    <span class="cr-field-name">${DOMPurify.sanitize(field.label)}</span>
                 </label>
-                <span class="ct-field-tokens" data-field="${field.key}">${formatTokenCount(field.tokens)}</span>
-                <button class="ct-field-expand" type="button" aria-label="Expand field preview">
+                <span class="cr-field-tokens" data-field="${field.key}">${formatTokenCount(field.tokens)}</span>
+                <button class="cr-field-expand" type="button" aria-label="Expand field preview">
                     <i class="fa-solid fa-chevron-down"></i>
                 </button>
             </div>
-            <div class="ct-field-preview">
-                <pre class="ct-field-preview__text">${DOMPurify.sanitize(previewText)}</pre>
-                <button class="ct-field-preview__more" type="button" data-field="${field.key}" title="View full content in popup">
+            <div class="cr-field-preview">
+                <pre class="cr-field-preview__text">${DOMPurify.sanitize(previewText)}</pre>
+                <button class="cr-field-preview__more" type="button" data-field="${field.key}" title="View full content in popup">
                     <i class="fa-solid fa-expand"></i>
                     <span>View full content</span>
                 </button>
@@ -221,8 +221,8 @@ function renderPresetDropdown(
     const customId = `${MODULE_NAME}_${type}_select`;
 
     return `
-        <div class="ct-preset-row">
-            <select id="${customId}" class="ct-select text_pole" aria-label="${type} preset">
+        <div class="cr-preset-row">
+            <select id="${customId}" class="cr-select text_pole" aria-label="${type} preset">
                 <option value="">Custom</option>
                 ${presets
                     .map(
@@ -234,7 +234,7 @@ function renderPresetDropdown(
                     )
                     .join('')}
             </select>
-            <button class="ct-preset-manage-btn menu_button menu_button--icon menu_button--sm menu_button--ghost"
+            <button class="cr-preset-manage-btn menu_button menu_button--icon menu_button--sm menu_button--ghost"
                     data-type="${type}"
                     type="button"
                     title="Manage ${type} presets">
@@ -268,23 +268,23 @@ export function renderStageConfig(): string {
     }
 
     return `
-        <section class="ct-section ct-stage-config" aria-label="Stage Configuration">
-            <div class="ct-section__header">
-                <h3 class="ct-section__title">
+        <section class="cr-section cr-stage-config" aria-label="Stage Configuration">
+            <div class="cr-section__header">
+                <h3 class="cr-section__title">
                     <i class="fa-solid ${STAGE_ICONS[stage]}"></i>
                     ${STAGE_LABELS[stage]} Configuration
                 </h3>
             </div>
 
             <!-- Field Selection -->
-            <div class="ct-stack ct-stack--tight">
-                <div class="ct-row ct-row--between">
-                    <div class="ct-row">
-                        <i class="fa-solid fa-list-check ct-text-accent"></i>
-                        <span class="ct-font-medium ct-text-sm">Fields to Include</span>
+            <div class="cr-stack cr-stack--tight">
+                <div class="cr-row cr-row--between">
+                    <div class="cr-row">
+                        <i class="fa-solid fa-list-check cr-text-accent"></i>
+                        <span class="cr-font-medium cr-text-sm">Fields to Include</span>
                     </div>
                     <button id="${MODULE_NAME}_link_fields"
-                            class="menu_button menu_button--icon menu_button--sm menu_button--ghost ${areStagesLinked() ? 'ct-active' : ''}"
+                            class="menu_button menu_button--icon menu_button--sm menu_button--ghost ${areStagesLinked() ? 'cr-active' : ''}"
                             type="button"
                             title="${areStagesLinked() ? 'Fields shared across stages (click to unlink)' : 'Fields independent per stage (click to link)'}"
                             aria-pressed="${areStagesLinked()}">
@@ -297,13 +297,13 @@ export function renderStageConfig(): string {
             </div>
 
             <!-- Prompt Configuration -->
-            <div class="ct-stack ct-stack--tight ct-mt-4">
-                <div class="ct-row ct-row--between">
-                    <div class="ct-row">
-                        <i class="fa-solid fa-message ct-text-accent"></i>
-                        <span class="ct-font-medium ct-text-sm">Prompt</span>
+            <div class="cr-stack cr-stack--tight cr-mt-4">
+                <div class="cr-row cr-row--between">
+                    <div class="cr-row">
+                        <i class="fa-solid fa-message cr-text-accent"></i>
+                        <span class="cr-font-medium cr-text-sm">Prompt</span>
                     </div>
-                    <div class="ct-row ct-gap-1">
+                    <div class="cr-row cr-gap-1">
                         <button id="${MODULE_NAME}_save_prompt"
                                 class="menu_button menu_button--icon menu_button--sm menu_button--ghost"
                                 type="button"
@@ -314,19 +314,19 @@ export function renderStageConfig(): string {
                         ${renderPresetDropdown('prompt', stage, config.promptPresetId)}
                     </div>
                 </div>
-                <div class="ct-form-group">
+                <div class="cr-form-group">
                     <textarea id="${MODULE_NAME}_prompt"
                               placeholder="Enter instructions for this stage..."
                               rows="6">${DOMPurify.sanitize(promptText)}</textarea>
-                    <div class="ct-form-group__hint ct-text-right">
+                    <div class="cr-form-group__hint cr-text-right">
                         <span id="${MODULE_NAME}_prompt_tokens">Calculating...</span>
                     </div>
                 </div>
             </div>
 
             <!-- Structured Output Toggle -->
-            <div class="ct-stack ct-stack--tight ct-mt-4">
-                <label class="ct-checkbox">
+            <div class="cr-stack cr-stack--tight cr-mt-4">
+                <label class="cr-checkbox">
                     <input type="checkbox"
                            id="${MODULE_NAME}_use_schema"
                            ${config.useStructuredOutput ? 'checked' : ''} />
@@ -334,19 +334,19 @@ export function renderStageConfig(): string {
                 </label>
 
                 <div id="${MODULE_NAME}_schema_section"
-                     class="${cx(!config.useStructuredOutput && 'ct-hidden')} ct-stack ct-stack--tight ct-mt-2">
-                    <div class="ct-row ct-row--between">
-                        <div class="ct-row">
-                            <i class="fa-solid fa-code ct-text-accent"></i>
-                            <span class="ct-font-medium ct-text-sm">JSON Schema</span>
+                     class="${cx(!config.useStructuredOutput && 'cr-hidden')} cr-stack cr-stack--tight cr-mt-2">
+                    <div class="cr-row cr-row--between">
+                        <div class="cr-row">
+                            <i class="fa-solid fa-code cr-text-accent"></i>
+                            <span class="cr-font-medium cr-text-sm">JSON Schema</span>
                         </div>
                         ${renderPresetDropdown('schema', stage, config.schemaPresetId)}
                     </div>
                     <textarea id="${MODULE_NAME}_schema"
-                              class="ct-textarea--code"
+                              class="cr-textarea--code"
                               placeholder='{"name": "MySchema", "strict": true, "value": {...}}'
                               rows="8">${DOMPurify.sanitize(schemaText)}</textarea>
-                    <div class="ct-button-group">
+                    <div class="cr-button-group">
                         <button id="${MODULE_NAME}_validate_schema"
                                 class="menu_button menu_button--sm"
                                 type="button">
@@ -364,7 +364,7 @@ export function renderStageConfig(): string {
             </div>
 
             <!-- Preview -->
-            <div class="ct-mt-4">
+            <div class="cr-mt-4">
                 <button id="${MODULE_NAME}_preview"
                         class="menu_button menu_button--full"
                         type="button"
@@ -416,7 +416,7 @@ function refreshPresetDropdown(
  * Update stage config display.
  */
 export function updateStageConfig(): void {
-    const container = $('.ct-stage-config');
+    const container = $('.cr-stage-config');
     if (!container) return;
 
     const state = getState();
@@ -424,7 +424,7 @@ export function updateStageConfig(): void {
     const config = state.stageConfigs[stage];
 
     // Update header
-    const headerTitle = container.querySelector('.ct-section__title');
+    const headerTitle = container.querySelector('.cr-section__title');
     if (headerTitle) {
         headerTitle.innerHTML = `
             <i class="fa-solid ${STAGE_ICONS[stage]}"></i>
@@ -463,7 +463,7 @@ export function updateStageConfig(): void {
     const schemaSection = $(`#${MODULE_NAME}_schema_section`);
     if (schemaSection) {
         schemaSection.classList.toggle(
-            'ct-hidden',
+            'cr-hidden',
             !config.useStructuredOutput,
         );
     }
@@ -515,7 +515,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                 toggleStageFieldLinking();
                 // Update button state
                 const isLinked = areStagesLinked();
-                linkFieldsBtn.classList.toggle('ct-active', isLinked);
+                linkFieldsBtn.classList.toggle('cr-active', isLinked);
                 linkFieldsBtn.setAttribute('aria-pressed', String(isLinked));
                 linkFieldsBtn.title = isLinked
                     ? 'Fields shared across stages (click to unlink)'
@@ -536,7 +536,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(fieldsContainer, 'change', (e) => {
                 const target = e.target as HTMLInputElement;
-                if (!target.classList.contains('ct-field-checkbox')) return;
+                if (!target.classList.contains('cr-field-checkbox')) return;
 
                 const fieldKey = target.dataset.field;
                 if (!fieldKey) return;
@@ -563,14 +563,14 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                             : false,
                     );
                 } else if (
-                    target.classList.contains('ct-field-checkbox--parent')
+                    target.classList.contains('cr-field-checkbox--parent')
                 ) {
                     // Parent checkbox - toggle all children
-                    const fieldItem = target.closest('.ct-field-group');
+                    const fieldItem = target.closest('.cr-field-group');
                     if (!fieldItem) return;
 
                     const children = $$(
-                        '.ct-field-checkbox--child',
+                        '.cr-field-checkbox--child',
                         fieldItem,
                     ) as HTMLInputElement[];
 
@@ -593,13 +593,13 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(fieldsContainer, 'click', (e) => {
                 const target = e.target as HTMLElement;
-                const expandBtn = target.closest('.ct-field-expand');
+                const expandBtn = target.closest('.cr-field-expand');
                 if (!expandBtn) return;
 
-                const group = expandBtn.closest('.ct-field-group');
+                const group = expandBtn.closest('.cr-field-group');
                 if (!group) return;
 
-                group.classList.toggle('ct-field-group--expanded');
+                group.classList.toggle('cr-field-group--expanded');
             }),
         );
 
@@ -607,7 +607,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(fieldsContainer, 'click', async (e) => {
                 const target = e.target as HTMLElement;
-                const viewFullBtn = target.closest('.ct-field-preview__more');
+                const viewFullBtn = target.closest('.cr-field-preview__more');
                 if (!viewFullBtn) return;
 
                 const fieldKey = (viewFullBtn as HTMLElement).dataset.field;
@@ -622,7 +622,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
 
                 popup.alert(
                     field.label,
-                    `<pre class="ct-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(field.value)}</pre>`,
+                    `<pre class="cr-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(field.value)}</pre>`,
                 );
             }),
         );
@@ -631,7 +631,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(fieldsContainer, 'click', async (e) => {
                 const target = e.target as HTMLElement;
-                const previewBtn = target.closest('.ct-field-preview-btn');
+                const previewBtn = target.closest('.cr-field-preview-btn');
                 if (!previewBtn) return;
 
                 const fieldKey = (previewBtn as HTMLElement).dataset.field;
@@ -651,7 +651,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
 
                 popup.alert(
                     `Greeting ${index + 1}`,
-                    `<pre class="ct-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(greeting)}</pre>`,
+                    `<pre class="cr-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(greeting)}</pre>`,
                 );
             }),
         );
@@ -763,7 +763,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                     useStructuredOutput: schemaToggle.checked,
                 });
                 schemaSection.classList.toggle(
-                    'ct-hidden',
+                    'cr-hidden',
                     !schemaToggle.checked,
                 );
             }),
@@ -850,14 +850,14 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
 
                 await popup.alert(
                     'Prompt Preview',
-                    `<div class="ct-preview-content"><pre>${DOMPurify.sanitize(preview)}</pre></div>`,
+                    `<div class="cr-preview-content"><pre>${DOMPurify.sanitize(preview)}</pre></div>`,
                 );
             }),
         );
     }
 
     // Preset Manage buttons (opens drawer with full list)
-    const manageBtns = $$('.ct-preset-manage-btn', container);
+    const manageBtns = $$('.cr-preset-manage-btn', container);
     for (const btn of manageBtns) {
         cleanups.push(
             on(btn, 'click', () => {
@@ -904,17 +904,17 @@ function updateFieldCheckboxes(): void {
     if (!fieldsContainer) return;
 
     // Update parent checkboxes for groups
-    const groups = $$('.ct-field-group', fieldsContainer);
+    const groups = $$('.cr-field-group', fieldsContainer);
     for (const group of groups) {
         const fieldKey = (group as HTMLElement).dataset.field;
         if (!fieldKey) continue;
 
         const parentCheckbox = $(
-            '.ct-field-checkbox--parent',
+            '.cr-field-checkbox--parent',
             group,
         ) as HTMLInputElement;
         const childCheckboxes = $$(
-            '.ct-field-checkbox--child',
+            '.cr-field-checkbox--child',
             group,
         ) as HTMLInputElement[];
 

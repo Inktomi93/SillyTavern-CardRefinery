@@ -14,72 +14,72 @@
 @custom-media --high-contrast (prefers-contrast: high);
 
 /* Design tokens shared by all CT components */
-.ct-popup,
-.ct-settings-modal,
-.ct-drawer {
+.cr-popup,
+.cr-settings-modal,
+.cr-drawer {
     /* ═══════════════════════════════════════════════════════════════════════════
        COLORS - Inherit from SillyTavern SmartTheme
        ═══════════════════════════════════════════════════════════════════════════ */
 
     /* Backgrounds */
-    --ct-bg: var(--SmartThemeBlurTintColor);
-    --ct-bg-secondary: var(--black30a, rgba(0, 0, 0, 0.3));
-    --ct-bg-tertiary: var(--black50a, rgba(0, 0, 0, 0.5));
-    --ct-bg-elevated: color-mix(
+    --cr-bg: var(--SmartThemeBlurTintColor);
+    --cr-bg-secondary: var(--black30a, rgba(0, 0, 0, 0.3));
+    --cr-bg-tertiary: var(--black50a, rgba(0, 0, 0, 0.5));
+    --cr-bg-elevated: color-mix(
         in srgb,
         var(--SmartThemeBlurTintColor) 90%,
         white 10%
     );
 
     /* Text */
-    --ct-text: var(--SmartThemeBodyColor);
-    --ct-text-muted: color-mix(
+    --cr-text: var(--SmartThemeBodyColor);
+    --cr-text-muted: color-mix(
         in srgb,
         var(--SmartThemeBodyColor) 70%,
         transparent
     );
-    --ct-text-dim: color-mix(
+    --cr-text-dim: color-mix(
         in srgb,
         var(--SmartThemeBodyColor) 50%,
         transparent
     );
 
     /* Borders */
-    --ct-border: var(--SmartThemeBorderColor);
-    --ct-border-muted: color-mix(
+    --cr-border: var(--SmartThemeBorderColor);
+    --cr-border-muted: color-mix(
         in srgb,
         var(--SmartThemeBorderColor) 50%,
         transparent
     );
 
     /* Accent */
-    --ct-accent: var(--SmartThemeQuoteColor);
-    --ct-accent-hover: color-mix(
+    --cr-accent: var(--SmartThemeQuoteColor);
+    --cr-accent-hover: color-mix(
         in srgb,
         var(--SmartThemeQuoteColor) 80%,
         white
     );
-    --ct-accent-muted: color-mix(
+    --cr-accent-muted: color-mix(
         in srgb,
         var(--SmartThemeQuoteColor) 30%,
         transparent
     );
 
     /* Semantic Colors */
-    --ct-success: var(--okGreen70a, #4caf50);
-    --ct-success-bg: color-mix(
+    --cr-success: var(--okGreen70a, #4caf50);
+    --cr-success-bg: color-mix(
         in srgb,
         var(--okGreen70a, #4caf50) 15%,
         transparent
     );
-    --ct-warning: var(--golden, #ff9800);
-    --ct-warning-bg: color-mix(
+    --cr-warning: var(--golden, #ff9800);
+    --cr-warning-bg: color-mix(
         in srgb,
         var(--golden, #ff9800) 15%,
         transparent
     );
-    --ct-danger: var(--fullred, #f44336);
-    --ct-danger-bg: color-mix(
+    --cr-danger: var(--fullred, #f44336);
+    --cr-danger-bg: color-mix(
         in srgb,
         var(--fullred, #f44336) 15%,
         transparent
@@ -88,52 +88,52 @@
     /* ═══════════════════════════════════════════════════════════════════════════
        SPACING SCALE - 4px base, follows 4-8-12-16-20-24-32-48 progression
        ═══════════════════════════════════════════════════════════════════════════ */
-    --ct-space-1: 0.25rem; /* 4px - tight gaps, icon padding */
-    --ct-space-2: 0.5rem; /* 8px - default gap, small padding */
-    --ct-space-3: 0.75rem; /* 12px - section padding, medium gap */
-    --ct-space-4: 1rem; /* 16px - large padding, section gap */
-    --ct-space-5: 1.25rem; /* 20px - header padding */
-    --ct-space-6: 1.5rem; /* 24px - major section separation */
-    --ct-space-8: 2rem; /* 32px - panel gaps */
-    --ct-space-12: 3rem; /* 48px - major layout spacing */
+    --cr-space-1: 0.25rem; /* 4px - tight gaps, icon padding */
+    --cr-space-2: 0.5rem; /* 8px - default gap, small padding */
+    --cr-space-3: 0.75rem; /* 12px - section padding, medium gap */
+    --cr-space-4: 1rem; /* 16px - large padding, section gap */
+    --cr-space-5: 1.25rem; /* 20px - header padding */
+    --cr-space-6: 1.5rem; /* 24px - major section separation */
+    --cr-space-8: 2rem; /* 32px - panel gaps */
+    --cr-space-12: 3rem; /* 48px - major layout spacing */
 
     /* ═══════════════════════════════════════════════════════════════════════════
        TYPOGRAPHY - Inherit from ST, define scales
        ═══════════════════════════════════════════════════════════════════════════ */
-    --ct-font: var(--mainFontFamily, system-ui, -apple-system, sans-serif);
-    --ct-font-mono: var(--monoFontFamily, 'Consolas', 'Monaco', monospace);
-    --ct-font-size: var(--mainFontSize, 1rem);
+    --cr-font: var(--mainFontFamily, system-ui, -apple-system, sans-serif);
+    --cr-font-mono: var(--monoFontFamily, 'Consolas', 'Monaco', monospace);
+    --cr-font-size: var(--mainFontSize, 1rem);
 
     /* Font size scale */
-    --ct-text-xs: calc(var(--ct-font-size) * 0.75); /* 12px @ 16px base */
-    --ct-text-sm: calc(var(--ct-font-size) * 0.875); /* 14px */
-    --ct-text-base: var(--ct-font-size); /* 16px */
-    --ct-text-lg: calc(var(--ct-font-size) * 1.125); /* 18px */
-    --ct-text-xl: calc(var(--ct-font-size) * 1.25); /* 20px */
+    --cr-text-xs: calc(var(--cr-font-size) * 0.75); /* 12px @ 16px base */
+    --cr-text-sm: calc(var(--cr-font-size) * 0.875); /* 14px */
+    --cr-text-base: var(--cr-font-size); /* 16px */
+    --cr-text-lg: calc(var(--cr-font-size) * 1.125); /* 18px */
+    --cr-text-xl: calc(var(--cr-font-size) * 1.25); /* 20px */
 
     /* ═══════════════════════════════════════════════════════════════════════════
        RADII - Match ST's rounded aesthetic
        ═══════════════════════════════════════════════════════════════════════════ */
-    --ct-radius-sm: 4px;
-    --ct-radius: 8px;
-    --ct-radius-lg: 12px;
-    --ct-radius-pill: 9999px;
+    --cr-radius-sm: 4px;
+    --cr-radius: 8px;
+    --cr-radius-lg: 12px;
+    --cr-radius-pill: 9999px;
 
     /* ═══════════════════════════════════════════════════════════════════════════
        SHADOWS & EFFECTS
        ═══════════════════════════════════════════════════════════════════════════ */
-    --ct-shadow-sm: 0 1px 3px var(--black30a, rgba(0, 0, 0, 0.3));
-    --ct-shadow: 0 4px 12px var(--black30a, rgba(0, 0, 0, 0.3));
-    --ct-shadow-lg: 0 8px 24px var(--black50a, rgba(0, 0, 0, 0.5));
+    --cr-shadow-sm: 0 1px 3px var(--black30a, rgba(0, 0, 0, 0.3));
+    --cr-shadow: 0 4px 12px var(--black30a, rgba(0, 0, 0, 0.3));
+    --cr-shadow-lg: 0 8px 24px var(--black50a, rgba(0, 0, 0, 0.5));
 
     /* Transitions - use ST's animation-duration */
-    --ct-transition-fast: var(--animation-duration, 150ms) ease;
-    --ct-transition: var(--animation-duration-slow, 300ms) ease;
+    --cr-transition-fast: var(--animation-duration, 150ms) ease;
+    --cr-transition: var(--animation-duration-slow, 300ms) ease;
 
     /* ═══════════════════════════════════════════════════════════════════════════
        LAYOUT TOKENS
        ═══════════════════════════════════════════════════════════════════════════ */
-    --ct-panel-min: 280px;
-    --ct-panel-max: 480px;
-    --ct-header-height: 48px;
+    --cr-panel-min: 280px;
+    --cr-panel-max: 480px;
+    --cr-header-height: 48px;
 }

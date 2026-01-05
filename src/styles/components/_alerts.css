@@ -4,35 +4,35 @@
  * Info, success, warning, and danger alert boxes.
  */
 
-.ct-alert {
+.cr-alert {
     display: flex;
-    gap: var(--ct-space-3);
-    padding: var(--ct-space-3);
-    border-radius: var(--ct-radius);
-    font-size: var(--ct-text-sm);
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-3);
+    border-radius: var(--cr-radius);
+    font-size: var(--cr-text-sm);
 
     &--info {
-        background: var(--ct-accent-muted);
-        border: 1px solid var(--ct-accent);
-        color: var(--ct-accent);
+        background: var(--cr-accent-muted);
+        border: 1px solid var(--cr-accent);
+        color: var(--cr-accent);
     }
 
     &--success {
-        background: var(--ct-success-bg);
-        border: 1px solid var(--ct-success);
-        color: var(--ct-success);
+        background: var(--cr-success-bg);
+        border: 1px solid var(--cr-success);
+        color: var(--cr-success);
     }
 
     &--warning {
-        background: var(--ct-warning-bg);
-        border: 1px solid var(--ct-warning);
-        color: var(--ct-warning);
+        background: var(--cr-warning-bg);
+        border: 1px solid var(--cr-warning);
+        color: var(--cr-warning);
     }
 
     &--danger {
-        background: var(--ct-danger-bg);
-        border: 1px solid var(--ct-danger);
-        color: var(--ct-danger);
+        background: var(--cr-danger-bg);
+        border: 1px solid var(--cr-danger);
+        color: var(--cr-danger);
     }
 
     &__icon {
@@ -45,12 +45,12 @@
 
     &__title {
         font-weight: 600;
-        margin-bottom: var(--ct-space-1);
+        margin-bottom: var(--cr-space-1);
     }
 
     &__message {
-        margin-top: var(--ct-space-1);
-        font-size: var(--ct-text-sm);
+        margin-top: var(--cr-space-1);
+        font-size: var(--cr-text-sm);
         white-space: pre-wrap;
     }
 }
