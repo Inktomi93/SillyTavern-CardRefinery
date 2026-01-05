@@ -16,7 +16,7 @@ export const MODULE_NAME = 'SillyTavern-CardRefinery' as const;
 export const DISPLAY_NAME = 'CardRefinery' as const;
 
 /** Current version */
-export const VERSION = '2.0.0' as const;
+export const VERSION = '1.0.0' as const;
 
 /** Enable debug logging */
 export const DEBUG = true as const;
