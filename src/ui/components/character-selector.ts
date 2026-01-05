@@ -103,7 +103,7 @@ function renderCharacterOption(
         );
     }
 
-    return `
+    return /* html */ `
         <div class="cr-char-option ${isSelected ? 'cr-char-option--selected' : ''} ${index === highlightedIndex ? 'cr-char-option--highlighted' : ''}"
              data-avatar="${DOMPurify.sanitize(char.avatar)}"
              data-index="${index}"
@@ -114,7 +114,7 @@ function renderCharacterOption(
                      src="${avatarUrl}"
                      alt=""
                      onerror="this.src='/img/ai4.png'"
-                     loading="lazy" />
+                     loading="lazy"/>
                 ${isSelected ? '<i class="fa-solid fa-check cr-char-option__check"></i>' : ''}
             </div>
             <div class="cr-char-option__info">
@@ -146,7 +146,7 @@ function renderDropdownList(): string {
     const selectedAvatar = state.character?.avatar;
 
     if (characters.length === 0) {
-        return `
+        return /* html */ `
             <div class="cr-dropdown__empty">
                 <i class="fa-solid ${searchQuery ? 'fa-search' : 'fa-users-slash'}"></i>
                 ${searchQuery ? `No matches for "${truncate(searchQuery, 20)}"` : 'No characters available'}
@@ -178,7 +178,7 @@ export function renderCharacterSelector(): string {
                onerror="this.src='/img/ai4.png'" />`
         : '<i class="fa-solid fa-user cr-dropdown__trigger-icon"></i>';
 
-    return `
+    return /* html */ `
         <div id="${MODULE_NAME}_char_dropdown" class="cr-dropdown ${isOpen ? 'cr-dropdown--open' : ''}">
             <button id="${MODULE_NAME}_char_trigger"
                     class="cr-dropdown__trigger"
@@ -197,10 +197,10 @@ export function renderCharacterSelector(): string {
                            class="cr-dropdown__search-input"
                            placeholder="Search characters..."
                            autocomplete="off"
-                           value="${DOMPurify.sanitize(searchQuery)}" />
+                           value="${DOMPurify.sanitize(searchQuery)}"/>
                     ${
                         searchQuery
-                            ? `
+                            ? /* html */ `
                         <button class="cr-dropdown__search-clear" type="button" aria-label="Clear">
                             <i class="fa-solid fa-times"></i>
                         </button>
@@ -241,7 +241,7 @@ export function updateCharacterSelector(): void {
                    onerror="this.src='/img/ai4.png'" />`
             : '<i class="fa-solid fa-user cr-dropdown__trigger-icon"></i>';
 
-        trigger.innerHTML = `
+        trigger.innerHTML = /* html */ `
             ${avatarHtml}
             <span class="cr-dropdown__trigger-text ${!selectedChar ? 'cr-dropdown__trigger-text--placeholder' : ''}">${displayText}</span>
             <i class="fa-solid fa-chevron-down cr-dropdown__trigger-chevron"></i>

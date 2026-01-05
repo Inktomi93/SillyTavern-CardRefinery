@@ -407,7 +407,7 @@ function renderSections(sections: ParsedSection[]): string {
     }
 
     const parts = sections.map(renderSection);
-    return `<div class="cr-formatted">${parts.join('')}</div>`;
+    return /* html */ `<div class="cr-formatted">${parts.join('')}</div>`;
 }
 
 /**
@@ -444,7 +444,7 @@ function renderHeroSection(section: ParsedSection): string {
         : score.value.toFixed(1);
     const title = section.title || 'Score';
 
-    return `
+    return /* html */ `
         <div class="cr-hero">
             <div class="cr-hero__label">${escapeHtml(title)}</div>
             <div class="cr-hero__score">
@@ -485,7 +485,7 @@ function renderContentSection(section: ParsedSection): string {
 
     const childrenHtml = children.map(renderSection).join('');
 
-    return `
+    return /* html */ `
         <div class="cr-section">
             <div class="cr-section__header">
                 <h3 class="cr-section__title">${escapeHtml(title)}</h3>
@@ -504,7 +504,7 @@ function renderContentSection(section: ParsedSection): string {
 function renderParagraph(section: ParsedSection): string {
     const content = section.content || '';
     const formatted = formatInlineContent(content);
-    return `<p class="cr-para">${formatted}</p>`;
+    return /* html */ `<p class="cr-para">${formatted}</p>`;
 }
 
 /**
@@ -517,11 +517,11 @@ function renderList(section: ParsedSection): string {
     const listItems = items
         .map((item) => {
             const formatted = formatInlineContent(item);
-            return `<li>${formatted}</li>`;
+            return /* html */ `<li>${formatted}</li>`;
         })
         .join('');
 
-    return `<ul class="cr-list">${listItems}</ul>`;
+    return /* html */ `<ul class="cr-list">${listItems}</ul>`;
 }
 
 /**
@@ -543,7 +543,7 @@ function renderCodeBlock(section: ParsedSection): string {
         highlighted = escapeHtml(content);
     }
 
-    return `
+    return /* html */ `
         <div class="cr-code">
             ${language ? `<div class="cr-code__lang">${escapeHtml(language)}</div>` : ''}
             <pre class="cr-code__pre"><code class="hljs">${highlighted}</code></pre>
@@ -569,7 +569,7 @@ function formatInlineContent(text: string): string {
             const labelPart = label
                 ? `<span class="cr-inline-score__label">${label}:</span> `
                 : '';
-            return `${labelPart}<span class="cr-inline-score" style="--score-color: ${color}">${display}<span class="cr-inline-score__max">/${m}</span></span>`;
+            return /* html */ `${labelPart}<span class="cr-inline-score" style="--score-color: ${color}">${display}<span class="cr-inline-score__max">/${m}</span></span>`;
         },
     );
 
@@ -664,7 +664,7 @@ function renderStructuredRoot(
         );
     }
 
-    return `<div class="cr-formatted">${sections.join('')}</div>`;
+    return /* html */ `<div class="cr-formatted">${sections.join('')}</div>`;
 }
 
 function renderField(
@@ -695,7 +695,7 @@ function renderField(
 
     const rendered = renderValue(value, schema, key);
 
-    return `
+    return /* html */ `
         <div class="cr-field">
             <div class="cr-field__label">${escapeHtml(label)}</div>
             <div class="cr-field__value">${rendered}</div>
@@ -710,7 +710,7 @@ function renderArrayField(
     depth: number,
 ): string {
     if (items.length === 0) {
-        return `
+        return /* html */ `
             <div class="cr-field">
                 <div class="cr-field__label">${escapeHtml(label)}</div>
                 <div class="cr-field__value cr-field--empty">(none)</div>
@@ -725,9 +725,9 @@ function renderArrayField(
     // Simple values as list
     if (items.every(isSimpleValue)) {
         const listItems = items
-            .map((item) => `<li>${renderSimpleValue(item)}</li>`)
+            .map((item) => /* html */ `<li>${renderSimpleValue(item)}</li>`)
             .join('');
-        return `
+        return /* html */ `
             <div class="cr-field">
                 <div class="cr-field__label">${escapeHtml(label)}</div>
                 <ul class="cr-list">${listItems}</ul>
@@ -746,11 +746,11 @@ function renderArrayField(
                     index,
                 );
             }
-            return `<div class="cr-card">${renderValue(item, itemSchema)}</div>`;
+            return /* html */ `<div class="cr-card">${renderValue(item, itemSchema)}</div>`;
         })
         .join('');
 
-    return `
+    return /* html */ `
         <div class="cr-field">
             <div class="cr-field__label">${escapeHtml(label)}</div>
             <div class="cr-cards">${cards}</div>
@@ -823,7 +823,7 @@ function renderCard(
         ? `<div class="cr-card__extra">${remaining}</div>`
         : '';
 
-    return `<div class="cr-card">${header}${body}${extra}</div>`;
+    return /* html */ `<div class="cr-card">${header}${body}${extra}</div>`;
 }
 
 function renderObjectField(
@@ -851,7 +851,7 @@ function renderObjectField(
         .filter(Boolean)
         .join('');
 
-    return `
+    return /* html */ `
         <div class="cr-section">
             <div class="cr-section__header">
                 <h3 class="cr-section__title">${escapeHtml(label)}</h3>
@@ -869,7 +869,7 @@ function renderValue(
     fieldName?: string,
 ): string {
     if (value === null || value === undefined) {
-        return `<span class="cr-null">—</span>`;
+        return /* html */ `<span class="cr-null">—</span>`;
     }
 
     const type = schema.type || inferType(value);
@@ -883,31 +883,31 @@ function renderValue(
         case 'boolean':
             return renderBoolean(value as boolean);
         default:
-            return `<span>${escapeHtml(String(value))}</span>`;
+            return /* html */ `<span>${escapeHtml(String(value))}</span>`;
     }
 }
 
 function renderString(data: string, schema: JsonSchemaValue): string {
     if (!data.trim()) {
-        return `<span class="cr-empty">(empty)</span>`;
+        return /* html */ `<span class="cr-empty">(empty)</span>`;
     }
 
     const format = schema.format as string | undefined;
 
     if (format === 'uri' || format === 'url' || isUrl(data)) {
         const display = data.length > 50 ? data.substring(0, 47) + '...' : data;
-        return `<a href="${escapeHtml(data)}" target="_blank" rel="noopener" class="cr-link">${escapeHtml(display)}</a>`;
+        return /* html */ `<a href="${escapeHtml(data)}" target="_blank" rel="noopener" class="cr-link">${escapeHtml(display)}</a>`;
     }
 
     if (format === 'email' || isEmail(data)) {
-        return `<a href="mailto:${escapeHtml(data)}" class="cr-link">${escapeHtml(data)}</a>`;
+        return /* html */ `<a href="mailto:${escapeHtml(data)}" class="cr-link">${escapeHtml(data)}</a>`;
     }
 
     if (data.length > 100 || data.includes('\n')) {
-        return `<div class="cr-text">${formatInlineContent(data)}</div>`;
+        return /* html */ `<div class="cr-text">${formatInlineContent(data)}</div>`;
     }
 
-    return `<span>${formatInlineContent(data)}</span>`;
+    return /* html */ `<span>${formatInlineContent(data)}</span>`;
 }
 
 function renderNumber(
@@ -926,7 +926,7 @@ function renderNumber(
     const formatted = data.toLocaleString(undefined, {
         maximumFractionDigits: 2,
     });
-    return `<span class="cr-num">${formatted}</span>`;
+    return /* html */ `<span class="cr-num">${formatted}</span>`;
 }
 
 function renderScoreBadge(data: number): string {
@@ -935,13 +935,13 @@ function renderScoreBadge(data: number): string {
     const color = getScoreColor(normalized);
     const display = Number.isInteger(data) ? data : data.toFixed(1);
 
-    return `<span class="cr-score" style="--score-color: ${color}">${display}<span class="cr-score__max">/${max}</span></span>`;
+    return /* html */ `<span class="cr-score" style="--score-color: ${color}">${display}<span class="cr-score__max">/${max}</span></span>`;
 }
 
 function renderBoolean(data: boolean): string {
     const icon = data ? 'fa-check-circle' : 'fa-times-circle';
     const cls = data ? 'cr-bool--yes' : 'cr-bool--no';
-    return `<span class="${cls}"><i class="fa-solid ${icon}"></i> ${data ? 'Yes' : 'No'}</span>`;
+    return /* html */ `<span class="${cls}"><i class="fa-solid ${icon}"></i> ${data ? 'Yes' : 'No'}</span>`;
 }
 
 function renderSimpleValue(data: unknown): string {
@@ -949,7 +949,7 @@ function renderSimpleValue(data: unknown): string {
         return renderBoolean(data);
     }
     if (typeof data === 'number') {
-        return `<span class="cr-num">${data.toLocaleString()}</span>`;
+        return /* html */ `<span class="cr-num">${data.toLocaleString()}</span>`;
     }
     return formatInlineContent(String(data));
 }
@@ -958,7 +958,7 @@ function renderJson(data: unknown): string {
     const { hljs } = SillyTavern.libs;
     const json = JSON.stringify(data, null, 2);
     const highlighted = hljs.highlight(json, { language: 'json' }).value;
-    return `<pre class="cr-code__pre"><code class="hljs">${highlighted}</code></pre>`;
+    return /* html */ `<pre class="cr-code__pre"><code class="hljs">${highlighted}</code></pre>`;
 }
 
 // =============================================================================

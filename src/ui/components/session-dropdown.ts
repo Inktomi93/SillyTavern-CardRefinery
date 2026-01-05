@@ -62,7 +62,7 @@ function renderSessionOption(session: Session, isActive: boolean): string {
     const fieldCount = Object.keys(session.stageFields?.base ?? {}).length;
     const historyCount = session.history.length;
 
-    return `
+    return /* html */ `
         <div class="cr-session-option ${cx(isActive && 'cr-session-option--active')}"
              data-session-id="${session.id}"
              role="option"
@@ -131,7 +131,7 @@ function renderDropdownList(): string {
     const sessions = state.sessions;
 
     if (!state.character) {
-        return `
+        return /* html */ `
             <div class="cr-dropdown__empty">
                 <i class="fa-solid fa-user-slash"></i>
                 Select a character first
@@ -140,7 +140,7 @@ function renderDropdownList(): string {
     }
 
     if (sessions.length === 0) {
-        return `
+        return /* html */ `
             <div class="cr-dropdown__empty">
                 <i class="fa-solid fa-folder-open"></i>
                 No sessions yet
@@ -173,7 +173,7 @@ export function renderSessionDropdown(): string {
 
     const sessionCount = state.sessions.length;
 
-    return `
+    return /* html */ `
         <div id="${MODULE_NAME}_session_dropdown" class="cr-dropdown cr-dropdown--session ${cx(isOpen && 'cr-dropdown--open')} ${cx(!hasCharacter && 'cr-dropdown--disabled')}">
             <button id="${MODULE_NAME}_session_trigger"
                     class="cr-dropdown__trigger cr-dropdown__trigger--session"
@@ -233,7 +233,7 @@ export function updateSessionDropdown(): void {
         }
 
         const sessionCount = state.sessions.length;
-        trigger.innerHTML = `
+        trigger.innerHTML = /* html */ `
             <i class="fa-solid fa-folder cr-dropdown__trigger-icon"></i>
             <span class="cr-dropdown__trigger-text ${cx(!activeSession && 'cr-dropdown__trigger-text--placeholder')}">${SillyTavern.libs.DOMPurify.sanitize(displayText)}</span>
             ${sessionCount > 0 ? `<span class="cr-dropdown__count">${sessionCount}</span>` : ''}

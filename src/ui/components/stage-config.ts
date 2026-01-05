@@ -68,7 +68,7 @@ function renderFieldSelector(): string {
     const state = getState();
 
     if (!state.character) {
-        return `
+        return /* html */ `
             <div class="cr-empty">
                 <i class="fa-solid fa-user-slash cr-empty__icon"></i>
                 <div class="cr-empty__title">No character selected</div>
@@ -80,7 +80,7 @@ function renderFieldSelector(): string {
     const fields = getPopulatedFields(state.character);
 
     if (fields.length === 0) {
-        return `
+        return /* html */ `
             <div class="cr-empty">
                 <i class="fa-solid fa-file-circle-question cr-empty__icon"></i>
                 <div class="cr-empty__title">No fields</div>
@@ -92,7 +92,7 @@ function renderFieldSelector(): string {
     // Trigger async token loading after render
     requestAnimationFrame(() => loadFieldTokens(fields));
 
-    return `
+    return /* html */ `
         <div class="cr-field-list cr-scrollable">
             ${fields.map((field) => renderFieldItem(field)).join('')}
         </div>
@@ -133,7 +133,7 @@ function renderFieldItem(field: PopulatedField): string {
             : [];
         const allSelected = selectedIndices.length === greetings.length;
 
-        return `
+        return /* html */ `
             <div class="cr-field-group cr-field-group--expandable" data-field="${field.key}">
                 <div class="cr-field-item cr-field-item--parent">
                     <label class="cr-field-label">
@@ -141,7 +141,7 @@ function renderFieldItem(field: PopulatedField): string {
                                class="cr-field-checkbox cr-field-checkbox--parent"
                                data-field="${field.key}"
                                ${allSelected ? 'checked' : ''}
-                               ${selectedIndices.length > 0 && !allSelected ? 'indeterminate' : ''} />
+                               ${selectedIndices.length > 0 && !allSelected ? 'indeterminate' : ''}/>
                         <span class="cr-field-name">${DOMPurify.sanitize(field.label)}</span>
                     </label>
                     <span class="cr-field-count">${greetings.length} greetings</span>
@@ -152,14 +152,14 @@ function renderFieldItem(field: PopulatedField): string {
                 <div class="cr-field-children">
                     ${greetings
                         .map(
-                            (greeting, i) => `
+                            (greeting, i) => /* html */ `
                         <div class="cr-field-item cr-field-item--child">
                             <label class="cr-field-label">
                                 <input type="checkbox"
                                        class="cr-field-checkbox cr-field-checkbox--child"
                                        data-field="${field.key}"
                                        data-index="${i}"
-                                       ${selectedIndices.includes(i) ? 'checked' : ''} />
+                                       ${selectedIndices.includes(i) ? 'checked' : ''}/>
                                 <span class="cr-field-name">Greeting ${i + 1}</span>
                             </label>
                             <button class="cr-field-preview-btn" type="button" data-field="${field.key}" data-index="${i}" title="Preview greeting">
@@ -181,14 +181,14 @@ function renderFieldItem(field: PopulatedField): string {
             ? field.value.substring(0, MAX_PREVIEW).trim() + '…'
             : field.value;
 
-    return `
+    return /* html */ `
         <div class="cr-field-group cr-field-group--expandable" data-field="${field.key}">
             <div class="cr-field-item cr-field-item--has-preview">
                 <label class="cr-field-label">
                     <input type="checkbox"
                            class="cr-field-checkbox"
                            data-field="${field.key}"
-                           ${isSelected ? 'checked' : ''} />
+                           ${isSelected ? 'checked' : ''}/>
                     <span class="cr-field-name">${DOMPurify.sanitize(field.label)}</span>
                 </label>
                 <span class="cr-field-tokens" data-field="${field.key}">${formatTokenCount(field.tokens)}</span>
@@ -220,7 +220,7 @@ function renderPresetDropdown(
 
     const customId = `${MODULE_NAME}_${type}_select`;
 
-    return `
+    return /* html */ `
         <div class="cr-preset-row">
             <select id="${customId}" class="cr-select text_pole" aria-label="${type} preset">
                 <option value="">Custom</option>
@@ -267,7 +267,7 @@ export function renderStageConfig(): string {
         if (preset) schemaText = JSON.stringify(preset.schema, null, 2);
     }
 
-    return `
+    return /* html */ `
         <section class="cr-section cr-stage-config" aria-label="Stage Configuration">
             <div class="cr-section__header">
                 <h3 class="cr-section__title">
@@ -329,7 +329,7 @@ export function renderStageConfig(): string {
                 <label class="cr-checkbox">
                     <input type="checkbox"
                            id="${MODULE_NAME}_use_schema"
-                           ${config.useStructuredOutput ? 'checked' : ''} />
+                           ${config.useStructuredOutput ? 'checked' : ''}/>
                     <span>Use Structured Output (JSON Schema)</span>
                 </label>
 
@@ -426,7 +426,7 @@ export function updateStageConfig(): void {
     // Update header
     const headerTitle = container.querySelector('.cr-section__title');
     if (headerTitle) {
-        headerTitle.innerHTML = `
+        headerTitle.innerHTML = /* html */ `
             <i class="fa-solid ${STAGE_ICONS[stage]}"></i>
             ${STAGE_LABELS[stage]} Configuration
         `;
