@@ -41,3 +41,6 @@ coverage/
 *.tmp
 *.temp
 .cache/
+
+# Project-specific dev artifacts
+UX-AUDIT.md
