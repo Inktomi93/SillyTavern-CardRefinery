@@ -1,5 +1,5 @@
 {
-    "display_name": "Template Extension",
+    "display_name": "SillyTavern-ExtensionBase",
     "loading_order": 1,
     "requires": [],
     "optional": [],

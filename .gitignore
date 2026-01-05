@@ -1,20 +1,43 @@
 # Dependencies
 node_modules/
 
+# Build artifacts (NOT dist/ - ST users need the built bundle)
+*.tsbuildinfo
+
 # Logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# OS
+# OS files
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# Editor
+# Editor/IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+*.sublime-workspace
+*.sublime-project
 
-# Environment
+# Environment files
 .env
 .env.*
+.env.local
+
+# AI/Agent tool configs (local development only)
+.serena/
+.claude/
+
+# Development artifacts
+*.map
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
