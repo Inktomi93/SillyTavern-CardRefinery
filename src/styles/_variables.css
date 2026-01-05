@@ -16,7 +16,8 @@
 /* Design tokens shared by all CT components */
 .cr-popup,
 .cr-settings-modal,
-.cr-drawer {
+.cr-drawer,
+.cr-apply-dialog {
     /* ═══════════════════════════════════════════════════════════════════════════
        COLORS - Inherit from SillyTavern SmartTheme
        ═══════════════════════════════════════════════════════════════════════════ */

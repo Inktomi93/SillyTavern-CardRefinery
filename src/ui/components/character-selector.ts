@@ -65,6 +65,11 @@ function setDropdownOpen(open: boolean): void {
     if (dropdown) {
         dropdown.classList.toggle('cr-dropdown--open', open);
     }
+    // Update aria-expanded on trigger
+    const trigger = $(`#${MODULE_NAME}_char_trigger`);
+    if (trigger) {
+        trigger.setAttribute('aria-expanded', String(open));
+    }
     if (!open) {
         highlightedIndex = -1;
     }

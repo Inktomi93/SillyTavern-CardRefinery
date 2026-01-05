@@ -39,7 +39,6 @@ export {
     // Namespaced utilities (avoid window shadowing)
     popup,
     toast,
-    loader,
 
     // Factory functions (return managed objects)
     createSettingsManager,

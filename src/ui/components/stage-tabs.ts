@@ -84,14 +84,26 @@ export function renderStageTabs(): string {
 /**
  * Render pipeline controls (run buttons, status).
  *
- * Simplified design:
- * - Primary row: Run [Stage], Run All, Reset
- * - Iteration row (only after analyze): Guidance input + Iterate button
+ * Compact design:
+ * - Single row: Run/Redo, Run All, Reset, [Iterate when available]
+ * - Guidance input appears inline when iterate is available
  */
 export function renderPipelineControls(): string {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const state = getState();
     const canRun = state.character && !state.isGenerating;
+
+    // Check if current stage has results (for Run vs Redo)
+    const activeStageHasResults = !!state.stageResults[state.activeStage];
+
+    // Check if ALL stages are complete
+    const allStagesComplete =
+        !!state.stageResults.score &&
+        !state.stageResults.score.error &&
+        !!state.stageResults.rewrite &&
+        !state.stageResults.rewrite.error &&
+        !!state.stageResults.analyze &&
+        !state.stageResults.analyze.error;
 
     // Iteration is available when analyze has completed successfully
     const canIterate =
@@ -117,57 +129,74 @@ export function renderPipelineControls(): string {
         `;
     }
 
-    // Iteration row - only shown when iterate is available
-    const iterationRow = canIterate
+    // Compact button: "Run" or icon-only "Redo" when regenerating
+    const runButton = activeStageHasResults
         ? /* html */ `
-        <div class="cr-iteration-row">
-            <div class="cr-iteration-row__label">
-                <i class="fa-solid fa-arrows-rotate"></i>
-                <span>Iteration ${state.iterationCount + 1}</span>
-            </div>
-            <input type="text"
-                   id="${MODULE_NAME}_guidance_input"
-                   class="cr-iteration-row__input"
-                   placeholder="Optional guidance to steer refinement..."
-                   value="${DOMPurify.sanitize(getUserGuidance())}"
-                   title="Focus areas or constraints for the next iteration"/>
-            <button id="${MODULE_NAME}_iterate"
-                    class="menu_button menu_button--primary"
+            <button id="${MODULE_NAME}_run_stage"
+                    class="menu_button menu_button--icon"
                     type="button"
-                    title="Refine with feedback, then re-analyze">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                Iterate
-            </button>
-        </div>
-    `
+                    ${!canRun ? 'disabled' : ''}
+                    title="Regenerate ${STAGE_LABELS[state.activeStage]}">
+                <i class="fa-solid fa-rotate"></i>
+            </button>`
+        : /* html */ `
+            <button id="${MODULE_NAME}_run_stage"
+                    class="menu_button ${allStagesComplete ? '' : 'menu_button--primary'}"
+                    type="button"
+                    ${!canRun ? 'disabled' : ''}
+                    title="Run ${STAGE_LABELS[state.activeStage]}">
+                <i class="fa-solid fa-play"></i>
+                Run
+            </button>`;
+
+    // Run All button - hidden when all stages complete
+    const runAllButton = !allStagesComplete
+        ? /* html */ `
+            <button id="${MODULE_NAME}_run_all"
+                    class="menu_button"
+                    type="button"
+                    ${!canRun ? 'disabled' : ''}
+                    title="Run all stages: Score → Rewrite → Analyze">
+                <i class="fa-solid fa-forward"></i>
+                All
+            </button>`
+        : '';
+
+    // Reset button
+    const resetButton = /* html */ `
+        <button id="${MODULE_NAME}_reset"
+                class="menu_button menu_button--icon menu_button--ghost"
+                type="button"
+                title="Clear all results and start fresh">
+            <i class="fa-solid fa-eraser"></i>
+        </button>`;
+
+    // Iteration controls - compact inline design
+    const iterationControls = canIterate
+        ? /* html */ `
+            <div class="cr-iteration-controls">
+                <input type="text"
+                       id="${MODULE_NAME}_guidance_input"
+                       class="cr-iteration-controls__input"
+                       placeholder="Guidance..."
+                       value="${DOMPurify.sanitize(getUserGuidance())}"
+                       title="Optional: Focus areas or constraints for the next iteration"/>
+                <button id="${MODULE_NAME}_iterate"
+                        class="menu_button menu_button--primary"
+                        type="button"
+                        title="Refine with feedback, then re-analyze (Iteration ${state.iterationCount + 1})">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    Iterate
+                </button>
+            </div>`
         : '';
 
     return /* html */ `
         <div class="cr-pipeline-controls">
-            <div class="cr-pipeline-controls__main">
-                <button id="${MODULE_NAME}_run_stage"
-                        class="menu_button menu_button--primary"
-                        type="button"
-                        ${!canRun ? 'disabled' : ''}>
-                    <i class="fa-solid fa-play"></i>
-                    Run ${STAGE_LABELS[state.activeStage]}
-                </button>
-                <button id="${MODULE_NAME}_run_all"
-                        class="menu_button"
-                        type="button"
-                        ${!canRun ? 'disabled' : ''}
-                        title="Run all stages: Score → Rewrite → Analyze">
-                    <i class="fa-solid fa-forward"></i>
-                    Run All
-                </button>
-                <button id="${MODULE_NAME}_reset"
-                        class="menu_button menu_button--icon menu_button--ghost"
-                        type="button"
-                        title="Clear all results and start fresh">
-                    <i class="fa-solid fa-rotate-left"></i>
-                </button>
-            </div>
-            ${iterationRow}
+            ${runButton}
+            ${runAllButton}
+            ${resetButton}
+            ${iterationControls}
         </div>
     `;
 }
@@ -226,6 +255,36 @@ async function executeStage(stage: StageName): Promise<void> {
             },
         },
     });
+
+    // Cascade: If we just ran rewrite, auto-run analyze (since analyze depends on rewrite)
+    // This prevents leaving the user with a stale analyze result
+    if (
+        stage === 'rewrite' &&
+        state.stageResults.rewrite &&
+        !state.stageResults.rewrite.error
+    ) {
+        await executeStageAction(state, {
+            stage: 'analyze',
+            callbacks: {
+                onStageStart: () => {
+                    updateStageTabs();
+                    updatePipelineControls();
+                },
+                onStageComplete: () => {
+                    updateResults();
+                    updateStageTabs();
+                    updatePipelineControls();
+                },
+                onError: () => {
+                    updateStageTabs();
+                    updatePipelineControls();
+                },
+            },
+        });
+    }
+
+    // Final UI update after everything completes
+    updatePipelineControls();
 }
 
 /**
@@ -298,6 +357,10 @@ async function executeQuickIterate(): Promise<void> {
             },
         },
     });
+
+    // Final UI update after iterate completes (isGenerating is now false)
+    // This ensures the generating indicator clears properly
+    updatePipelineControls();
 }
 
 // =============================================================================

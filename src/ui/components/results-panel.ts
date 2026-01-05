@@ -16,7 +16,7 @@ import {
 import { getSchemaPreset } from '../../data/settings';
 import { $, on, cx, truncate, morphUpdate } from './base';
 import { renderCompareView, bindCompareViewEvents } from './compare-view';
-import { showApplyDialog, buildFieldUpdates } from './apply-suggestions';
+import { showApplyDialog } from './apply-suggestions';
 import {
     formatResponse,
     formatStructuredResponse,
@@ -185,8 +185,8 @@ function renderResultContent(
         <div class="cr-result">
             <div class="cr-result__header">
                 <span class="cr-result__type">
-                    <i class="fa-solid fa-file-lines"></i>
-                    Analysis
+                    <i class="fa-solid ${STAGE_ICONS[stage]}"></i>
+                    ${STAGE_LABELS[stage]}
                 </span>
                 <div class="cr-result__actions">
                     <div class="cr-text-toggle">
@@ -279,9 +279,13 @@ export function renderResultsPanel(): string {
     const hasRewrite = !!state.stageResults.rewrite;
     const hasHistory = state.iterationHistory.length > 0;
 
-    // Check if there are updates available (only when not viewing history)
+    // Only show compare toggle on rewrite tab and when not viewing history
+    const showCompareToggle =
+        hasRewrite && !isViewingHistory && state.activeStage === 'rewrite';
+
+    // Show Apply button when viewing rewrite results (not in history view)
     const hasUpdates =
-        !isViewingHistory && hasRewrite && buildFieldUpdates().length > 0;
+        !isViewingHistory && hasRewrite && state.activeStage === 'rewrite';
 
     // History navigation bar (shown when viewing history)
     const historyNavBar = isViewingHistory
@@ -302,7 +306,8 @@ export function renderResultsPanel(): string {
                     <button class="cr-history-nav__btn menu_button menu_button--icon menu_button--sm"
                             id="${MODULE_NAME}_history_next"
                             type="button"
-                            title="Next">
+                            title="Next"
+                            ${state.viewingHistoryIndex === state.iterationHistory.length - 1 ? 'disabled' : ''}>
                         <i class="fa-solid fa-chevron-right"></i>
                     </button>
                     <button class="cr-history-nav__btn menu_button menu_button--primary menu_button--sm"
@@ -322,10 +327,9 @@ export function renderResultsPanel(): string {
         `
         : '';
 
-    // View toggle (only show if rewrite exists and not viewing history)
-    const viewToggle =
-        hasRewrite && !isViewingHistory
-            ? /* html */ `
+    // View toggle (only show on rewrite tab and not viewing history)
+    const viewToggle = showCompareToggle
+        ? /* html */ `
             <div class="cr-view-toggle">
                 <button class="cr-view-toggle__btn ${currentViewMode === 'result' ? 'cr-view-toggle__btn--active' : ''}"
                         data-view="result"
@@ -352,7 +356,7 @@ export function renderResultsPanel(): string {
                     : ''
             }
         `
-            : '';
+        : '';
 
     // Content based on view mode
     const content = isViewingHistory
@@ -360,7 +364,7 @@ export function renderResultsPanel(): string {
               displayResult,
               displayResult?.stage ?? state.activeStage,
           )
-        : currentViewMode === 'compare' && hasRewrite
+        : currentViewMode === 'compare' && showCompareToggle
           ? /* html */ `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`
           : renderResultContent(displayResult, state.activeStage);
 
@@ -409,19 +413,83 @@ export function renderResultsPanel(): string {
  */
 export function updateResults(): void {
     const state = getState();
+    const viewedHistoryItem = getViewedHistoryItem();
+    const isViewingHistory = viewedHistoryItem !== null;
+
     const hasRewrite = !!state.stageResults.rewrite;
-    const hasUpdates = hasRewrite && buildFieldUpdates().length > 0;
     const hasHistory = state.iterationHistory.length > 0;
+
+    // Only show compare on rewrite tab and when not viewing history
+    const showCompareToggle =
+        hasRewrite && !isViewingHistory && state.activeStage === 'rewrite';
+
+    // Show Apply button when viewing rewrite results (not in history view)
+    const hasUpdates =
+        !isViewingHistory && hasRewrite && state.activeStage === 'rewrite';
 
     const resultsWrapper = $('.cr-results-wrapper');
     if (!resultsWrapper) return;
+
+    // Update or manage history nav bar
+    let historyNavBar = resultsWrapper.querySelector(
+        '.cr-history-nav',
+    ) as HTMLElement | null;
+
+    if (isViewingHistory) {
+        const historyNavHtml = /* html */ `
+            <div class="cr-history-nav__info">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Viewing history ${(state.viewingHistoryIndex ?? 0) + 1} of ${state.iterationHistory.length}</span>
+            </div>
+            <div class="cr-history-nav__controls">
+                <button class="cr-history-nav__btn menu_button menu_button--icon menu_button--sm"
+                        id="${MODULE_NAME}_history_prev"
+                        type="button"
+                        title="Previous"
+                        ${state.viewingHistoryIndex === 0 ? 'disabled' : ''}>
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <button class="cr-history-nav__btn menu_button menu_button--icon menu_button--sm"
+                        id="${MODULE_NAME}_history_next"
+                        type="button"
+                        title="Next"
+                        ${state.viewingHistoryIndex === state.iterationHistory.length - 1 ? 'disabled' : ''}>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+                <button class="cr-history-nav__btn menu_button menu_button--primary menu_button--sm"
+                        id="${MODULE_NAME}_history_restore"
+                        type="button"
+                        title="Restore this as current result">
+                    <i class="fa-solid fa-rotate-left"></i> Restore
+                </button>
+                <button class="cr-history-nav__btn menu_button menu_button--sm"
+                        id="${MODULE_NAME}_history_back"
+                        type="button"
+                        title="Back to current results">
+                    <i class="fa-solid fa-xmark"></i> Back
+                </button>
+            </div>
+        `;
+
+        if (!historyNavBar) {
+            historyNavBar = document.createElement('div');
+            historyNavBar.className = 'cr-history-nav';
+            resultsWrapper.insertBefore(
+                historyNavBar,
+                resultsWrapper.firstChild,
+            );
+        }
+        historyNavBar.innerHTML = historyNavHtml;
+    } else if (historyNavBar) {
+        historyNavBar.remove();
+    }
 
     // Update or create the view toggle toolbar
     let toolbar = resultsWrapper.querySelector(
         '.cr-results-toolbar',
     ) as HTMLElement | null;
 
-    if (hasRewrite) {
+    if (showCompareToggle) {
         const viewToggleHtml = /* html */ `
             <div class="cr-view-toggle">
                 <button class="cr-view-toggle__btn ${currentViewMode === 'result' ? 'cr-view-toggle__btn--active' : ''}"
@@ -463,13 +531,20 @@ export function updateResults(): void {
         toolbar.remove();
     }
 
-    // Update content based on view mode
+    // Update content based on view mode and history state
     const container = $(`#${MODULE_NAME}_results_content`);
     if (!container) return;
 
-    if (currentViewMode === 'compare' && hasRewrite) {
+    if (isViewingHistory) {
+        // Show the viewed history item
+        container.innerHTML = renderResultContent(
+            viewedHistoryItem,
+            viewedHistoryItem?.stage ?? state.activeStage,
+        );
+    } else if (currentViewMode === 'compare' && showCompareToggle) {
         container.innerHTML = /* html */ `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`;
     } else {
+        // Show current stage result
         const activeResult = state.stageResults[state.activeStage];
         container.innerHTML = renderResultContent(
             activeResult,
@@ -637,21 +712,24 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
         );
     }
 
-    // History toggle
-    const historyToggle = $('.cr-history__toggle', container);
-    const historySection = $('.cr-history', container);
-    if (historyToggle && historySection) {
-        cleanups.push(
-            on(historyToggle, 'click', () => {
-                toggleHistory();
-                historySection.classList.toggle('cr-history--collapsed');
-                historyToggle.setAttribute(
-                    'aria-expanded',
-                    String(getState().historyExpanded),
-                );
-            }),
-        );
-    }
+    // History toggle - use event delegation since history section is created dynamically
+    cleanups.push(
+        on(container, 'click', (e) => {
+            const target = e.target as HTMLElement;
+            const historyToggle = target.closest('.cr-history__toggle');
+            if (!historyToggle) return;
+
+            const historySection = historyToggle.closest('.cr-history');
+            if (!historySection) return;
+
+            toggleHistory();
+            historySection.classList.toggle('cr-history--collapsed');
+            historyToggle.setAttribute(
+                'aria-expanded',
+                String(getState().historyExpanded),
+            );
+        }),
+    );
 
     // History navigation controls
     cleanups.push(
@@ -689,42 +767,44 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
         }),
     );
 
-    // History item interactions
-    const historyList = $(`#${MODULE_NAME}_history_list`, container);
-    if (historyList) {
-        cleanups.push(
-            on(historyList, 'click', async (e) => {
-                const target = e.target as HTMLElement;
+    // History item interactions - use event delegation from container
+    // since history list is created dynamically after results exist
+    cleanups.push(
+        on(container, 'click', (e) => {
+            const target = e.target as HTMLElement;
 
-                // Restore button on individual item
-                const restoreBtn = target.closest('.cr-history-restore');
-                if (restoreBtn) {
-                    e.stopPropagation();
-                    const index = parseInt(
-                        (restoreBtn as HTMLElement).dataset.index || '0',
-                        10,
-                    );
-                    restoreHistoryItem(index);
-                    toast.success('Result restored');
-                    updateResults();
-                    return;
-                }
+            // Only handle clicks within the history list
+            const historyList = target.closest(`#${MODULE_NAME}_history_list`);
+            if (!historyList) return;
 
-                // Click on item content - view in main panel
-                const item = target.closest('.cr-list-item');
-                if (!item) return;
-
+            // Restore button on individual item
+            const restoreBtn = target.closest('.cr-history-restore');
+            if (restoreBtn) {
+                e.stopPropagation();
                 const index = parseInt(
-                    (item as HTMLElement).dataset.index || '0',
+                    (restoreBtn as HTMLElement).dataset.index || '0',
                     10,
                 );
-
-                // View this history item in the main panel
-                viewHistoryItem(index);
+                restoreHistoryItem(index);
+                toast.success('Result restored');
                 updateResults();
-            }),
-        );
-    }
+                return;
+            }
+
+            // Click on item content - view in main panel
+            const item = target.closest('.cr-list-item');
+            if (!item) return;
+
+            const index = parseInt(
+                (item as HTMLElement).dataset.index || '0',
+                10,
+            );
+
+            // View this history item in the main panel
+            viewHistoryItem(index);
+            updateResults();
+        }),
+    );
 
     return () => {
         cleanups.forEach((fn) => fn());

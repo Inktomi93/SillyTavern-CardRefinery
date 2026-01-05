@@ -1,128 +1,109 @@
 // src/ui/components/apply-suggestions.ts
 // =============================================================================
 // APPLY SUGGESTIONS COMPONENT
-// Allows users to apply rewritten content back to the character card
+// Split-view editor for applying rewrite content to character fields
 // =============================================================================
 
-import { toast, log } from '../../shared';
+import {
+    toast,
+    log,
+    CHARACTER_FIELDS,
+    getTokenCountsKeyed,
+} from '../../shared';
 import { getState } from '../../state';
+import { downloadCharacterPng } from '../../domain/png-writer';
 import { getPopulatedFields } from '../../domain/character/fields';
+import { formatTokenCount } from './base';
+import type { CharacterField, PopulatedField } from '../../types';
 
 // =============================================================================
-// TYPES
-// =============================================================================
-
-interface FieldUpdate {
-    key: string;
-    label: string;
-    original: string;
-    rewritten: string;
-    selected: boolean;
-}
-
-// =============================================================================
-// PARSE UTILITIES
+// HELPERS
 // =============================================================================
 
 /**
- * Parse rewrite output to extract field values.
- * Handles common markdown section formats.
+ * Format a field value for display/editing in textarea.
+ * Different from formatValue in fields.ts - this is for editable content.
  */
-function parseRewriteOutput(output: string): Record<string, string> {
-    const fields: Record<string, string> = {};
+function formatFieldForEditing(field: PopulatedField): string {
+    const { rawValue, type, key } = field;
 
-    // Match sections like "### Description" or "## Personality"
-    const sectionRegex = /^#{2,3}\s*(.+?)[\s:]*$/gm;
-    const sections: { name: string; start: number }[] = [];
-
-    let match;
-    while ((match = sectionRegex.exec(output)) !== null) {
-        sections.push({
-            name: match[1].trim().toLowerCase(),
-            start: match.index + match[0].length,
-        });
+    if (rawValue === undefined || rawValue === null) {
+        return '';
     }
 
-    // Extract content between sections
-    for (let i = 0; i < sections.length; i++) {
-        const section = sections[i];
-        const nextStart = sections[i + 1]?.start ?? output.length;
-        const content = output.slice(section.start, nextStart).trim();
+    // Arrays: join with separator
+    if (type === 'array' && Array.isArray(rawValue)) {
+        return rawValue.join('\n---\n');
+    }
 
-        // Remove trailing section markers
-        const cleanContent = content.replace(/^#{2,3}\s*.+$/gm, '').trim();
-
-        // Map section names to field keys
-        const fieldKey = mapSectionToFieldKey(section.name);
-        if (fieldKey && cleanContent) {
-            fields[fieldKey] = cleanContent;
+    // Objects: special handling based on field type
+    if (type === 'object') {
+        if (key === 'depth_prompt') {
+            const dp = rawValue as { prompt?: string };
+            return dp.prompt || '';
+        }
+        if (key === 'character_book') {
+            // Character book is complex - show as read-only JSON for now
+            // Could be enhanced to show individual entries
+            try {
+                return JSON.stringify(rawValue, null, 2);
+            } catch {
+                return '[Character Lorebook - edit in ST]';
+            }
+        }
+        try {
+            return JSON.stringify(rawValue, null, 2);
+        } catch {
+            return '';
         }
     }
 
-    return fields;
+    return String(rawValue);
 }
 
 /**
- * Map section name to field key.
+ * Check if a field type is editable in the apply dialog.
+ * Some complex fields like character_book are better edited in ST directly.
  */
-function mapSectionToFieldKey(sectionName: string): string | null {
-    const normalized = sectionName.toLowerCase().replace(/[^a-z0-9]/g, '');
-
-    const mappings: Record<string, string> = {
-        description: 'description',
-        personality: 'personality',
-        firstmessage: 'first_mes',
-        greeting: 'first_mes',
-        scenario: 'scenario',
-        examplemessages: 'mes_example',
-        examples: 'mes_example',
-        systemprompt: 'system_prompt',
-        system: 'system_prompt',
-        posthistoryinstructions: 'post_history_instructions',
-        posthistory: 'post_history_instructions',
-        creatornotes: 'creator_notes',
-        notes: 'creator_notes',
-        alternategreetings: 'alternate_greetings',
-        greetings: 'alternate_greetings',
-    };
-
-    return mappings[normalized] || null;
-}
-
-// =============================================================================
-// BUILD UPDATES
-// =============================================================================
-
-/**
- * Build field updates from state.
- */
-export function buildFieldUpdates(): FieldUpdate[] {
-    const state = getState();
-    const updates: FieldUpdate[] = [];
-
-    if (!state.character || !state.stageResults.rewrite) {
-        return updates;
+function isEditableFieldType(field: CharacterField): boolean {
+    // Character book is too complex for simple textarea editing
+    if (field.key === 'character_book') {
+        return false;
     }
+    return true;
+}
 
-    const originalFields = getPopulatedFields(state.character);
-    const rewrittenFields = parseRewriteOutput(
-        state.stageResults.rewrite.output,
-    );
+/**
+ * Load and display token counts for apply dialog fields.
+ * Called after the dialog renders to async update the badges.
+ */
+async function loadApplyDialogTokens(
+    fieldMap: Map<string, PopulatedField>,
+): Promise<void> {
+    // Collect items to count
+    const items: Array<{ key: string; text: string }> = [];
 
-    for (const field of originalFields) {
-        const rewritten = rewrittenFields[field.key];
-        if (rewritten && rewritten !== field.value) {
-            updates.push({
-                key: field.key,
-                label: field.label,
-                original: field.value,
-                rewritten,
-                selected: true,
-            });
+    for (const [key, field] of fieldMap) {
+        if (key === 'alternate_greetings') continue; // Handled separately
+        const text = formatFieldForEditing(field);
+        if (text) {
+            items.push({ key, text });
         }
     }
 
-    return updates;
+    if (items.length === 0) return;
+
+    const results = await getTokenCountsKeyed(items);
+
+    // Update badges in the DOM
+    for (const { key, tokens } of results) {
+        const badge = document.querySelector(
+            `.cr-apply-field__tokens[data-field="${key}"]`,
+        );
+        if (badge && tokens !== null) {
+            badge.textContent = `${formatTokenCount(tokens)} tokens`;
+        }
+    }
 }
 
 // =============================================================================
@@ -136,7 +117,7 @@ async function editCharacterAttribute(
     avatarUrl: string,
     charName: string,
     field: string,
-    value: string,
+    value: string | string[],
 ): Promise<boolean> {
     const ctx = SillyTavern.getContext();
 
@@ -156,32 +137,6 @@ async function editCharacterAttribute(
     } catch (error) {
         log.error(`Failed to edit attribute ${field}:`, error);
         return false;
-    }
-}
-
-/**
- * Export character as PNG with current data.
- */
-export async function exportCharacterPng(
-    avatarUrl: string,
-): Promise<Blob | null> {
-    const ctx = SillyTavern.getContext();
-
-    try {
-        const response = await fetch('/api/characters/export', {
-            method: 'POST',
-            headers: ctx.getRequestHeaders(),
-            body: JSON.stringify({
-                avatar_url: avatarUrl,
-                format: 'png',
-            }),
-        });
-
-        if (!response.ok) return null;
-        return await response.blob();
-    } catch (error) {
-        log.error('Failed to export character:', error);
-        return null;
     }
 }
 
@@ -212,199 +167,21 @@ async function getCharacterJson(
 }
 
 // =============================================================================
-// APPLY FUNCTIONS
+// LEGACY EXPORTS (for backwards compatibility with buildFieldUpdates)
 // =============================================================================
 
 /**
- * Apply updates directly to character card via API.
+ * Build field updates from state (legacy - used by results panel).
+ * @deprecated Use showApplyDialog instead
  */
-export async function applyUpdatesDirectly(
-    updates: FieldUpdate[],
-): Promise<boolean> {
+export function buildFieldUpdates(): Array<{ key: string; value: string }> {
     const state = getState();
-    if (!state.character) return false;
-
-    const char = state.character;
-    let successCount = 0;
-
-    for (const update of updates) {
-        if (!update.selected) continue;
-
-        const success = await editCharacterAttribute(
-            char.avatar,
-            char.name,
-            update.key,
-            update.rewritten,
-        );
-
-        if (success) {
-            successCount++;
-        } else {
-            toast.error(`Failed to update ${update.label}`);
-        }
+    if (!state.character || !state.stageResults.rewrite) {
+        return [];
     }
-
-    if (successCount > 0) {
-        // Refresh character data
-        const ctx = SillyTavern.getContext();
-        await ctx.getCharacters();
-
-        toast.success(
-            `Applied ${successCount} update${successCount > 1 ? 's' : ''} to character!`,
-        );
-    }
-
-    return successCount === updates.filter((u) => u.selected).length;
-}
-
-/**
- * Download character card with updates applied.
- */
-export async function downloadWithUpdates(
-    updates: FieldUpdate[],
-): Promise<boolean> {
-    const state = getState();
-    if (!state.character) return false;
-
-    const char = state.character;
-
-    // Get current character JSON
-    const charJson = await getCharacterJson(char.avatar);
-    if (!charJson) {
-        toast.error('Failed to get character data');
-        return false;
-    }
-
-    // Apply updates to JSON
-    for (const update of updates) {
-        if (!update.selected) continue;
-
-        // Update both top-level and data fields for compatibility
-        (charJson as Record<string, unknown>)[update.key] = update.rewritten;
-        if (charJson.data && typeof charJson.data === 'object') {
-            (charJson.data as Record<string, unknown>)[update.key] =
-                update.rewritten;
-        }
-    }
-
-    // Create downloadable JSON
-    const jsonString = JSON.stringify(charJson, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-
-    // Trigger download
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${char.name}_updated.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast.success('Character JSON downloaded!');
-    return true;
-}
-
-/**
- * Download character card as PNG with updates applied.
- * This applies updates first, exports the PNG, then optionally reverts.
- */
-export async function downloadPngWithUpdates(
-    updates: FieldUpdate[],
-): Promise<boolean> {
-    const state = getState();
-    if (!state.character) return false;
-
-    const char = state.character;
-
-    // First apply the updates temporarily
-    let appliedCount = 0;
-    const originalValues: Record<string, string> = {};
-
-    for (const update of updates) {
-        if (!update.selected) continue;
-
-        // Store original value for potential revert
-        originalValues[update.key] = update.original;
-
-        const success = await editCharacterAttribute(
-            char.avatar,
-            char.name,
-            update.key,
-            update.rewritten,
-        );
-
-        if (success) {
-            appliedCount++;
-        }
-    }
-
-    if (appliedCount === 0) {
-        toast.error('Failed to apply updates for PNG export');
-        return false;
-    }
-
-    // Now export the PNG
-    const pngBlob = await exportCharacterPng(char.avatar);
-
-    if (!pngBlob) {
-        toast.error('Failed to export character PNG');
-        // Revert the changes
-        for (const [key, value] of Object.entries(originalValues)) {
-            await editCharacterAttribute(char.avatar, char.name, key, value);
-        }
-        return false;
-    }
-
-    // Trigger download
-    const url = URL.createObjectURL(pngBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${char.name}_updated.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast.success('Character PNG downloaded! (Changes applied to card)');
-
-    // Refresh character data since we applied changes
-    const ctx = SillyTavern.getContext();
-    await ctx.getCharacters();
-
-    return true;
-}
-
-/**
- * Download the current character as PNG (no updates applied).
- */
-export async function downloadCurrentCharacter(): Promise<boolean> {
-    const state = getState();
-    if (!state.character) {
-        toast.warning('No character selected');
-        return false;
-    }
-
-    const char = state.character;
-    const pngBlob = await exportCharacterPng(char.avatar);
-
-    if (!pngBlob) {
-        toast.error('Failed to export character PNG');
-        return false;
-    }
-
-    // Trigger download
-    const url = URL.createObjectURL(pngBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${char.name}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    toast.success('Character PNG downloaded!');
-    return true;
+    // Return empty - the new dialog handles everything
+    // This prevents the old "X fields modified" logic
+    return [];
 }
 
 // =============================================================================
@@ -412,129 +189,521 @@ export async function downloadCurrentCharacter(): Promise<boolean> {
 // =============================================================================
 
 /**
- * Show apply dialog and handle user choice.
+ * Show the split-view apply dialog.
  */
 export async function showApplyDialog(): Promise<void> {
-    const updates = buildFieldUpdates();
+    const state = getState();
 
-    if (updates.length === 0) {
-        toast.warning('No changes detected in the rewrite output.');
+    if (!state.character) {
+        toast.warning('No character selected');
         return;
     }
 
+    if (!state.stageResults.rewrite) {
+        toast.warning('No rewrite results available');
+        return;
+    }
+
+    const char = state.character;
+    const rewriteOutput = state.stageResults.rewrite.output;
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
-    // Build dialog content
-    const content = /* html */ `
-        <div class="cr-apply-dialog">
-            <p class="cr-apply-dialog__intro">
-                <strong>${updates.length} field${updates.length > 1 ? 's' : ''}</strong> modified. 
-                Select which fields to apply:
-            </p>
-            
-            <div class="cr-apply-dialog__fields">
-                ${updates
-                    .map(
-                        (update, i) => /* html */ `
-                    <div class="cr-apply-field">
-                        <label class="cr-apply-field__header">
-                            <input type="checkbox"
-                                   class="cr-apply-checkbox"
-                                   data-field-index="${i}"
-                                   ${update.selected ? 'checked' : ''}/>
-                            <span class="cr-apply-field__label">${update.label}</span>
-                        </label>
-                        <div class="cr-apply-field__preview">
-                            <pre>${DOMPurify.sanitize(update.rewritten.substring(0, 300))}${update.rewritten.length > 300 ? '...' : ''}</pre>
+    // Get all populated fields using the shared field extraction
+    const populatedFields = getPopulatedFields(char);
+    const fieldMap = new Map(populatedFields.map((f) => [f.key, f]));
+
+    // Track alternate greetings separately for special handling
+    const alternateGreetings: string[] = [];
+    const altGreetingsField = fieldMap.get('alternate_greetings');
+    if (altGreetingsField && Array.isArray(altGreetingsField.rawValue)) {
+        alternateGreetings.push(...(altGreetingsField.rawValue as string[]));
+    }
+
+    // Build collapsible field editors - only for editable fields
+    const editableFields = CHARACTER_FIELDS.filter(isEditableFieldType);
+
+    const fieldEditorsHtml = editableFields
+        .map((fieldDef) => {
+            const populatedField = fieldMap.get(fieldDef.key);
+
+            // Special handling for alternate greetings - render each as separate textarea
+            if (fieldDef.key === 'alternate_greetings') {
+                const greetingsHtml =
+                    alternateGreetings.length > 0
+                        ? alternateGreetings
+                              .map((greeting, idx) => {
+                                  const escapedGreeting =
+                                      DOMPurify.sanitize(greeting);
+                                  return /* html */ `
+                        <div class="cr-apply-greetings__item">
+                            <span class="cr-apply-greetings__label">Greeting ${idx + 1}</span>
+                            <textarea
+                                class="cr-apply-textarea cr-apply-greeting text_pole"
+                                data-field-key="alternate_greetings"
+                                data-greeting-index="${idx}"
+                                data-original="${encodeURIComponent(greeting)}"
+                                rows="4"
+                                placeholder="Greeting ${idx + 1}..."
+                            >${escapedGreeting}</textarea>
+                        </div>
+                    `;
+                              })
+                              .join('')
+                        : /* html */ `<p class="cr-text-sm cr-text-dim">No alternate greetings defined</p>`;
+
+                return /* html */ `
+                <details class="cr-apply-field" data-field-key="${fieldDef.key}">
+                    <summary class="cr-apply-field__header">
+                        <span class="cr-apply-field__label">${fieldDef.label}</span>
+                        <span class="cr-apply-field__badge ${alternateGreetings.length > 0 ? 'cr-apply-field__badge--filled' : 'cr-apply-field__badge--empty'}">
+                            ${alternateGreetings.length > 0 ? `${alternateGreetings.length} greeting${alternateGreetings.length > 1 ? 's' : ''}` : 'empty'}
+                        </span>
+                        <span class="cr-apply-field__dirty" style="display: none;">modified</span>
+                    </summary>
+                    <div class="cr-apply-field__content">
+                        <div class="cr-apply-greetings">
+                            ${greetingsHtml}
+                            <button type="button" class="cr-apply-greetings__add" data-action="add-greeting">
+                                <i class="fa-solid fa-plus"></i> Add Greeting
+                            </button>
                         </div>
                     </div>
-                `,
-                    )
-                    .join('')}
-            </div>
-            
-            <div class="cr-apply-dialog__actions">
-                <button class="menu_button menu_button--sm cr-selecr-all-btn" type="button">
-                    Select All
-                </button>
-                <button class="menu_button menu_button--sm cr-selecr-none-btn" type="button">
-                    Select None
-                </button>
-            </div>
-            
-            <hr style="margin: 12px 0; border-color: var(--SmartThemeBorderColor);"/>
+                </details>
+            `;
+            }
 
-            <p class="cr-text-sm cr-text-dim">
-                <strong>Apply Directly</strong> - Updates the character card in SillyTavern immediately.<br/>
-                <strong>Download PNG</strong> - Downloads the original card image with updated metadata.<br/>
-                <strong>Download JSON</strong> - Downloads a JSON file you can import elsewhere.
-            </p>
+            // Special handling for depth_prompt - show depth/role info
+            if (fieldDef.key === 'depth_prompt' && populatedField) {
+                const dp = populatedField.rawValue as {
+                    prompt?: string;
+                    depth?: number;
+                    role?: string;
+                };
+                const promptValue = dp.prompt || '';
+                const depthInfo = `Depth: ${dp.depth ?? 4}, Role: ${dp.role ?? 'system'}`;
+                const escapedValue = DOMPurify.sanitize(promptValue);
+
+                return /* html */ `
+                <details class="cr-apply-field" data-field-key="${fieldDef.key}">
+                    <summary class="cr-apply-field__header">
+                        <span class="cr-apply-field__label">${fieldDef.label}</span>
+                        <span class="cr-apply-field__badge cr-apply-field__badge--filled">
+                            ${depthInfo}
+                        </span>
+                        <span class="cr-apply-field__dirty" style="display: none;">modified</span>
+                    </summary>
+                    <div class="cr-apply-field__content">
+                        <textarea
+                            class="cr-apply-textarea text_pole"
+                            data-field-key="${fieldDef.key}"
+                            data-field-type="depth_prompt"
+                            data-original="${encodeURIComponent(promptValue)}"
+                            data-depth="${dp.depth ?? 4}"
+                            data-role="${dp.role ?? 'system'}"
+                            rows="6"
+                            placeholder="Depth prompt content..."
+                        >${escapedValue}</textarea>
+                    </div>
+                </details>
+            `;
+            }
+
+            // Standard field rendering
+            const originalValue = populatedField
+                ? formatFieldForEditing(populatedField)
+                : '';
+            const hasContent = originalValue.length > 0;
+            const escapedValue = DOMPurify.sanitize(originalValue);
+
+            return /* html */ `
+            <details class="cr-apply-field" data-field-key="${fieldDef.key}">
+                <summary class="cr-apply-field__header">
+                    <span class="cr-apply-field__label">${fieldDef.label}</span>
+                    <span class="cr-apply-field__badge cr-apply-field__tokens ${hasContent ? 'cr-apply-field__badge--filled' : 'cr-apply-field__badge--empty'}" data-field="${fieldDef.key}">
+                        ${hasContent ? '...' : 'empty'}
+                    </span>
+                    <span class="cr-apply-field__dirty" style="display: none;">modified</span>
+                </summary>
+                <div class="cr-apply-field__content">
+                    <textarea
+                        class="cr-apply-textarea text_pole"
+                        data-field-key="${fieldDef.key}"
+                        data-original="${encodeURIComponent(originalValue)}"
+                        rows="6"
+                        placeholder="Paste content here..."
+                    >${escapedValue}</textarea>
+                </div>
+            </details>
+        `;
+        })
+        .join('');
+
+    // Build dialog content with split view
+    const content = /* html */ `
+        <div class="cr-apply-dialog cr-apply-dialog--split">
+            <div class="cr-apply-split">
+                <!-- Left Panel: Rewrite Output -->
+                <div class="cr-apply-panel cr-apply-panel--source">
+                    <div class="cr-apply-panel__header">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>Rewrite Output</span>
+                    </div>
+                    <textarea
+                        class="cr-apply-source text_pole"
+                        readonly
+                        spellcheck="false"
+                    >${DOMPurify.sanitize(rewriteOutput)}</textarea>
+                </div>
+
+                <!-- Right Panel: Character Fields -->
+                <div class="cr-apply-panel cr-apply-panel--fields">
+                    <div class="cr-apply-panel__header">
+                        <i class="fa-solid fa-user-pen"></i>
+                        <span>Character Fields</span>
+                    </div>
+                    <div class="cr-apply-fields-list">
+                        ${fieldEditorsHtml}
+                    </div>
+                </div>
+            </div>
+
+            <div class="cr-apply-footer">
+                <p class="cr-text-sm cr-text-dim">
+                    Copy from the rewrite output and paste into the fields you want to update.
+                    Modified fields are highlighted. Changes are only saved when you click an action button.
+                </p>
+            </div>
         </div>
     `;
 
-    // Show popup
     const ctx = SillyTavern.getContext();
 
-    // Use a short delay to allow the popup to render, then bind events
-    setTimeout(() => {
-        const selectAllBtn = document.querySelector('.cr-selecr-all-btn');
-        const selectNoneBtn = document.querySelector('.cr-selecr-none-btn');
+    // Track modified fields - updated on input, read after popup closes
+    const modifiedFields: Map<string, string> = new Map();
+    // Track ALL greeting values (we need complete array when saving)
+    const currentGreetings: string[] = [...alternateGreetings];
+    // Track if any greeting was modified
+    let greetingsModified = false;
 
-        if (selectAllBtn) {
-            selectAllBtn.addEventListener('click', () => {
-                document
-                    .querySelectorAll<HTMLInputElement>('.cr-apply-checkbox')
-                    .forEach((cb) => (cb.checked = true));
-            });
+    // Event delegation handler - works regardless of when elements are created
+    const handleInput = (e: Event) => {
+        const textarea = e.target as HTMLTextAreaElement;
+        if (!textarea.matches('.cr-apply-textarea')) return;
+
+        const fieldKey = textarea.dataset.fieldKey;
+        const greetingIndexStr = textarea.dataset.greetingIndex;
+        const originalEncoded = textarea.dataset.original || '';
+        const original = decodeURIComponent(originalEncoded);
+
+        const isDirty = textarea.value !== original;
+
+        // Handle alternate greetings specially
+        if (
+            fieldKey === 'alternate_greetings' &&
+            greetingIndexStr !== undefined
+        ) {
+            const greetingIndex = parseInt(greetingIndexStr, 10);
+
+            // Always update the current value in our tracking array
+            currentGreetings[greetingIndex] = textarea.value;
+
+            if (isDirty) {
+                greetingsModified = true;
+            }
+
+            // Check if ANY greeting differs from original
+            const anyGreetingDirty =
+                currentGreetings.some((val, idx) => {
+                    const orig = alternateGreetings[idx] || '';
+                    return val !== orig;
+                }) || currentGreetings.length !== alternateGreetings.length;
+
+            // Update dirty state for the parent field
+            const fieldEl = textarea.closest('.cr-apply-field');
+            const dirtyBadge = fieldEl?.querySelector(
+                '.cr-apply-field__dirty',
+            ) as HTMLElement;
+            if (fieldEl) {
+                fieldEl.classList.toggle(
+                    'cr-apply-field--dirty',
+                    anyGreetingDirty,
+                );
+            }
+            if (dirtyBadge) {
+                dirtyBadge.style.display = anyGreetingDirty ? 'inline' : 'none';
+            }
+            return;
         }
 
-        if (selectNoneBtn) {
-            selectNoneBtn.addEventListener('click', () => {
-                document
-                    .querySelectorAll<HTMLInputElement>('.cr-apply-checkbox')
-                    .forEach((cb) => (cb.checked = false));
-            });
-        }
-    }, 0);
+        // Standard field handling
+        const fieldEl = textarea.closest('.cr-apply-field');
+        const dirtyBadge = fieldEl?.querySelector(
+            '.cr-apply-field__dirty',
+        ) as HTMLElement;
 
+        if (fieldEl) {
+            fieldEl.classList.toggle('cr-apply-field--dirty', isDirty);
+        }
+        if (dirtyBadge) {
+            dirtyBadge.style.display = isDirty ? 'inline' : 'none';
+        }
+
+        // Track modified fields for later
+        if (fieldKey) {
+            if (isDirty) {
+                modifiedFields.set(fieldKey, textarea.value);
+            } else {
+                modifiedFields.delete(fieldKey);
+            }
+        }
+    };
+
+    // Handle Add Greeting button clicks
+    const handleClick = (e: Event) => {
+        const target = e.target as HTMLElement;
+        const addBtn = target.closest('[data-action="add-greeting"]');
+        if (!addBtn) return;
+
+        e.preventDefault();
+        const container = addBtn.closest('.cr-apply-greetings');
+        if (!container) return;
+
+        const newIndex = currentGreetings.length;
+        currentGreetings.push(''); // Add empty slot
+        greetingsModified = true;
+
+        const newItem = document.createElement('div');
+        newItem.className = 'cr-apply-greetings__item';
+        newItem.innerHTML = /* html */ `
+            <span class="cr-apply-greetings__label">Greeting ${newIndex + 1} (new)</span>
+            <textarea
+                class="cr-apply-textarea cr-apply-greeting text_pole"
+                data-field-key="alternate_greetings"
+                data-greeting-index="${newIndex}"
+                data-original=""
+                rows="4"
+                placeholder="New greeting..."
+            ></textarea>
+        `;
+        container.insertBefore(newItem, addBtn);
+
+        // Update dirty state
+        const fieldEl = container.closest('.cr-apply-field');
+        const dirtyBadge = fieldEl?.querySelector(
+            '.cr-apply-field__dirty',
+        ) as HTMLElement;
+        if (fieldEl) {
+            fieldEl.classList.add('cr-apply-field--dirty');
+        }
+        if (dirtyBadge) {
+            dirtyBadge.style.display = 'inline';
+        }
+    };
+
+    // Attach delegated listeners BEFORE popup opens
+    document.addEventListener('input', handleInput);
+    document.addEventListener('click', handleClick);
+
+    // Load token counts after popup renders (small delay ensures DOM is ready)
+    setTimeout(() => loadApplyDialogTokens(fieldMap), 50);
+
+    // Show popup with action buttons
     const result = await ctx.callGenericPopup(
         content,
         ctx.POPUP_TYPE.CONFIRM,
         '',
         {
-            okButton: 'Apply Directly',
+            okButton: 'Apply to Card',
             cancelButton: 'Cancel',
             customButtons: ['Download PNG', 'Download JSON'],
             wide: true,
+            large: true,
         },
     );
+
+    // Clean up delegated listeners
+    document.removeEventListener('input', handleInput);
+    document.removeEventListener('click', handleClick);
 
     // Handle result
     if (result === false || result === undefined) {
         return; // Cancelled
     }
 
-    // Collect selected updates
-    const selectedUpdates = updates.filter((_, i) => {
-        const checkbox = document.querySelector(
-            `.cr-apply-checkbox[data-field-index="${i}"]`,
-        ) as HTMLInputElement;
-        return checkbox?.checked ?? false;
-    });
+    // Build fields to apply
+    const fieldsToApply = Array.from(modifiedFields.entries()).map(
+        ([key, value]) => ({ key, value }),
+    );
 
-    if (selectedUpdates.length === 0) {
-        toast.warning('No fields selected.');
+    // Handle alternate greetings - use tracked values (DOM is already removed)
+    if (greetingsModified) {
+        // Filter out empty greetings
+        const nonEmptyGreetings = currentGreetings.filter((g) => g.trim());
+
+        // Add to fields if there are greetings OR if we're clearing them
+        if (nonEmptyGreetings.length > 0 || alternateGreetings.length > 0) {
+            fieldsToApply.push({
+                key: 'alternate_greetings',
+                value: nonEmptyGreetings.join('\n---\n'),
+            });
+        }
+    }
+
+    if (fieldsToApply.length === 0) {
+        toast.info('No changes to apply');
         return;
     }
 
-    if (result === true) {
-        // Apply Directly
-        await applyUpdatesDirectly(selectedUpdates);
-    } else if (result === 0) {
-        // Download PNG (first custom button)
-        await downloadPngWithUpdates(selectedUpdates);
-    } else if (result === 1) {
-        // Download JSON (second custom button)
-        await downloadWithUpdates(selectedUpdates);
+    // Popup result values:
+    // - true (or 1): okButton clicked ('Apply to Card')
+    // - false/undefined: cancelButton or closed
+    // - 2: first custom button ('Download PNG')
+    // - 3: second custom button ('Download JSON')
+    if (result === true || result === 1) {
+        // Apply to Card - modifies the original character
+        await applyFieldsToCharacter(char.avatar, char.name, fieldsToApply);
+    } else if (result === 2) {
+        // Download PNG - creates a new file without modifying original
+        await savePngWithFields(char.avatar, char.name, fieldsToApply);
+    } else if (result === 3) {
+        // Download JSON - creates a new file without modifying original
+        await saveJsonWithFields(char.avatar, fieldsToApply);
+    } else {
+        log.warn('Unknown result from apply dialog:', result);
     }
+}
+
+// =============================================================================
+// APPLY FUNCTIONS
+// =============================================================================
+
+/**
+ * Apply modified fields directly to the character card.
+ */
+async function applyFieldsToCharacter(
+    avatarUrl: string,
+    charName: string,
+    fields: Array<{ key: string; value: string }>,
+): Promise<void> {
+    let successCount = 0;
+
+    for (const field of fields) {
+        // Handle alternate_greetings as array
+        const value =
+            field.key === 'alternate_greetings'
+                ? field.value.split('\n---\n').filter((s) => s.trim())
+                : field.value;
+
+        const success = await editCharacterAttribute(
+            avatarUrl,
+            charName,
+            field.key,
+            value,
+        );
+
+        if (success) {
+            successCount++;
+        } else {
+            toast.error(`Failed to update ${field.key}`);
+        }
+    }
+
+    if (successCount > 0) {
+        const ctx = SillyTavern.getContext();
+        await ctx.getCharacters();
+        toast.success(
+            `Applied ${successCount} field${successCount > 1 ? 's' : ''} to character!`,
+        );
+    }
+}
+
+/**
+ * Save character as PNG with modified fields.
+ * Creates a new PNG file WITHOUT modifying the original character.
+ */
+async function savePngWithFields(
+    avatarUrl: string,
+    charName: string,
+    fields: Array<{ key: string; value: string }>,
+): Promise<void> {
+    // Get current character JSON (for base data)
+    const charJson = await getCharacterJson(avatarUrl);
+    if (!charJson) {
+        toast.error('Failed to get character data');
+        return;
+    }
+
+    // Apply modifications to a copy of the JSON (NOT the original)
+    for (const field of fields) {
+        const value =
+            field.key === 'alternate_greetings'
+                ? field.value.split('\n---\n').filter((s) => s.trim())
+                : field.value;
+
+        // Update both top-level and data fields
+        charJson[field.key] = value;
+        if (charJson.data && typeof charJson.data === 'object') {
+            (charJson.data as Record<string, unknown>)[field.key] = value;
+        }
+    }
+
+    // Create PNG with modified data (client-side, no server changes)
+    const success = await downloadCharacterPng(
+        avatarUrl,
+        charJson,
+        `${charName}_refined.png`,
+    );
+
+    if (success) {
+        toast.success('PNG downloaded! (Original character unchanged)');
+    } else {
+        toast.error('Failed to create PNG');
+    }
+}
+
+/**
+ * Save character as JSON with modified fields.
+ */
+async function saveJsonWithFields(
+    avatarUrl: string,
+    fields: Array<{ key: string; value: string }>,
+): Promise<void> {
+    const state = getState();
+    if (!state.character) return;
+
+    // Get current character JSON
+    const charJson = await getCharacterJson(avatarUrl);
+    if (!charJson) {
+        toast.error('Failed to get character data');
+        return;
+    }
+
+    // Apply modifications to JSON
+    for (const field of fields) {
+        const value =
+            field.key === 'alternate_greetings'
+                ? field.value.split('\n---\n').filter((s) => s.trim())
+                : field.value;
+
+        // Update both top-level and data fields
+        charJson[field.key] = value;
+        if (charJson.data && typeof charJson.data === 'object') {
+            (charJson.data as Record<string, unknown>)[field.key] = value;
+        }
+    }
+
+    // Download JSON
+    const jsonString = JSON.stringify(charJson, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${state.character.name}_updated.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    toast.success('JSON downloaded!');
 }

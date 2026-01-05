@@ -3,7 +3,7 @@
 // POPUP STATE MANAGEMENT
 // =============================================================================
 
-import { getStageDefaults } from '../data';
+import { getStageDefaults, setStageDefaults } from '../data';
 import type {
     PopupState,
     StageName,
@@ -86,7 +86,7 @@ export function createInitialState(): PopupState {
         dropdownOpen: false,
 
         sessionListExpanded: false,
-        historyExpanded: true,
+        historyExpanded: false,
 
         viewingHistoryIndex: null,
     };
@@ -318,6 +318,9 @@ export function updateStageConfig(
     const s = getState();
     Object.assign(s.stageConfigs[stage], updates);
     autoSave();
+
+    // Also persist to settings as default template for new sessions
+    setStageDefaults(stage, s.stageConfigs[stage]);
 }
 
 /**

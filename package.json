@@ -63,5 +63,10 @@
         "vitest": "^4.0.16",
         "webpack": "^5.104.1",
         "webpack-cli": "^5.1.4"
+    },
+    "dependencies": {
+        "crc": "^4.3.2",
+        "png-chunk-text": "^1.0.0",
+        "png-chunks-extract": "^1.0.0"
     }
 }

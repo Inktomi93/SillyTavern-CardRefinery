@@ -6,6 +6,7 @@
 import { log } from '../../shared';
 import type { StructuredOutputSchema } from '../../shared';
 import { generate } from '../generation';
+import { getSettings } from '../../data/settings';
 import type { StageName, StageResult } from '../../types';
 import {
     buildUserPrompt,
@@ -65,12 +66,17 @@ export async function runStage(
         };
     }
 
+    // Get max tokens override from settings (if enabled)
+    const settings = getSettings();
+    const responseLength = settings.maxTokensOverride ?? undefined;
+
     // Use centralized generation with API checks and error handling
     const result = await generate({
         prompt: userPrompt,
         systemPrompt,
         jsonSchema: (schema as StructuredOutputSchema | null) ?? undefined,
         signal,
+        responseLength,
     });
 
     if (!result.success) {

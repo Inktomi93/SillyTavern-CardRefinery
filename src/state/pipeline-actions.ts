@@ -11,7 +11,7 @@
 //
 // =============================================================================
 
-import { STAGES, log, loader } from '../shared';
+import { STAGES, log } from '../shared';
 import {
     runStage,
     type ExecutionDependencies,
@@ -87,13 +87,6 @@ function setGeneratingInState(
     state.abortController = generating
         ? (controller ?? new AbortController())
         : null;
-
-    // Show/hide ST global loader during generation
-    if (generating) {
-        loader.show();
-    } else {
-        loader.hide();
-    }
 }
 
 function recordResultInState(state: PopupState, result: StageResult): void {

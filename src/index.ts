@@ -41,7 +41,10 @@ function init(): void {
         log.info(`${DISPLAY_NAME} v${VERSION} initializing...`);
 
         // Initialize settings (triggers migration if needed)
-        getSettings();
+        const settings = getSettings();
+
+        // Sync debug mode from user settings (overrides constant)
+        setDebugMode(settings.debugMode);
 
         // Load panel UI (just the launch button)
         initPanel();

@@ -37,7 +37,6 @@ import {
     cleanupPipelineControls,
     initDrawer,
     destroyDrawer,
-    downloadCurrentCharacter,
     $,
     on,
     // Update coordinator
@@ -87,13 +86,6 @@ function renderPopupContent(): string {
             </div>
         </div>
         <div class="cr-header__right">
-            <button id="${MODULE_NAME}_export_btn"
-                    class="menu_button menu_button--icon menu_button--ghost"
-                    type="button"
-                    title="Export character as PNG"
-                    aria-label="Export character">
-                <i class="fa-solid fa-download"></i>
-            </button>
             <button id="${MODULE_NAME}_settings_btn"
                     class="menu_button menu_button--icon menu_button--ghost"
                     type="button"
@@ -258,16 +250,6 @@ function bindAllEvents(container: HTMLElement): void {
     );
     if (apiStatusContainer) {
         eventCleanups.push(bindApiStatusEvents(apiStatusContainer));
-    }
-
-    // Export button
-    const exportBtn = $(`#${MODULE_NAME}_export_btn`, container);
-    if (exportBtn) {
-        eventCleanups.push(
-            on(exportBtn, 'click', () => {
-                downloadCurrentCharacter();
-            }),
-        );
     }
 
     // Settings button

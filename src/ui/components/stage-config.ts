@@ -481,6 +481,27 @@ export function updateStageConfig(): void {
         }
         schemaTextarea.value = schemaText;
     }
+
+    // Update preview button disabled state
+    const previewBtn = $(`#${MODULE_NAME}_preview`) as HTMLButtonElement;
+    if (previewBtn) {
+        previewBtn.disabled = !state.character;
+    }
+
+    // Update link fields button state
+    const linkFieldsBtn = $(`#${MODULE_NAME}_link_fields`);
+    if (linkFieldsBtn) {
+        const isLinked = areStagesLinked();
+        linkFieldsBtn.classList.toggle('cr-active', isLinked);
+        linkFieldsBtn.setAttribute('aria-pressed', String(isLinked));
+        linkFieldsBtn.title = isLinked
+            ? 'Fields shared across stages (click to unlink)'
+            : 'Fields independent per stage (click to link)';
+        const icon = linkFieldsBtn.querySelector('i');
+        if (icon) {
+            icon.className = `fa-solid ${isLinked ? 'fa-link' : 'fa-link-slash'}`;
+        }
+    }
 }
 
 /**

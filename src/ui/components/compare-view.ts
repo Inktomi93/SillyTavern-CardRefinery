@@ -91,95 +91,19 @@ function mapSectionToFieldKey(sectionName: string): string | null {
 }
 
 /**
- * Word-level diff highlighting using DiffMatchPatch.
- * Returns HTML with deletions/additions highlighted in both panels.
- *
- * Uses the diff-match-patch library for character-accurate diffs,
- * then cleans up the output to word boundaries for readability.
+ * Sanitize text for display in the comparison view.
+ * Simple side-by-side display without diff highlighting.
  */
 function highlightDiff(
     original: string,
     rewritten: string,
 ): { originalHtml: string; rewrittenHtml: string } {
     const DOMPurify = SillyTavern.libs.DOMPurify;
-    const DiffMatchPatch = SillyTavern.libs.DiffMatchPatch;
-
-    // Create diff instance
-    const dmp = new DiffMatchPatch();
-
-    // Compute character-level diff
-    const diffs = dmp.diff_main(original, rewritten);
-
-    // Cleanup for better readability (merge small edits, word boundaries)
-    dmp.diff_cleanupSemantic(diffs);
-
-    // Build highlighted HTML for both sides
-    // diffs is array of [operation, text] where:
-    //   -1 = DIFF_DELETE (only in original)
-    //    0 = DIFF_EQUAL (in both)
-    //    1 = DIFF_INSERT (only in rewritten)
-
-    const originalParts: string[] = [];
-    const rewrittenParts: string[] = [];
-
-    for (const [op, text] of diffs) {
-        const sanitized = DOMPurify.sanitize(text);
-
-        switch (op) {
-            case -1: // DELETE - show in original only, marked as removed
-                originalParts.push(
-                    `<span class="cr-diff--removed">${sanitized}</span>`,
-                );
-                break;
-            case 1: // INSERT - show in rewritten only, marked as added
-                rewrittenParts.push(
-                    `<span class="cr-diff--added">${sanitized}</span>`,
-                );
-                break;
-            case 0: // EQUAL - show in both, no highlighting
-            default:
-                originalParts.push(sanitized);
-                rewrittenParts.push(sanitized);
-                break;
-        }
-    }
 
     return {
-        originalHtml: originalParts.join(''),
-        rewrittenHtml: rewrittenParts.join(''),
+        originalHtml: DOMPurify.sanitize(original),
+        rewrittenHtml: DOMPurify.sanitize(rewritten),
     };
-}
-
-/**
- * Compute diff statistics for a comparison.
- */
-export function getDiffStats(
-    original: string,
-    rewritten: string,
-): { additions: number; deletions: number; unchanged: number } {
-    const DiffMatchPatch = SillyTavern.libs.DiffMatchPatch;
-    const dmp = new DiffMatchPatch();
-    const diffs = dmp.diff_main(original, rewritten);
-
-    let additions = 0;
-    let deletions = 0;
-    let unchanged = 0;
-
-    for (const [op, text] of diffs) {
-        const len = text.length;
-        switch (op) {
-            case -1:
-                deletions += len;
-                break;
-            case 1:
-                additions += len;
-                break;
-            default:
-                unchanged += len;
-        }
-    }
-
-    return { additions, deletions, unchanged };
 }
 
 // =============================================================================
@@ -245,18 +169,11 @@ function renderComparisonRow(comparison: FieldComparison): string {
         comparison.rewritten,
     );
 
-    // Get diff statistics for display
-    const stats = getDiffStats(comparison.original, comparison.rewritten);
-    const hasStats = stats.additions > 0 || stats.deletions > 0;
-
     return /* html */ `
         <div class="cr-compare-row ${comparison.hasChanges ? 'cr-compare-row--changed' : ''}">
             <div class="cr-compare-row__header">
                 <span class="cr-compare-row__label">${comparison.label}</span>
-                <div class="cr-compare-row__badges">
-                    ${comparison.hasChanges ? '<span class="cr-badge cr-badge--small cr-badge--accent">Modified</span>' : ''}
-                    ${hasStats ? `<span class="cr-diff-stats"><span class="cr-diff-stats__add">+${stats.additions}</span> <span class="cr-diff-stats__del">-${stats.deletions}</span></span>` : ''}
-                </div>
+                ${comparison.hasChanges ? '<span class="cr-badge cr-badge--small cr-badge--accent">Modified</span>' : ''}
             </div>
             <div class="cr-compare-row__content">
                 <div class="cr-compare-col cr-compare-col--original">

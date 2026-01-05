@@ -530,13 +530,13 @@ describe('UI Toggle States', () => {
 
     describe('toggleHistory', () => {
         it('toggles history expanded state', () => {
-            expect(getState().historyExpanded).toBe(true); // Default is expanded
-
-            toggleHistory();
-            expect(getState().historyExpanded).toBe(false);
+            expect(getState().historyExpanded).toBe(false); // Default is collapsed
 
             toggleHistory();
             expect(getState().historyExpanded).toBe(true);
+
+            toggleHistory();
+            expect(getState().historyExpanded).toBe(false);
         });
     });
 });
