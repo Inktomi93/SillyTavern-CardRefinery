@@ -29,7 +29,8 @@ Desktop.ini
 .env.local
 
 # AI/Agent tool configs (local development only)
-.serena/
+# Note: .serena/ is tracked - contains project docs and memories
+# The .serena/.gitignore excludes /cache internally
 .claude/
 
 # Development artifacts
