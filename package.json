@@ -18,7 +18,11 @@
     "version:sync": "node scripts/sync-version.js",
     "version:check": "node scripts/sync-version.js --check",
     "precommit": "npm run version:sync && npm run build && git add dist/ manifest.json src/shared/constants.ts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "git:status": "node scripts/branch-utils.js status",
+    "git:sync": "node scripts/branch-utils.js sync",
+    "git:promote": "node scripts/branch-utils.js promote",
+    "git:switch": "node scripts/branch-utils.js switch"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
