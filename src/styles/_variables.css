@@ -125,6 +125,7 @@
        ═══════════════════════════════════════════════════════════════════════════ */
     --cr-shadow-sm: 0 1px 3px var(--black30a, rgba(0, 0, 0, 0.3));
     --cr-shadow: 0 4px 12px var(--black30a, rgba(0, 0, 0, 0.3));
+    --cr-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15); /* Card hover state */
     --cr-shadow-lg: 0 8px 24px var(--black50a, rgba(0, 0, 0, 0.5));
 
     /* Transitions - use ST's animation-duration */

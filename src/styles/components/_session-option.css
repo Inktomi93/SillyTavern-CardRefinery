@@ -50,7 +50,7 @@
     }
 
     &__indicator {
-        font-size: 6px;
+        font-size: 0.5em; /* Relative to parent text size */
         color: var(--cr-accent);
         flex-shrink: 0;
     }
