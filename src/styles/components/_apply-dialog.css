@@ -1,0 +1,62 @@
+/**
+ * Apply Dialog Styles
+ * Dialog for applying rewritten content back to character cards
+ */
+
+.cr-apply-dialog {
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.cr-apply-dialog__intro {
+    margin-bottom: 12px;
+}
+
+.cr-apply-dialog__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.cr-apply-field {
+    border: 1px solid var(--SmartThemeBorderColor);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cr-apply-field__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: var(--SmartThemeBlurTintColor);
+    cursor: pointer;
+
+    & input {
+        margin: 0;
+    }
+}
+
+.cr-apply-field__label {
+    font-weight: 600;
+}
+
+.cr-apply-field__preview {
+    padding: 8px;
+    background: var(--SmartThemeBodyColor);
+
+    & pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 0.85em;
+        max-height: 100px;
+        overflow-y: auto;
+    }
+}
+
+.cr-apply-dialog__actions {
+    display: flex;
+    gap: 8px;
+}

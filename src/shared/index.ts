@@ -194,4 +194,7 @@ export {
     // JSON utilities
     parseJSON,
     isValidJSON,
+
+    // Template literal helpers
+    html,
 } from './utils';

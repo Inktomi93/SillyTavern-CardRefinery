@@ -72,7 +72,7 @@ let popupElement: HTMLElement | null = null;
  * └─────────────────────────────────────────────────────────────┘
  */
 function renderPopupContent(): string {
-    return `
+    return /* html */ `
 <div id="${MODULE_NAME}_popup" class="cr-popup">
     <header class="cr-header">
         <div class="cr-header__left">

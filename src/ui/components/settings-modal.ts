@@ -32,7 +32,7 @@ function renderApiStatusBanner(status: ApiStatus): string {
     const icon = status.isReady ? 'fa-circle-check' : 'fa-circle-xmark';
     const typeLabel = status.apiType === 'cc' ? 'Chat' : 'Text';
 
-    return `
+    return /* html */ `
         <div class="cr-api-banner ${statusClass}">
             <div class="cr-api-banner__left">
                 <i class="fa-solid ${icon}"></i>
@@ -46,7 +46,7 @@ function renderApiStatusBanner(status: ApiStatus): string {
         </div>
         ${
             status.error
-                ? `
+                ? /* html */ `
             <div class="cr-api-error">
                 <i class="fa-solid fa-triangle-exclamation"></i>
                 <span>${DOMPurify.sanitize(status.error)}</span>
@@ -64,7 +64,7 @@ function renderProfileInfo(profile: ProfileInfo | null): string {
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
     if (!profile) {
-        return `
+        return /* html */ `
             <div class="cr-profile-info cr-profile-info--empty">
                 <i class="fa-solid fa-circle-question"></i>
                 <span>Select a profile above</span>
@@ -74,7 +74,7 @@ function renderProfileInfo(profile: ProfileInfo | null): string {
 
     const typeLabel = profile.mode === 'cc' ? 'Chat' : 'Text';
 
-    return `
+    return /* html */ `
         <div class="cr-profile-info ${!profile.isSupported ? 'cr-profile-info--error' : ''}">
             <div class="cr-profile-info__row">
                 <span class="cr-profile-info__label">API</span>
@@ -90,7 +90,7 @@ function renderProfileInfo(profile: ProfileInfo | null): string {
             </div>
             ${
                 profile.presetName
-                    ? `
+                    ? /* html */ `
                 <div class="cr-profile-info__row">
                     <span class="cr-profile-info__label">Preset</span>
                     <span class="cr-profile-info__value">${DOMPurify.sanitize(profile.presetName)}</span>
@@ -100,7 +100,7 @@ function renderProfileInfo(profile: ProfileInfo | null): string {
             }
             ${
                 !profile.isSupported
-                    ? `
+                    ? /* html */ `
                 <div class="cr-profile-info__error">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                     <span>${profile.validationError || 'Profile configuration is invalid'}</span>
@@ -160,7 +160,7 @@ export function renderSettingsModal(): string {
         settings.generationMode === 'profile' ? settings.profileId : null,
     );
 
-    return `
+    return /* html */ `
         <div id="${MODULE_NAME}_settings_modal" class="cr-settings-modal">
             <div class="cr-settings-header">
                 <h2>
@@ -203,15 +203,15 @@ export function renderSettingsModal(): string {
                     <!-- Mode Toggle -->
                     ${
                         hasCMRS()
-                            ? `
+                            ? /* html */ `
                     <div class="cr-gen-mode-toggle">
                         <label class="cr-gen-mode-option ${settings.generationMode === 'current' ? 'cr-gen-mode-option--active' : ''}" data-mode="current">
-                            <input type="radio" name="${MODULE_NAME}_gen_mode" value="current" ${settings.generationMode === 'current' ? 'checked' : ''}>
+                            <input type="radio" name="${MODULE_NAME}_gen_mode" value="current" ${settings.generationMode === 'current' ? 'checked' : ''}/>
                             <i class="fa-solid fa-sliders"></i>
                             <span>Current ST Settings</span>
                         </label>
                         <label class="cr-gen-mode-option ${settings.generationMode === 'profile' ? 'cr-gen-mode-option--active' : ''}" data-mode="profile">
-                            <input type="radio" name="${MODULE_NAME}_gen_mode" value="profile" ${settings.generationMode === 'profile' ? 'checked' : ''}>
+                            <input type="radio" name="${MODULE_NAME}_gen_mode" value="profile" ${settings.generationMode === 'profile' ? 'checked' : ''}/>
                             <i class="fa-solid fa-plug"></i>
                             <span>Connection Profile</span>
                         </label>
@@ -221,14 +221,14 @@ export function renderSettingsModal(): string {
                     <div id="${MODULE_NAME}_profile_section" class="cr-profile-section ${settings.generationMode === 'current' ? 'cr-hidden' : ''}">
                         ${
                             profiles.length > 0
-                                ? `
+                                ? /* html */ `
                         <div class="cr-setting-item">
                             <label class="cr-setting-label">Select Profile</label>
                             <select id="${MODULE_NAME}_profile_select" class="cr-select text_pole">
                                 <option value="">-- Select a profile --</option>
                                 ${profiles
                                     .map(
-                                        (p) => `
+                                        (p) => /* html */ `
                                 <option value="${p.id}"
                                         ${p.id === settings.profileId ? 'selected' : ''}
                                         ${!p.isSupported ? 'disabled' : ''}>
@@ -243,7 +243,7 @@ export function renderSettingsModal(): string {
                             ${renderProfileInfo(profiles.find((p) => p.id === settings.profileId) || null)}
                         </div>
                         `
-                                : `
+                                : /* html */ `
                         <div class="cr-profile-empty">
                             <i class="fa-solid fa-info-circle"></i>
                             <div>
@@ -265,7 +265,7 @@ export function renderSettingsModal(): string {
                             <label class="cr-setting-label">
                                 <input type="checkbox"
                                        id="${MODULE_NAME}_max_tokens_enabled"
-                                       ${settings.maxTokensOverride !== null ? 'checked' : ''} />
+                                       ${settings.maxTokensOverride !== null ? 'checked' : ''}/>
                                 <span>Override max response tokens</span>
                             </label>
                             <input type="number"
@@ -275,7 +275,7 @@ export function renderSettingsModal(): string {
                                    min="100"
                                    max="32000"
                                    step="100"
-                                   ${settings.maxTokensOverride === null ? 'disabled' : ''} />
+                                   ${settings.maxTokensOverride === null ? 'disabled' : ''}/>
                             <span class="cr-setting-hint">
                                 Leave unchecked to use the profile's preset settings
                             </span>

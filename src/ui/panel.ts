@@ -21,7 +21,7 @@ import { openPopup } from './popup';
 function getPanelHTML(): string {
     const settings = getSettings();
 
-    return `
+    return /* html */ `
 <div id="${MODULE_NAME}_panel">
     <div class="inline-drawer">
         <div class="inline-drawer-toggle inline-drawer-header">
@@ -36,18 +36,18 @@ function getPanelHTML(): string {
                     Run the pipeline to evaluate and improve your character cards.
                 </p>
                 <div class="cr-panel-actions">
-                    <button id="${MODULE_NAME}_open_btn" class="menu_button menu_button_icon">
+                    <button id="${MODULE_NAME}_open_btn" class="menu_button menu_button_icon" type="button">
                         <i class="fa-solid fa-play"></i>
                         <span>Open Character Tools</span>
                     </button>
                 </div>
-                <hr class="cr-panel-divider" />
+                <hr class="cr-panel-divider"/>
                 <div class="cr-panel-debug">
                     <label class="cr-panel-checkbox">
-                        <input type="checkbox" id="${MODULE_NAME}_debug_mode" ${settings.debugMode ? 'checked' : ''} />
+                        <input type="checkbox" id="${MODULE_NAME}_debug_mode" ${settings.debugMode ? 'checked' : ''}/>
                         <span>Enable debug logging</span>
                     </label>
-                    <button id="${MODULE_NAME}_view_logs" class="menu_button menu_button--sm">
+                    <button id="${MODULE_NAME}_view_logs" class="menu_button menu_button--sm" type="button">
                         <i class="fa-solid fa-terminal"></i>
                         <span>View Logs</span>
                     </button>

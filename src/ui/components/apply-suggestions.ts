@@ -425,7 +425,7 @@ export async function showApplyDialog(): Promise<void> {
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
     // Build dialog content
-    const content = `
+    const content = /* html */ `
         <div class="cr-apply-dialog">
             <p class="cr-apply-dialog__intro">
                 <strong>${updates.length} field${updates.length > 1 ? 's' : ''}</strong> modified. 
@@ -435,13 +435,13 @@ export async function showApplyDialog(): Promise<void> {
             <div class="cr-apply-dialog__fields">
                 ${updates
                     .map(
-                        (update, i) => `
+                        (update, i) => /* html */ `
                     <div class="cr-apply-field">
                         <label class="cr-apply-field__header">
-                            <input type="checkbox" 
+                            <input type="checkbox"
                                    class="cr-apply-checkbox"
-                                   data-field-index="${i}" 
-                                   ${update.selected ? 'checked' : ''}>
+                                   data-field-index="${i}"
+                                   ${update.selected ? 'checked' : ''}/>
                             <span class="cr-apply-field__label">${update.label}</span>
                         </label>
                         <div class="cr-apply-field__preview">
@@ -462,11 +462,11 @@ export async function showApplyDialog(): Promise<void> {
                 </button>
             </div>
             
-            <hr style="margin: 12px 0; border-color: var(--SmartThemeBorderColor);">
-            
+            <hr style="margin: 12px 0; border-color: var(--SmartThemeBorderColor);"/>
+
             <p class="cr-text-sm cr-text-dim">
-                <strong>Apply Directly</strong> - Updates the character card in SillyTavern immediately.<br>
-                <strong>Download PNG</strong> - Downloads the original card image with updated metadata.<br>
+                <strong>Apply Directly</strong> - Updates the character card in SillyTavern immediately.<br/>
+                <strong>Download PNG</strong> - Downloads the original card image with updated metadata.<br/>
                 <strong>Download JSON</strong> - Downloads a JSON file you can import elsewhere.
             </p>
         </div>
@@ -538,66 +538,3 @@ export async function showApplyDialog(): Promise<void> {
         await downloadWithUpdates(selectedUpdates);
     }
 }
-
-// Add CSS for the dialog
-const style = document.createElement('style');
-style.textContent = `
-.cr-apply-dialog {
-    max-height: 60vh;
-    overflow-y: auto;
-}
-
-.cr-apply-dialog__intro {
-    margin-bottom: 12px;
-}
-
-.cr-apply-dialog__fields {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.cr-apply-field {
-    border: 1px solid var(--SmartThemeBorderColor);
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.cr-apply-field__header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px;
-    background: var(--SmartThemeBlurTintColor);
-    cursor: pointer;
-}
-
-.cr-apply-field__header input {
-    margin: 0;
-}
-
-.cr-apply-field__label {
-    font-weight: 600;
-}
-
-.cr-apply-field__preview {
-    padding: 8px;
-    background: var(--SmartThemeBodyColor);
-}
-
-.cr-apply-field__preview pre {
-    margin: 0;
-    white-space: pre-wrap;
-    word-break: break-word;
-    font-size: 0.85em;
-    max-height: 100px;
-    overflow-y: auto;
-}
-
-.cr-apply-dialog__actions {
-    display: flex;
-    gap: 8px;
-}
-`;
-document.head.appendChild(style);

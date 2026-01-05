@@ -108,6 +108,7 @@
         z-index: 1000; /* High z-index to stay above toolbar */
         display: none;
         flex-direction: column;
+
         /* Use solid chat background to prevent transparency */
         background: var(--SmartThemeChatBg, #1a1a1a);
         backdrop-filter: blur(20px);

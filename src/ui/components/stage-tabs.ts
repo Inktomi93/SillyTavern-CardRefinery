@@ -57,7 +57,7 @@ function renderStageTab(stage: StageName): string {
         ? `<span class="cr-stage-tab__status"><i class="fa-solid ${statusIcon}"></i></span>`
         : '';
 
-    return `
+    return /* html */ `
         <button class="cr-stage-tab ${cx(isActive && 'cr-stage-tab--active')} ${STATUS_CLASSES[status]}"
                 data-stage="${stage}"
                 role="tab"
@@ -74,7 +74,7 @@ function renderStageTab(stage: StageName): string {
  * Render stage tabs navigation.
  */
 export function renderStageTabs(): string {
-    return `
+    return /* html */ `
         <nav class="cr-stage-tabs" role="tablist" aria-label="Pipeline stages">
             ${STAGES.map(renderStageTab).join('')}
         </nav>
@@ -101,7 +101,7 @@ export function renderPipelineControls(): string {
 
     // Generating state - show spinner and stop button
     if (state.isGenerating) {
-        return `
+        return /* html */ `
             <div class="cr-pipeline-controls cr-pipeline-controls--generating">
                 <div class="cr-pipeline-status">
                     <i class="fa-solid fa-spinner fa-spin"></i>
@@ -119,7 +119,7 @@ export function renderPipelineControls(): string {
 
     // Iteration row - only shown when iterate is available
     const iterationRow = canIterate
-        ? `
+        ? /* html */ `
         <div class="cr-iteration-row">
             <div class="cr-iteration-row__label">
                 <i class="fa-solid fa-arrows-rotate"></i>
@@ -130,7 +130,7 @@ export function renderPipelineControls(): string {
                    class="cr-iteration-row__input"
                    placeholder="Optional guidance to steer refinement..."
                    value="${DOMPurify.sanitize(getUserGuidance())}"
-                   title="Focus areas or constraints for the next iteration" />
+                   title="Focus areas or constraints for the next iteration"/>
             <button id="${MODULE_NAME}_iterate"
                     class="menu_button menu_button--primary"
                     type="button"
@@ -142,7 +142,7 @@ export function renderPipelineControls(): string {
     `
         : '';
 
-    return `
+    return /* html */ `
         <div class="cr-pipeline-controls">
             <div class="cr-pipeline-controls__main">
                 <button id="${MODULE_NAME}_run_stage"

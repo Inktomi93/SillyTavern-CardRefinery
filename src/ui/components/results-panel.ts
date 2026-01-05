@@ -80,7 +80,7 @@ function renderResultContent(
     const hljs = SillyTavern.libs.hljs;
 
     if (!result) {
-        return `
+        return /* html */ `
             <div class="cr-empty">
                 <i class="fa-solid ${STAGE_ICONS[stage]} cr-empty__icon"></i>
                 <div class="cr-empty__title">No results yet</div>
@@ -90,7 +90,7 @@ function renderResultContent(
     }
 
     if (result.error) {
-        return `
+        return /* html */ `
             <div class="cr-alert cr-alert--danger">
                 <i class="fa-solid fa-exclamation-triangle cr-alert__icon"></i>
                 <div class="cr-alert__content">
@@ -132,10 +132,10 @@ function renderResultContent(
             } catch {
                 highlightedHtml = DOMPurify.sanitize(formattedJson);
             }
-            contentHtml = `<pre class="cr-result__code hljs"><code>${highlightedHtml}</code></pre>`;
+            contentHtml = /* html */ `<pre class="cr-result__code hljs"><code>${highlightedHtml}</code></pre>`;
         }
 
-        return `
+        return /* html */ `
             <div class="cr-result">
                 <div class="cr-result__header">
                     <span class="cr-result__type">
@@ -178,10 +178,10 @@ function renderResultContent(
         contentHtml = formatResponse(result.output);
     } else {
         // Raw text output - preserve whitespace and escape HTML
-        contentHtml = `<pre class="cr-result__raw">${DOMPurify.sanitize(result.output)}</pre>`;
+        contentHtml = /* html */ `<pre class="cr-result__raw">${DOMPurify.sanitize(result.output)}</pre>`;
     }
 
-    return `
+    return /* html */ `
         <div class="cr-result">
             <div class="cr-result__header">
                 <span class="cr-result__type">
@@ -233,7 +233,7 @@ function renderHistoryItem(result: StageResult, index: number): string {
     const isCurrentResult =
         state.stageResults[result.stage]?.timestamp === result.timestamp;
 
-    return `
+    return /* html */ `
         <div class="cr-list-item ${cx(
             result.error && 'cr-list-item--error',
             isViewing && 'cr-list-item--viewing',
@@ -285,7 +285,7 @@ export function renderResultsPanel(): string {
 
     // History navigation bar (shown when viewing history)
     const historyNavBar = isViewingHistory
-        ? `
+        ? /* html */ `
             <div class="cr-history-nav">
                 <div class="cr-history-nav__info">
                     <i class="fa-solid fa-clock-rotate-left"></i>
@@ -325,7 +325,7 @@ export function renderResultsPanel(): string {
     // View toggle (only show if rewrite exists and not viewing history)
     const viewToggle =
         hasRewrite && !isViewingHistory
-            ? `
+            ? /* html */ `
             <div class="cr-view-toggle">
                 <button class="cr-view-toggle__btn ${currentViewMode === 'result' ? 'cr-view-toggle__btn--active' : ''}"
                         data-view="result"
@@ -342,7 +342,7 @@ export function renderResultsPanel(): string {
             </div>
             ${
                 hasUpdates
-                    ? `
+                    ? /* html */ `
                 <button class="menu_button menu_button--primary menu_button--sm cr-apply-btn"
                         type="button"
                         title="Apply rewritten content to character card">
@@ -361,12 +361,12 @@ export function renderResultsPanel(): string {
               displayResult?.stage ?? state.activeStage,
           )
         : currentViewMode === 'compare' && hasRewrite
-          ? `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`
+          ? /* html */ `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`
           : renderResultContent(displayResult, state.activeStage);
 
     // Only show history section if there's actual history
     const historySection = hasHistory
-        ? `
+        ? /* html */ `
             <div class="cr-history ${cx(!state.historyExpanded && 'cr-history--collapsed')}">
                 <button class="cr-history__toggle"
                         type="button"
@@ -385,13 +385,13 @@ export function renderResultsPanel(): string {
         `
         : '';
 
-    return `
+    return /* html */ `
         <div class="cr-results-wrapper">
             <!-- History Navigation (when viewing history) -->
             ${historyNavBar}
 
             <!-- View Toggle -->
-            ${viewToggle ? `<div class="cr-results-toolbar">${viewToggle}</div>` : ''}
+            ${viewToggle ? /* html */ `<div class="cr-results-toolbar">${viewToggle}</div>` : ''}
 
             <!-- Results/Compare content -->
             <div id="${MODULE_NAME}_results_content" class="cr-results-content">
@@ -422,7 +422,7 @@ export function updateResults(): void {
     ) as HTMLElement | null;
 
     if (hasRewrite) {
-        const viewToggleHtml = `
+        const viewToggleHtml = /* html */ `
             <div class="cr-view-toggle">
                 <button class="cr-view-toggle__btn ${currentViewMode === 'result' ? 'cr-view-toggle__btn--active' : ''}"
                         data-view="result"
@@ -439,7 +439,7 @@ export function updateResults(): void {
             </div>
             ${
                 hasUpdates
-                    ? `
+                    ? /* html */ `
                 <button class="menu_button menu_button--primary menu_button--sm cr-apply-btn"
                         type="button"
                         title="Apply rewritten content to character card">
@@ -468,7 +468,7 @@ export function updateResults(): void {
     if (!container) return;
 
     if (currentViewMode === 'compare' && hasRewrite) {
-        container.innerHTML = `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`;
+        container.innerHTML = /* html */ `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`;
     } else {
         const activeResult = state.stageResults[state.activeStage];
         container.innerHTML = renderResultContent(
@@ -486,7 +486,7 @@ export function updateResults(): void {
         if (!historySection) {
             historySection = document.createElement('div');
             historySection.className = `cr-history ${!state.historyExpanded ? 'cr-history--collapsed' : ''}`;
-            historySection.innerHTML = `
+            historySection.innerHTML = /* html */ `
                 <button class="cr-history__toggle"
                         type="button"
                         aria-expanded="${state.historyExpanded}"

@@ -45,7 +45,7 @@ function renderProfileOption(
 ): string {
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
-    return `
+    return /* html */ `
         <option value="${profile.id}" 
                 ${isSelected ? 'selected' : ''}
                 ${!profile.isSupported ? 'disabled' : ''}>
@@ -74,7 +74,7 @@ export function renderApiStatus(): string {
     // Profile selector (if CMRS available)
     const profileSelector =
         cmrsAvailable && profiles.length > 0
-            ? `
+            ? /* html */ `
         <select id="${MODULE_NAME}_profile_select" 
                 class="cr-select cr-selecr--sm text_pole" 
                 aria-label="Connection profile">
@@ -86,7 +86,7 @@ export function renderApiStatus(): string {
     `
             : '';
 
-    return `
+    return /* html */ `
         <div id="${MODULE_NAME}_api_status" class="cr-api-status ${statusClass}">
             <div class="cr-api-status__indicator">
                 <i class="fa-solid ${statusIcon}"></i>
@@ -95,7 +95,7 @@ export function renderApiStatus(): string {
             ${profileSelector}
             ${
                 status.error
-                    ? `
+                    ? /* html */ `
                 <span class="cr-api-status__error" title="${DOMPurify.sanitize(status.error)}">
                     <i class="fa-solid fa-exclamation-triangle"></i>
                 </span>
@@ -116,7 +116,7 @@ export function renderApiStatusCompact(): string {
         ? 'fa-circle-check cr-text-success'
         : 'fa-circle-xmark cr-text-danger';
 
-    return `
+    return /* html */ `
         <div class="cr-api-badge ${cx(!status.isReady && 'cr-api-badge--error')}" 
              title="${status.statusText}${status.error ? ': ' + status.error : ''}">
             <i class="fa-solid ${statusIcon}"></i>

@@ -81,6 +81,7 @@
 @import './components/_drawer.css';
 @import './components/_settings-modal.css';
 @import './components/_panel.css';
+@import './components/_apply-dialog.css';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    8. RESPONSIVE & ACCESSIBILITY

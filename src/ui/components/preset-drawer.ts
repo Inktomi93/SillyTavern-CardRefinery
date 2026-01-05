@@ -82,7 +82,7 @@ let cleanupFns: Array<() => void> = [];
 // =============================================================================
 
 function renderDrawer(): string {
-    return `
+    return /* html */ `
         <div id="${MODULE_NAME}_preset_drawer" class="cr-drawer" aria-hidden="true">
             <div class="cr-drawer__backdrop"></div>
             <aside class="cr-drawer__panel" role="dialog" aria-label="Preset Editor">
@@ -113,7 +113,7 @@ function renderDrawerHeader(): string {
         icon = 'fa-copy';
     }
 
-    return `
+    return /* html */ `
         <header class="cr-drawer__header">
             <div class="cr-drawer__title">
                 <i class="fa-solid ${icon} cr-text-accent"></i>
@@ -134,11 +134,11 @@ function renderDrawerBody(): string {
     const { type, mode, preset } = drawerState;
     const isBuiltinDuplicate = mode === 'duplicate' && preset?.isBuiltin;
 
-    return `
+    return /* html */ `
         <div class="cr-drawer__body cr-scrollable">
             ${
                 isBuiltinDuplicate
-                    ? `
+                    ? /* html */ `
                 <div class="cr-alert cr-alert--info cr-mb-3">
                     <i class="fa-solid fa-circle-info cr-alert__icon"></i>
                     <div class="cr-alert__content">
@@ -167,7 +167,7 @@ function renderNameField(): string {
             mode === 'duplicate' ? `${preset.name} (Copy)` : preset.name;
     }
 
-    return `
+    return /* html */ `
         <div class="cr-form-group">
             <label class="cr-label" for="${MODULE_NAME}_drawer_name">
                 Name <span class="cr-required">*</span>
@@ -178,7 +178,7 @@ function renderNameField(): string {
                    value="${DOMPurify.sanitize(defaultName)}"
                    placeholder="Enter preset name..."
                    maxlength="100"
-                   autocomplete="off" />
+                   autocomplete="off"/>
         </div>
     `;
 }
@@ -187,7 +187,7 @@ function renderStagesField(): string {
     const { preset } = drawerState;
     const stages = preset?.stages || [];
 
-    return `
+    return /* html */ `
         <div class="cr-form-group">
             <label class="cr-label">
                 Applicable Stages
@@ -195,12 +195,12 @@ function renderStagesField(): string {
             </label>
             <div class="cr-stage-chips">
                 ${STAGES.map(
-                    (s) => `
+                    (s) => /* html */ `
                     <label class="cr-chip ${stages.length === 0 || stages.includes(s) ? 'cr-chip--active' : ''}">
                         <input type="checkbox"
                                name="drawer_stages"
                                value="${s}"
-                               ${stages.length === 0 || stages.includes(s) ? 'checked' : ''} />
+                               ${stages.length === 0 || stages.includes(s) ? 'checked' : ''}/>
                         <span>${STAGE_LABELS[s]}</span>
                     </label>
                 `,
@@ -215,7 +215,7 @@ function renderPromptEditor(): string {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const promptText = (preset as PromptPreset)?.prompt || '';
 
-    return `
+    return /* html */ `
         <div class="cr-form-group cr-form-group--grow">
             <div class="cr-row cr-row--between">
                 <label class="cr-label" for="${MODULE_NAME}_drawer_prompt">
@@ -259,7 +259,7 @@ function renderSchemaEditor(): string {
                 : JSON.stringify(preset.schema, null, 2);
     }
 
-    return `
+    return /* html */ `
         <div class="cr-form-group cr-form-group--grow">
             <div class="cr-row cr-row--between">
                 <label class="cr-label" for="${MODULE_NAME}_drawer_schema">
@@ -327,13 +327,13 @@ function renderDrawerFooter(): string {
               ? 'Save Changes'
               : 'Create Copy';
 
-    return `
+    return /* html */ `
         <footer class="cr-drawer__footer">
             <div class="cr-row cr-row--between cr-flex-1">
                 <div class="cr-row">
                     ${
                         preset && !isBuiltin && mode === 'edit'
-                            ? `
+                            ? /* html */ `
                         <button id="${MODULE_NAME}_drawer_delete"
                                 class="menu_button menu_button--danger"
                                 type="button">
@@ -369,7 +369,7 @@ function renderDrawerFooter(): string {
 function renderListHeader(): string {
     const { type } = drawerState;
 
-    return `
+    return /* html */ `
         <header class="cr-drawer__header">
             <div class="cr-drawer__title">
                 <i class="fa-solid fa-bookmark cr-text-accent"></i>
@@ -413,18 +413,18 @@ function renderListBody(): string {
     const customCount = sorted.filter((p) => !p.isBuiltin).length;
     const builtinCount = sorted.filter((p) => p.isBuiltin).length;
 
-    return `
+    return /* html */ `
         <div class="cr-drawer__body cr-drawer__body--list">
             ${
                 sorted.length === 0
-                    ? `
+                    ? /* html */ `
                 <div class="cr-empty cr-empty--compact">
                     <i class="fa-solid fa-bookmark cr-empty__icon"></i>
                     <div class="cr-empty__title">No ${type} presets</div>
                     <div class="cr-empty__text">Create one to get started</div>
                 </div>
             `
-                    : `
+                    : /* html */ `
                 <div class="cr-preset-list cr-scrollable">
                     ${customCount > 0 ? '<div class="cr-preset-list__section-label">Custom</div>' : ''}
                     ${sorted
@@ -453,7 +453,7 @@ function renderPresetListItem(
             ? preset.stages.map((s) => STAGE_LABELS[s]).join(', ')
             : 'All stages';
 
-    return `
+    return /* html */ `
         <div class="cr-preset-list__item ${preset.isBuiltin ? 'cr-preset-list__item--builtin' : ''}"
              data-id="${preset.id}"
              data-type="${type}">
@@ -469,7 +469,7 @@ function renderPresetListItem(
             <div class="cr-preset-list__actions">
                 ${
                     !preset.isBuiltin
-                        ? `
+                        ? /* html */ `
                     <button class="cr-preset-list__action cr-preset-list__action--edit menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button" title="Edit">
                         <i class="fa-solid fa-pen"></i>
@@ -483,7 +483,7 @@ function renderPresetListItem(
                 </button>
                 ${
                     !preset.isBuiltin
-                        ? `
+                        ? /* html */ `
                     <button class="cr-preset-list__action cr-preset-list__action--delete menu_button menu_button--icon menu_button--sm menu_button--ghost"
                             type="button" title="Delete">
                         <i class="fa-solid fa-trash"></i>
@@ -497,7 +497,7 @@ function renderPresetListItem(
 }
 
 function renderListFooter(): string {
-    return `
+    return /* html */ `
         <footer class="cr-drawer__footer cr-drawer__footer--list">
             <button id="${MODULE_NAME}_drawer_list_create"
                     class="menu_button menu_button--primary"
@@ -702,7 +702,7 @@ function showDrawer(): void {
     const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
         if (drawerState.mode === 'list') {
-            panel.innerHTML = `
+            panel.innerHTML = /* html */ `
                 <div class="cr-drawer__content cr-drawer__content--list">
                     ${renderListHeader()}
                     ${renderListBody()}
@@ -710,7 +710,7 @@ function showDrawer(): void {
                 </div>
             `;
         } else {
-            panel.innerHTML = `
+            panel.innerHTML = /* html */ `
                 <div class="cr-drawer__content">
                     ${renderDrawerHeader()}
                     ${renderDrawerBody()}
@@ -849,7 +849,7 @@ function bindPromptEvents(drawer: HTMLElement): void {
             on(varsBtn, 'click', async () => {
                 await popup.alert(
                     'Available Variables',
-                    `
+                    /* html */ `
                     <div class="cr-stack">
                         <p>Use these placeholders in your prompt:</p>
                         <ul class="cr-list cr-text-sm">
@@ -1026,7 +1026,7 @@ function showValidationResult(result: {
             errorsDiv.classList.add('cr-hidden');
             toast.success('Schema is valid');
         } else {
-            errorsDiv.innerHTML = `<div class="cr-error"><i class="fa-solid fa-times-circle"></i> ${result.error}</div>`;
+            errorsDiv.innerHTML = /* html */ `<div class="cr-error"><i class="fa-solid fa-times-circle"></i> ${result.error}</div>`;
             errorsDiv.classList.remove('cr-hidden');
         }
     }
@@ -1036,7 +1036,7 @@ function showValidationResult(result: {
             warningsDiv.innerHTML = result.warnings
                 .map(
                     (w) =>
-                        `<div class="cr-warning"><i class="fa-solid fa-exclamation-triangle"></i> ${w}</div>`,
+                        /* html */ `<div class="cr-warning"><i class="fa-solid fa-exclamation-triangle"></i> ${w}</div>`,
                 )
                 .join('');
             warningsDiv.classList.remove('cr-hidden');
@@ -1178,7 +1178,7 @@ function showFormErrors(errors: string[]): void {
         errorsDiv.innerHTML = errors
             .map(
                 (e) =>
-                    `<div class="cr-error"><i class="fa-solid fa-times-circle"></i> ${e}</div>`,
+                    /* html */ `<div class="cr-error"><i class="fa-solid fa-times-circle"></i> ${e}</div>`,
             )
             .join('');
         errorsDiv.classList.remove('cr-hidden');
@@ -1368,7 +1368,7 @@ function switchToCreateMode(type: PresetType): void {
 
     const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
-        panel.innerHTML = `
+        panel.innerHTML = /* html */ `
             <div class="cr-drawer__content">
                 ${renderDrawerHeader()}
                 ${renderDrawerBody()}
@@ -1409,7 +1409,7 @@ function switchToEditMode(type: PresetType, presetId: string): void {
 
     const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
-        panel.innerHTML = `
+        panel.innerHTML = /* html */ `
             <div class="cr-drawer__content">
                 ${renderDrawerHeader()}
                 ${renderDrawerBody()}
@@ -1456,7 +1456,7 @@ function switchToDuplicateMode(type: PresetType, presetId: string): void {
 
     const panel = $('.cr-drawer__panel', drawer);
     if (panel) {
-        panel.innerHTML = `
+        panel.innerHTML = /* html */ `
             <div class="cr-drawer__content">
                 ${renderDrawerHeader()}
                 ${renderDrawerBody()}

@@ -227,7 +227,7 @@ function renderComparisonRow(comparison: FieldComparison): string {
 
     if (!comparison.rewritten) {
         // No rewrite for this field
-        return `
+        return /* html */ `
             <div class="cr-compare-row cr-compare-row--unchanged">
                 <div class="cr-compare-row__header">
                     <span class="cr-compare-row__label">${comparison.label}</span>
@@ -249,7 +249,7 @@ function renderComparisonRow(comparison: FieldComparison): string {
     const stats = getDiffStats(comparison.original, comparison.rewritten);
     const hasStats = stats.additions > 0 || stats.deletions > 0;
 
-    return `
+    return /* html */ `
         <div class="cr-compare-row ${comparison.hasChanges ? 'cr-compare-row--changed' : ''}">
             <div class="cr-compare-row__header">
                 <span class="cr-compare-row__label">${comparison.label}</span>
@@ -283,7 +283,7 @@ export function renderCompareView(): string {
     const state = getState();
 
     if (!state.character) {
-        return `
+        return /* html */ `
             <div class="cr-empty">
                 <i class="fa-solid fa-code-compare cr-empty__icon"></i>
                 <div class="cr-empty__title">No character selected</div>
@@ -293,7 +293,7 @@ export function renderCompareView(): string {
     }
 
     if (!state.stageResults.rewrite) {
-        return `
+        return /* html */ `
             <div class="cr-empty">
                 <i class="fa-solid fa-code-compare cr-empty__icon"></i>
                 <div class="cr-empty__title">No rewrite available</div>
@@ -305,7 +305,7 @@ export function renderCompareView(): string {
     const comparisons = buildComparisons();
     const changedCount = comparisons.filter((c) => c.hasChanges).length;
 
-    return `
+    return /* html */ `
         <div class="cr-compare-view">
             <div class="cr-compare-header">
                 <div class="cr-compare-stats">
@@ -361,7 +361,7 @@ export function bindCompareViewEvents(container: HTMLElement): () => void {
                 if (originalPre && rewrittenPre) {
                     popup.alert(
                         `Compare: ${label}`,
-                        `
+                        /* html */ `
                         <div class="cr-compare-popup">
                             <div class="cr-compare-popup__side">
                                 <h4>Original</h4>

@@ -207,6 +207,41 @@ export function isValidJSON(str: string): boolean {
 }
 
 // =============================================================================
+// TEMPLATE LITERAL HELPERS
+// =============================================================================
+
+/**
+ * Tagged template literal for HTML strings.
+ *
+ * This is a zero-cost identity function that enables:
+ * - HTML linting via @html-eslint/eslint-plugin
+ * - IDE syntax highlighting for HTML in template literals
+ * - Type safety for HTML string interpolation
+ *
+ * @example
+ * ```ts
+ * // Enable HTML linting for this template
+ * const markup = html`<div class="container">${content}</div>`;
+ *
+ * // Alternative: use comment annotation (no import needed)
+ * const markup = /* html *\/ `<div class="container">${content}</div>`;
+ * ```
+ *
+ * @param strings - Template literal strings
+ * @param values - Interpolated values
+ * @returns The concatenated string (identity function)
+ */
+export function html(
+    strings: TemplateStringsArray,
+    ...values: unknown[]
+): string {
+    return strings.reduce((result, str, i) => {
+        const value = i < values.length ? String(values[i]) : '';
+        return result + str + value;
+    }, '');
+}
+
+// =============================================================================
 // LODASH REMINDER
 // =============================================================================
 // For common utilities, use libs().lodash directly:
