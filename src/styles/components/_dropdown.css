@@ -102,7 +102,7 @@
     &__count {
         background: var(--cr-accent-muted);
         color: var(--cr-accent);
-        padding: 2px 6px;
+        padding: var(--cr-space-1) var(--cr-space-2);
         border-radius: var(--cr-radius-pill);
         font-size: var(--cr-text-xs);
         font-weight: 600;

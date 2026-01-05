@@ -83,7 +83,7 @@
     &__content {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1px;
+        gap: 1px; /* Intentional 1px for border effect */
         background: var(--cr-border);
 
         @media (--mobile) {
@@ -142,19 +142,19 @@
 
 .cr-diff {
     &--added {
-        background: rgba(var(--cr-success-rgb, 46, 160, 67), 0.2);
+        background: var(--cr-success-bg);
         color: var(--cr-success);
-        padding: 0 2px;
-        border-radius: 2px;
+        padding: 0 var(--cr-space-1);
+        border-radius: var(--cr-radius-sm);
     }
 
     &--removed {
-        background: rgba(var(--cr-danger-rgb, 248, 81, 73), 0.2);
+        background: var(--cr-danger-bg);
         color: var(--cr-danger);
         text-decoration: line-through;
         opacity: 0.8;
-        padding: 0 2px;
-        border-radius: 2px;
+        padding: 0 var(--cr-space-1);
+        border-radius: var(--cr-radius-sm);
     }
 }
 

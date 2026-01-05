@@ -23,7 +23,7 @@
     &:hover {
         background: var(--cr-bg-tertiary);
         border-color: var(--cr-border);
-        transform: translateX(2px);
+        transform: translateX(var(--cr-space-1));
     }
 
     &--selected {
@@ -117,7 +117,7 @@
         margin-top: var(--cr-space-1);
 
         & i {
-            font-size: 0.6rem;
+            font-size: 0.75em; /* Relative to parent text-xs */
             opacity: 0.7;
         }
     }
