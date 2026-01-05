@@ -21,7 +21,8 @@ export function createAutoSave(
 ) {
     const _ = SillyTavern.libs.lodash;
 
-    const autoSaveImpl = _.debounce(async () => {
+    // The actual save logic - extracted so it can be called directly
+    const saveImpl = async (): Promise<void> => {
         const s = getState();
         if (!s?.activeSessionId || !s.character) return;
 
@@ -31,13 +32,28 @@ export function createAutoSave(
         // Update session from state
         session.stageFields = _.cloneDeep(s.stageFields);
         session.configs = _.cloneDeep(s.stageConfigs);
+        session.stageResults = _.cloneDeep(s.stageResults);
         session.history = _.cloneDeep(s.iterationHistory);
         session.iterationCount = s.iterationCount;
         session.userGuidance = s.userGuidance || undefined;
 
         await storageUpdateSession(session);
         setUnsavedChanges(false);
+    };
+
+    // Debounced version for automatic saves
+    const debouncedSave = _.debounce(() => {
+        saveImpl(); // Fire and forget for debounced calls
     }, 1000);
 
-    return autoSaveImpl;
+    // Return an object with both the debounced trigger and direct save
+    return {
+        trigger: debouncedSave,
+        save: saveImpl,
+        cancel: () => debouncedSave.cancel(),
+        flush: async () => {
+            debouncedSave.cancel(); // Cancel pending debounce
+            await saveImpl(); // Execute save directly and await
+        },
+    };
 }

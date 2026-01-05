@@ -9,7 +9,6 @@ import {
     VERSION,
     popup,
     toast,
-    setDebugMode,
     getAvailableProfiles,
     getApiStatus,
     hasCMRS,
@@ -171,205 +170,180 @@ export function renderSettingsModal(): string {
             </div>
 
             <div class="ct-settings-body">
-                <div class="ct-settings-columns">
-                    <!-- Left Column: Generation Settings -->
-                    <div class="ct-settings-column">
-                        <section class="ct-settings-section">
-                            <h3>
-                                <i class="fa-solid fa-sliders"></i>
-                                Generation
-                            </h3>
+                <!-- Keyboard Shortcuts -->
+                <section class="ct-settings-section">
+                    <h3>
+                        <i class="fa-solid fa-keyboard"></i>
+                        Keyboard Shortcuts
+                    </h3>
+                    <div class="ct-shortcuts-list">
+                        <div class="ct-shortcut">
+                            <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
+                            <span>Run current stage</span>
+                        </div>
+                        <div class="ct-shortcut">
+                            <kbd>Escape</kbd>
+                            <span>Cancel generation</span>
+                        </div>
+                    </div>
+                </section>
 
-                            <!-- Current API Status -->
-                            <div id="${MODULE_NAME}_api_status_banner">
-                                ${renderApiStatusBanner(apiStatus)}
-                            </div>
+                <!-- Generation Settings -->
+                <section class="ct-settings-section">
+                    <h3>
+                        <i class="fa-solid fa-sliders"></i>
+                        Generation
+                    </h3>
 
-                            <!-- Mode Toggle -->
-                            ${
-                                hasCMRS()
-                                    ? `
-                                <div class="ct-gen-mode-toggle">
-                                    <label class="ct-gen-mode-option ${settings.generationMode === 'current' ? 'ct-gen-mode-option--active' : ''}" data-mode="current">
-                                        <input type="radio" name="${MODULE_NAME}_gen_mode" value="current" ${settings.generationMode === 'current' ? 'checked' : ''}>
-                                        <i class="fa-solid fa-sliders"></i>
-                                        <span>Current ST Settings</span>
-                                    </label>
-                                    <label class="ct-gen-mode-option ${settings.generationMode === 'profile' ? 'ct-gen-mode-option--active' : ''}" data-mode="profile">
-                                        <input type="radio" name="${MODULE_NAME}_gen_mode" value="profile" ${settings.generationMode === 'profile' ? 'checked' : ''}>
-                                        <i class="fa-solid fa-plug"></i>
-                                        <span>Connection Profile</span>
-                                    </label>
-                                </div>
-
-                                <!-- Profile Selection -->
-                                <div id="${MODULE_NAME}_profile_section" class="ct-profile-section ${settings.generationMode === 'current' ? 'ct-hidden' : ''}">
-                                    ${
-                                        profiles.length > 0
-                                            ? `
-                                        <div class="ct-setting-item">
-                                            <label class="ct-setting-label">Select Profile</label>
-                                            <select id="${MODULE_NAME}_profile_select" class="ct-select text_pole">
-                                                <option value="">-- Select a profile --</option>
-                                                ${profiles
-                                                    .map(
-                                                        (p) => `
-                                                    <option value="${p.id}"
-                                                            ${p.id === settings.profileId ? 'selected' : ''}
-                                                            ${!p.isSupported ? 'disabled' : ''}>
-                                                        ${DOMPurify.sanitize(p.name)}${!p.isSupported ? ' (invalid)' : ''}
-                                                    </option>
-                                                `,
-                                                    )
-                                                    .join('')}
-                                            </select>
-                                        </div>
-                                        <div id="${MODULE_NAME}_profile_info_container">
-                                            ${renderProfileInfo(profiles.find((p) => p.id === settings.profileId) || null)}
-                                        </div>
-                                    `
-                                            : `
-                                        <div class="ct-profile-empty">
-                                            <i class="fa-solid fa-info-circle"></i>
-                                            <div>
-                                                <strong>No connection profiles found</strong>
-                                                <p>Create profiles in SillyTavern's Connection Manager to use specific API configurations.</p>
-                                            </div>
-                                        </div>
-                                    `
-                                    }
-                                </div>
-                            `
-                                    : ''
-                            }
-
-                            <!-- Max Tokens Override -->
-                            <details class="ct-collapsible">
-                                <summary>Response Length Override</summary>
-                                <div class="ct-setting-item">
-                                    <label class="ct-setting-label">
-                                        <input type="checkbox"
-                                               id="${MODULE_NAME}_max_tokens_enabled"
-                                               ${settings.maxTokensOverride !== null ? 'checked' : ''} />
-                                        <span>Override max response tokens</span>
-                                    </label>
-                                    <input type="number"
-                                           id="${MODULE_NAME}_max_tokens"
-                                           class="ct-number-input text_pole"
-                                           value="${settings.maxTokensOverride ?? 4096}"
-                                           min="100"
-                                           max="32000"
-                                           step="100"
-                                           ${settings.maxTokensOverride === null ? 'disabled' : ''} />
-                                    <span class="ct-setting-hint">
-                                        Leave unchecked to use the profile's preset settings
-                                    </span>
-                                </div>
-                            </details>
-                        </section>
-
-                        <!-- System Prompt -->
-                        <section class="ct-settings-section">
-                            <h3>
-                                <i class="fa-solid fa-terminal"></i>
-                                System Prompt
-                            </h3>
-                            <p class="ct-setting-desc">
-                                The system prompt is sent with every generation. Your additions are appended after the base prompt.
-                            </p>
-
-                            <div class="ct-setting-item">
-                                <label class="ct-setting-label">Your Additions</label>
-                                <textarea id="${MODULE_NAME}_user_system_prompt"
-                                          class="ct-textarea text_pole"
-                                          rows="4"
-                                          placeholder="Add custom instructions...">${DOMPurify.sanitize(settings.userSystemPrompt)}</textarea>
-                            </div>
-
-                            <details class="ct-collapsible">
-                                <summary>Base Prompt (Read-only)</summary>
-                                <pre class="ct-readonly-text">${DOMPurify.sanitize(settings.baseSystemPrompt)}</pre>
-                            </details>
-                        </section>
-
-                        <!-- Refinement Prompt -->
-                        <section class="ct-settings-section">
-                            <h3>
-                                <i class="fa-solid fa-rotate"></i>
-                                Refinement Prompt
-                            </h3>
-                            <p class="ct-setting-desc">
-                                Instructions for refinement iterations. Your additions are appended after the base.
-                            </p>
-
-                            <div class="ct-setting-item">
-                                <label class="ct-setting-label">Your Additions</label>
-                                <textarea id="${MODULE_NAME}_user_refinement_prompt"
-                                          class="ct-textarea text_pole"
-                                          rows="4"
-                                          placeholder="Add custom refinement instructions...">${DOMPurify.sanitize(settings.userRefinementPrompt)}</textarea>
-                            </div>
-
-                            <details class="ct-collapsible">
-                                <summary>Base Prompt (Read-only)</summary>
-                                <pre class="ct-readonly-text">${DOMPurify.sanitize(settings.baseRefinementPrompt)}</pre>
-                            </details>
-                        </section>
+                    <!-- Current API Status -->
+                    <div id="${MODULE_NAME}_api_status_banner">
+                        ${renderApiStatusBanner(apiStatus)}
                     </div>
 
-                    <!-- Right Column: Shortcuts & Debug -->
-                    <div class="ct-settings-column">
-                        <!-- Keyboard Shortcuts -->
-                        <section class="ct-settings-section">
-                            <h3>
-                                <i class="fa-solid fa-keyboard"></i>
-                                Keyboard Shortcuts
-                            </h3>
-                            <div class="ct-shortcuts-list">
-                                <div class="ct-shortcut">
-                                    <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
-                                    <span>Run current stage</span>
-                                </div>
-                                <div class="ct-shortcut">
-                                    <kbd>Escape</kbd>
-                                    <span>Cancel generation</span>
-                                </div>
-                            </div>
-                        </section>
-
-                        <!-- Debug -->
-                        <section class="ct-settings-section">
-                            <h3>
-                                <i class="fa-solid fa-bug"></i>
-                                Debug
-                            </h3>
-
-                            <div class="ct-setting-item">
-                                <label class="ct-setting-label">
-                                    <input type="checkbox"
-                                           id="${MODULE_NAME}_debug_mode"
-                                           ${settings.debugMode ? 'checked' : ''} />
-                                    <span>Enable debug logging</span>
-                                </label>
-                            </div>
-
-                            <div class="ct-debug-actions">
-                                <button id="${MODULE_NAME}_view_logs"
-                                        class="ct-btn ct-btn--small menu_button"
-                                        type="button">
-                                    <i class="fa-solid fa-list"></i>
-                                    View Logs
-                                </button>
-                                <button id="${MODULE_NAME}_reset_settings"
-                                        class="ct-btn ct-btn--small ct-btn--danger menu_button"
-                                        type="button">
-                                    <i class="fa-solid fa-rotate-left"></i>
-                                    Reset All
-                                </button>
-                            </div>
-                        </section>
+                    <!-- Mode Toggle -->
+                    ${
+                        hasCMRS()
+                            ? `
+                    <div class="ct-gen-mode-toggle">
+                        <label class="ct-gen-mode-option ${settings.generationMode === 'current' ? 'ct-gen-mode-option--active' : ''}" data-mode="current">
+                            <input type="radio" name="${MODULE_NAME}_gen_mode" value="current" ${settings.generationMode === 'current' ? 'checked' : ''}>
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Current ST Settings</span>
+                        </label>
+                        <label class="ct-gen-mode-option ${settings.generationMode === 'profile' ? 'ct-gen-mode-option--active' : ''}" data-mode="profile">
+                            <input type="radio" name="${MODULE_NAME}_gen_mode" value="profile" ${settings.generationMode === 'profile' ? 'checked' : ''}>
+                            <i class="fa-solid fa-plug"></i>
+                            <span>Connection Profile</span>
+                        </label>
                     </div>
-                </div>
+
+                    <!-- Profile Selection -->
+                    <div id="${MODULE_NAME}_profile_section" class="ct-profile-section ${settings.generationMode === 'current' ? 'ct-hidden' : ''}">
+                        ${
+                            profiles.length > 0
+                                ? `
+                        <div class="ct-setting-item">
+                            <label class="ct-setting-label">Select Profile</label>
+                            <select id="${MODULE_NAME}_profile_select" class="ct-select text_pole">
+                                <option value="">-- Select a profile --</option>
+                                ${profiles
+                                    .map(
+                                        (p) => `
+                                <option value="${p.id}"
+                                        ${p.id === settings.profileId ? 'selected' : ''}
+                                        ${!p.isSupported ? 'disabled' : ''}>
+                                    ${DOMPurify.sanitize(p.name)}${!p.isSupported ? ' (invalid)' : ''}
+                                </option>
+                                `,
+                                    )
+                                    .join('')}
+                            </select>
+                        </div>
+                        <div id="${MODULE_NAME}_profile_info_container">
+                            ${renderProfileInfo(profiles.find((p) => p.id === settings.profileId) || null)}
+                        </div>
+                        `
+                                : `
+                        <div class="ct-profile-empty">
+                            <i class="fa-solid fa-info-circle"></i>
+                            <div>
+                                <strong>No connection profiles found</strong>
+                                <p>Create profiles in SillyTavern's Connection Manager to use specific API configurations.</p>
+                            </div>
+                        </div>
+                        `
+                        }
+                    </div>
+                    `
+                            : ''
+                    }
+
+                    <!-- Max Tokens Override -->
+                    <details class="ct-collapsible">
+                        <summary>Response Length Override</summary>
+                        <div class="ct-setting-item">
+                            <label class="ct-setting-label">
+                                <input type="checkbox"
+                                       id="${MODULE_NAME}_max_tokens_enabled"
+                                       ${settings.maxTokensOverride !== null ? 'checked' : ''} />
+                                <span>Override max response tokens</span>
+                            </label>
+                            <input type="number"
+                                   id="${MODULE_NAME}_max_tokens"
+                                   class="ct-number-input text_pole"
+                                   value="${settings.maxTokensOverride ?? 4096}"
+                                   min="100"
+                                   max="32000"
+                                   step="100"
+                                   ${settings.maxTokensOverride === null ? 'disabled' : ''} />
+                            <span class="ct-setting-hint">
+                                Leave unchecked to use the profile's preset settings
+                            </span>
+                        </div>
+                    </details>
+                </section>
+
+                <!-- System Prompt -->
+                <section class="ct-settings-section">
+                    <h3>
+                        <i class="fa-solid fa-terminal"></i>
+                        System Prompt
+                    </h3>
+                    <p class="ct-setting-desc">
+                        The system prompt is sent with every generation. Your additions are appended after the base prompt.
+                    </p>
+
+                    <div class="ct-setting-item">
+                        <label class="ct-setting-label">Your Additions</label>
+                        <textarea id="${MODULE_NAME}_user_system_prompt"
+                                  class="ct-textarea text_pole"
+                                  rows="4"
+                                  placeholder="Add custom instructions...">${DOMPurify.sanitize(settings.userSystemPrompt)}</textarea>
+                    </div>
+
+                    <details class="ct-collapsible">
+                        <summary>Base Prompt (Read-only)</summary>
+                        <pre class="ct-readonly-text">${DOMPurify.sanitize(settings.baseSystemPrompt)}</pre>
+                    </details>
+                </section>
+
+                <!-- Refinement Prompt -->
+                <section class="ct-settings-section">
+                    <h3>
+                        <i class="fa-solid fa-rotate"></i>
+                        Refinement Prompt
+                    </h3>
+                    <p class="ct-setting-desc">
+                        Instructions for refinement iterations. Your additions are appended after the base.
+                    </p>
+
+                    <div class="ct-setting-item">
+                        <label class="ct-setting-label">Your Additions</label>
+                        <textarea id="${MODULE_NAME}_user_refinement_prompt"
+                                  class="ct-textarea text_pole"
+                                  rows="4"
+                                  placeholder="Add custom refinement instructions...">${DOMPurify.sanitize(settings.userRefinementPrompt)}</textarea>
+                    </div>
+
+                    <details class="ct-collapsible">
+                        <summary>Base Prompt (Read-only)</summary>
+                        <pre class="ct-readonly-text">${DOMPurify.sanitize(settings.baseRefinementPrompt)}</pre>
+                    </details>
+                </section>
+
+                <!-- Reset Settings -->
+                <section class="ct-settings-section">
+                    <h3>
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Reset
+                    </h3>
+                    <button id="${MODULE_NAME}_reset_settings"
+                            class="ct-btn ct-btn--small ct-btn--danger menu_button"
+                            type="button">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Reset All Settings
+                    </button>
+                </section>
             </div>
 
             <div class="ct-settings-footer">
@@ -484,13 +458,6 @@ function saveSettings(): void {
         settings.userRefinementPrompt = userRefinementPrompt.value;
     }
 
-    // Debug mode
-    const debugMode = $(`#${MODULE_NAME}_debug_mode`) as HTMLInputElement;
-    if (debugMode) {
-        settings.debugMode = debugMode.checked;
-        setDebugMode(debugMode.checked);
-    }
-
     save();
     toast.success('Settings saved');
 }
@@ -570,16 +537,6 @@ function bindSettingsModalEvents(modal: HTMLElement): () => void {
         cleanups.push(
             on(maxTokensEnabled, 'change', () => {
                 maxTokensInput.disabled = !maxTokensEnabled.checked;
-            }),
-        );
-    }
-
-    // View logs
-    const viewLogsBtn = $(`#${MODULE_NAME}_view_logs`, modal);
-    if (viewLogsBtn) {
-        cleanups.push(
-            on(viewLogsBtn, 'click', () => {
-                toast.info('Check browser console for logs');
             }),
         );
     }

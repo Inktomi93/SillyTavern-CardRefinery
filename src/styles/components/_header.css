@@ -1,0 +1,51 @@
+/**
+ * Header Component
+ *
+ * Three-column layout with character selector in the center.
+ * Establishes stacking context for dropdown menus.
+ */
+
+.ct-header {
+    position: relative; /* Establish stacking context for dropdown */
+    z-index: 100; /* Above toolbar */
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    min-height: var(--ct-header-height);
+    padding: var(--ct-space-2) var(--ct-space-4);
+    background: var(--ct-bg-secondary);
+    border-bottom: 1px solid var(--ct-border-muted);
+    flex-shrink: 0;
+    gap: var(--ct-space-3);
+
+    &__left {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    &__center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--ct-space-2);
+
+        & i {
+            color: var(--ct-accent);
+            font-size: var(--ct-text-lg);
+        }
+
+        & h2 {
+            font-size: var(--ct-text-base);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+    }
+
+    &__right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--ct-space-2);
+    }
+}

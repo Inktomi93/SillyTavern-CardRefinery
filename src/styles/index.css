@@ -1,0 +1,89 @@
+/**
+ * Character Tools Extension - CSS Design System
+ *
+ * Mobile-first, ST-native design system that inherits SillyTavern's theming.
+ *
+ * ARCHITECTURE:
+ * 1. Design Tokens (CSS Variables) - Inherit from ST, define our spacing scale
+ * 2. Base Reset & Typography - Normalize within our popup
+ * 3. Layout Primitives - Flex/grid utilities for composition
+ * 4. Component Styles - BEM-namespaced UI patterns
+ * 5. Responsive Overrides - Mobile-first breakpoints
+ *
+ * POSTCSS FEATURES USED:
+ * - postcss-import: Module bundling via @import
+ * - postcss-nested: Sass-like nesting for BEM
+ * - postcss-custom-media: Custom media query variables
+ * - autoprefixer: Vendor prefix automation
+ * - cssnano: Production minification
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   1. FOUNDATION
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './_variables.css';
+@import './_base.css';
+@import './_utilities.css';
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   2. LAYOUT COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './components/_popup.css';
+@import './components/_layout.css';
+@import './components/_header.css';
+@import './components/_toolbar.css';
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   3. NAVIGATION & SELECTION
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './components/_tabs.css';
+@import './components/_stage-tabs.css';
+@import './components/_dropdown.css';
+@import './components/_character-option.css';
+@import './components/_session-option.css';
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   4. FORM ELEMENTS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './components/_forms.css';
+@import './components/_buttons.css';
+@import './components/_field-list.css';
+@import './components/_form-shared.css';
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   5. CONTENT & DISPLAY
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './components/_list.css';
+@import './components/_results-panel.css';
+@import './components/_compare-view.css';
+@import './components/_json-render.css';
+@import './components/_preview.css';
+@import './components/_history.css';
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   6. FEEDBACK & STATUS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './components/_api-status.css';
+@import './components/_badges.css';
+@import './components/_alerts.css';
+@import './components/_loading.css';
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   7. OVERLAYS & MODALS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './components/_drawer.css';
+@import './components/_settings-modal.css';
+@import './components/_panel.css';
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   8. RESPONSIVE & ACCESSIBILITY
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@import './_responsive.css';

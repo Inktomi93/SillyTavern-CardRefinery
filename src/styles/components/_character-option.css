@@ -1,0 +1,124 @@
+/**
+ * Character Option Component
+ *
+ * Pretty character list item used in the character selector dropdown.
+ * Shows avatar, name, description, and selection state.
+ */
+
+.ct-char-option {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-3);
+    cursor: pointer;
+    border-radius: var(--ct-radius);
+    background: var(--ct-bg-secondary);
+    border: 1px solid transparent;
+    transition:
+        background var(--ct-transition-fast),
+        border-color var(--ct-transition-fast),
+        box-shadow var(--ct-transition-fast),
+        transform var(--ct-transition-fast);
+
+    &:hover {
+        background: var(--ct-bg-tertiary);
+        border-color: var(--ct-border);
+        transform: translateX(2px);
+    }
+
+    &--selected {
+        background: var(--ct-accent-muted);
+        border-color: var(--ct-accent);
+
+        &:hover {
+            background: var(--ct-accent-muted);
+        }
+    }
+
+    &--highlighted {
+        background: var(--ct-bg-tertiary);
+        border-color: var(--ct-accent);
+        box-shadow: 0 0 0 2px var(--ct-accent-muted);
+    }
+
+    /* Avatar wrapper with selection indicator */
+    &__avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    &__avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--ct-radius);
+        object-fit: cover;
+        border: 2px solid var(--ct-border-muted);
+        transition: border-color var(--ct-transition-fast);
+    }
+
+    &:hover &__avatar {
+        border-color: var(--ct-accent);
+    }
+
+    &--selected &__avatar {
+        border-color: var(--ct-accent);
+    }
+
+    &__check {
+        position: absolute;
+        bottom: -4px;
+        right: -4px;
+        width: 18px;
+        height: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--ct-accent);
+        color: var(--ct-bg);
+        border-radius: 50%;
+        font-size: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Character info section */
+    &__info {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &__name {
+        font-size: var(--ct-text-sm);
+        font-weight: 600;
+        color: var(--ct-text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &__desc {
+        font-size: var(--ct-text-xs);
+        color: var(--ct-text-dim);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-1);
+        font-size: 10px;
+        color: var(--ct-text-muted);
+        margin-top: 2px;
+
+        & i {
+            font-size: 9px;
+            opacity: 0.7;
+        }
+    }
+}

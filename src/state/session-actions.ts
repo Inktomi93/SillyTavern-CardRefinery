@@ -3,7 +3,7 @@
 // SESSION-RELATED STATE ACTIONS
 // =============================================================================
 
-import { STAGES, log } from '../shared';
+import { STAGES, log, toast } from '../shared';
 import {
     getSessionsForCharacter,
     getSession,
@@ -59,6 +59,63 @@ export async function setCharacterAction(
         // Load sessions for this character
         state.sessions = await getSessionsForCharacter(char.avatar);
         state.sessionsLoaded = true;
+
+        // Auto-activate or create session
+        if (state.sessions.length > 0) {
+            // Load the most recent session (first in the sorted list)
+            const mostRecent = state.sessions[0];
+            const _ = SillyTavern.libs.lodash;
+            state.activeSessionId = mostRecent.id;
+            state.stageFields = _.cloneDeep(mostRecent.stageFields);
+            state.selectedFields = _.cloneDeep(mostRecent.stageFields.base);
+            state.stageConfigs = _.cloneDeep(mostRecent.configs);
+            state.iterationHistory = _.cloneDeep(mostRecent.history);
+            state.iterationCount = mostRecent.iterationCount;
+            state.userGuidance = mostRecent.userGuidance || '';
+
+            // Restore results - prefer saved stageResults, fall back to deriving from history
+            if (mostRecent.stageResults) {
+                state.stageResults = _.cloneDeep(mostRecent.stageResults);
+            } else {
+                // Legacy: derive from history (last result per stage)
+                for (const result of mostRecent.history) {
+                    state.stageResults[result.stage] = result;
+                }
+            }
+
+            // Update status based on results
+            for (const stage of STAGES) {
+                state.stageStatus[stage] = state.stageResults[stage]
+                    ? state.stageResults[stage]!.error
+                        ? 'error'
+                        : 'complete'
+                    : 'pending';
+            }
+
+            log.debug(`Loaded most recent session: ${mostRecent.id}`);
+            toast.info(
+                `Resumed session${mostRecent.name ? `: ${mostRecent.name}` : ''}`,
+            );
+        } else {
+            // No existing sessions - create one automatically
+            const originalData = buildOriginalData(
+                state.character,
+                state.stageFields.base,
+            );
+
+            const session = await storageCreateSession({
+                characterId: state.character.avatar,
+                characterName: state.character.name,
+                stageFields: state.stageFields,
+                originalData,
+                configs: state.stageConfigs,
+            });
+
+            state.sessions.unshift(session);
+            state.activeSessionId = session.id;
+            log.debug(`Auto-created new session: ${session.id}`);
+            toast.info('New session started');
+        }
     }
 }
 
@@ -142,10 +199,15 @@ export async function loadSessionAction(
     state.userGuidance = session.userGuidance || '';
     state.hasUnsavedChanges = false;
 
-    // Restore latest results from history
-    state.stageResults = { score: null, rewrite: null, analyze: null };
-    for (const result of session.history) {
-        state.stageResults[result.stage] = result;
+    // Restore results - prefer saved stageResults, fall back to deriving from history
+    if (session.stageResults) {
+        state.stageResults = _.cloneDeep(session.stageResults);
+    } else {
+        // Legacy: derive from history (last result per stage)
+        state.stageResults = { score: null, rewrite: null, analyze: null };
+        for (const result of session.history) {
+            state.stageResults[result.stage] = result;
+        }
     }
 
     // Update status based on results

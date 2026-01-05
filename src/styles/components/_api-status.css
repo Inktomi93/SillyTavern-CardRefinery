@@ -1,0 +1,62 @@
+/**
+ * API Status Component
+ *
+ * Shows current API connection status as a badge or full status display.
+ */
+
+/* Compact badge for header */
+.ct-api-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ct-space-1);
+    padding: var(--ct-space-1) var(--ct-space-2);
+    background: var(--ct-success-bg);
+    border-radius: var(--ct-radius-pill);
+    font-size: var(--ct-text-xs);
+    color: var(--ct-text-muted);
+    cursor: default;
+    transition: background var(--ct-transition-fast);
+
+    &--error {
+        background: var(--ct-danger-bg);
+    }
+
+    & i {
+        font-size: 0.625rem;
+    }
+}
+
+/* Full API status component (for settings/expanded view) */
+.ct-api-status {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-2) var(--ct-space-3);
+    background: var(--ct-bg-secondary);
+    border-radius: var(--ct-radius);
+    border: 1px solid var(--ct-border-muted);
+
+    &--ready {
+        border-color: var(--ct-success);
+    }
+
+    &--error {
+        border-color: var(--ct-danger);
+    }
+
+    &__indicator {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+    }
+
+    &__text {
+        font-size: var(--ct-text-sm);
+        font-weight: 500;
+    }
+
+    &__error {
+        color: var(--ct-danger);
+        cursor: help;
+    }
+}

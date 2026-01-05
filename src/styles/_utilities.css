@@ -1,0 +1,286 @@
+/**
+ * Layout Primitives & Utility Classes
+ *
+ * Composable flex utilities for building layouts.
+ * Complement ST's existing utilities with similar naming patterns.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   STACK - Vertical flex layout with consistent gap
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-3);
+
+    &--tight {
+        gap: var(--ct-space-2);
+    }
+
+    &--loose {
+        gap: var(--ct-space-4);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ROW - Horizontal flex layout
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ct-space-2);
+
+    &--wrap {
+        flex-wrap: wrap;
+    }
+
+    &--between {
+        justify-content: space-between;
+    }
+
+    &--end {
+        justify-content: flex-end;
+    }
+
+    &--stretch {
+        align-items: stretch;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   GRID - Grid layouts
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-grid {
+    display: grid;
+    gap: var(--ct-space-3);
+
+    &--2col {
+        grid-template-columns: repeat(2, 1fr);
+
+        @media (max-width: 600px) {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FLEX UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-flex-1 {
+    flex: 1 1 0%;
+}
+
+.ct-flex-auto {
+    flex: 1 1 auto;
+}
+
+.ct-flex-none {
+    flex: none;
+}
+
+.ct-shrink-0 {
+    flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SPACING UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Gap */
+.ct-gap-1 {
+    gap: var(--ct-space-1);
+}
+.ct-gap-2 {
+    gap: var(--ct-space-2);
+}
+.ct-gap-3 {
+    gap: var(--ct-space-3);
+}
+.ct-gap-4 {
+    gap: var(--ct-space-4);
+}
+
+/* Padding */
+.ct-p-2 {
+    padding: var(--ct-space-2);
+}
+.ct-p-3 {
+    padding: var(--ct-space-3);
+}
+.ct-p-4 {
+    padding: var(--ct-space-4);
+}
+
+/* Margin top */
+.ct-mt-2 {
+    margin-top: var(--ct-space-2);
+}
+.ct-mt-3 {
+    margin-top: var(--ct-space-3);
+}
+.ct-mt-4 {
+    margin-top: var(--ct-space-4);
+}
+.ct-mt-auto {
+    margin-top: auto;
+}
+
+/* Margin bottom */
+.ct-mb-2 {
+    margin-bottom: var(--ct-space-2);
+}
+.ct-mb-3 {
+    margin-bottom: var(--ct-space-3);
+}
+.ct-mb-4 {
+    margin-bottom: var(--ct-space-4);
+}
+
+/* Margin left/right */
+.ct-ml-auto {
+    margin-left: auto;
+}
+.ct-mr-auto {
+    margin-right: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   WIDTH UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-w-full {
+    width: 100%;
+}
+.ct-min-w-0 {
+    min-width: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   OVERFLOW UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-overflow-auto {
+    overflow: auto;
+}
+.ct-overflow-hidden {
+    overflow: hidden;
+}
+.ct-overflow-y-auto {
+    overflow-y: auto;
+}
+
+/* Scrollable container with styled scrollbar */
+.ct-scrollable {
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ct-border) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--ct-border);
+        border-radius: var(--ct-radius-pill);
+
+        &:hover {
+            background: var(--ct-accent);
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TEXT UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Colors */
+.ct-text-muted {
+    color: var(--ct-text-muted);
+}
+.ct-text-dim {
+    color: var(--ct-text-dim);
+}
+.ct-text-accent {
+    color: var(--ct-accent);
+}
+.ct-text-success {
+    color: var(--ct-success);
+}
+.ct-text-warning {
+    color: var(--ct-warning);
+}
+.ct-text-danger {
+    color: var(--ct-danger);
+}
+
+/* Sizes */
+.ct-text-xs {
+    font-size: var(--ct-text-xs);
+}
+.ct-text-sm {
+    font-size: var(--ct-text-sm);
+}
+.ct-text-lg {
+    font-size: var(--ct-text-lg);
+}
+
+/* Styles */
+.ct-text-mono {
+    font-family: var(--ct-font-mono);
+}
+.ct-text-center {
+    text-align: center;
+}
+.ct-text-right {
+    text-align: right;
+}
+.ct-font-medium {
+    font-weight: 500;
+}
+.ct-font-semibold {
+    font-weight: 600;
+}
+
+/* Truncation */
+.ct-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ct-line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   VISUAL UTILITIES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-hidden {
+    display: none !important;
+}
+
+.ct-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

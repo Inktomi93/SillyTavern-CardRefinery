@@ -1,0 +1,132 @@
+/**
+ * List Components
+ *
+ * Lists, list items, and empty states.
+ * Used for characters, presets, history, etc.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LIST CONTAINER
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   LIST ITEM
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-list-item {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-3);
+    border-bottom: 1px solid var(--ct-border-muted);
+    cursor: pointer;
+    transition: background var(--ct-transition-fast);
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: var(--ct-bg-secondary);
+    }
+
+    &--selected {
+        background: var(--ct-accent-muted);
+        border-left: 3px solid var(--ct-accent);
+    }
+
+    &--highlighted {
+        background: var(--ct-bg-tertiary);
+        outline: 2px solid var(--ct-accent);
+        outline-offset: -2px;
+    }
+
+    &__avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--ct-radius-sm);
+        object-fit: cover;
+        flex-shrink: 0;
+
+        &--sm {
+            width: 32px;
+            height: 32px;
+        }
+
+        &--circle {
+            border-radius: 50%;
+        }
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--ct-space-1);
+    }
+
+    &__title {
+        font-weight: 600;
+        font-size: var(--ct-text-sm);
+        color: var(--ct-text);
+    }
+
+    &__subtitle {
+        font-size: var(--ct-text-xs);
+        color: var(--ct-text-muted);
+    }
+
+    &__meta {
+        display: flex;
+        gap: var(--ct-space-3);
+        font-size: var(--ct-text-xs);
+        color: var(--ct-text-dim);
+    }
+
+    &__actions {
+        display: flex;
+        gap: var(--ct-space-1);
+        opacity: 0;
+        transition: opacity var(--ct-transition-fast);
+    }
+
+    &:hover &__actions {
+        opacity: 1;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--ct-space-8);
+    text-align: center;
+    color: var(--ct-text-muted);
+
+    &__icon {
+        font-size: 3rem;
+        opacity: 0.3;
+        margin-bottom: var(--ct-space-4);
+    }
+
+    &__title {
+        font-weight: 500;
+        margin-bottom: var(--ct-space-2);
+    }
+
+    &__text {
+        font-size: var(--ct-text-sm);
+        color: var(--ct-text-dim);
+    }
+}

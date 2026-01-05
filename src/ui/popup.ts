@@ -17,6 +17,9 @@ import {
     renderCharacterSelector,
     bindCharacterSelectorEvents,
     updateCharacterSelector,
+    renderSessionDropdown,
+    bindSessionDropdownEvents,
+    updateSessionDropdown,
     renderStageTabs,
     bindStageTabsEvents,
     updateStageTabs,
@@ -28,11 +31,6 @@ import {
     renderResultsPanel,
     bindResultsPanelEvents,
     updateResults,
-    renderSessionList,
-    bindSessionListEvents,
-    updateSessionList,
-    renderPresetManager,
-    bindPresetManagerEvents,
     renderApiStatusCompact,
     bindApiStatusEvents,
     openSettingsModal,
@@ -45,6 +43,9 @@ import {
     // Update coordinator
     registerUpdate,
     clearRegistrations,
+    // Input debounce management
+    flushPendingInputs,
+    clearPendingInputs,
 } from './components';
 
 // =============================================================================
@@ -76,6 +77,7 @@ function renderPopupContent(): string {
     <header class="ct-header">
         <div class="ct-header__left">
             ${renderCharacterSelector()}
+            ${renderSessionDropdown()}
         </div>
         <div class="ct-header__center">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
@@ -119,8 +121,6 @@ function renderPopupContent(): string {
     <div class="ct-body">
         <aside class="ct-panel ct-panel--config ct-scrollable">
             ${renderStageConfig()}
-            ${renderPresetManager()}
-            ${renderSessionList()}
         </aside>
         <main class="ct-panel ct-panel--results">
             ${renderResultsPanel()}
@@ -224,9 +224,9 @@ function registerComponentUpdates(): void {
         registerUpdate('results', updateResults, ['results', 'stage']),
     );
 
-    // Session list updates on session/character changes
+    // Session dropdown updates on session/character changes
     eventCleanups.push(
-        registerUpdate('sessionList', updateSessionList, [
+        registerUpdate('sessionDropdown', updateSessionDropdown, [
             'session',
             'character',
         ]),
@@ -246,11 +246,10 @@ function bindAllEvents(container: HTMLElement): void {
 
     // Bind component events
     eventCleanups.push(bindCharacterSelectorEvents(container));
+    eventCleanups.push(bindSessionDropdownEvents(container));
     eventCleanups.push(bindStageTabsEvents(container));
     eventCleanups.push(bindStageConfigEvents(container));
     eventCleanups.push(bindResultsPanelEvents(container));
-    eventCleanups.push(bindPresetManagerEvents(container));
-    eventCleanups.push(bindSessionListEvents(container));
 
     // Bind API status events
     const apiStatusContainer = $(
@@ -334,7 +333,10 @@ export function closePopup(): void {
  * Handle popup close.
  */
 async function onPopupClose(): Promise<void> {
-    // Save any pending changes
+    // Flush any pending input debounces to ensure all typed content reaches state
+    flushPendingInputs();
+
+    // Save any pending changes (now properly awaited)
     await forceSave();
 
     // Cleanup event listeners
@@ -349,6 +351,9 @@ async function onPopupClose(): Promise<void> {
 
     // Clear update coordinator registrations
     clearRegistrations();
+
+    // Clear tracked input debounces
+    clearPendingInputs();
 
     // Cleanup state
     popupElement = null;

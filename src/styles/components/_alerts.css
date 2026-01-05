@@ -1,0 +1,56 @@
+/**
+ * Alerts & Messages Component
+ *
+ * Info, success, warning, and danger alert boxes.
+ */
+
+.ct-alert {
+    display: flex;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-3);
+    border-radius: var(--ct-radius);
+    font-size: var(--ct-text-sm);
+
+    &--info {
+        background: var(--ct-accent-muted);
+        border: 1px solid var(--ct-accent);
+        color: var(--ct-accent);
+    }
+
+    &--success {
+        background: var(--ct-success-bg);
+        border: 1px solid var(--ct-success);
+        color: var(--ct-success);
+    }
+
+    &--warning {
+        background: var(--ct-warning-bg);
+        border: 1px solid var(--ct-warning);
+        color: var(--ct-warning);
+    }
+
+    &--danger {
+        background: var(--ct-danger-bg);
+        border: 1px solid var(--ct-danger);
+        color: var(--ct-danger);
+    }
+
+    &__icon {
+        flex-shrink: 0;
+    }
+
+    &__content {
+        flex: 1;
+    }
+
+    &__title {
+        font-weight: 600;
+        margin-bottom: var(--ct-space-1);
+    }
+
+    &__message {
+        margin-top: var(--ct-space-1);
+        font-size: var(--ct-text-sm);
+        white-space: pre-wrap;
+    }
+}

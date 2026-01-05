@@ -1,0 +1,272 @@
+/**
+ * Form Controls
+ *
+ * Inputs, textareas, selects, checkboxes, and form groups.
+ * Inherits ST's textarea/input styling with consistent sizing.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BASE FORM CONTROLS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-popup {
+    & input[type='text'],
+    & input[type='number'],
+    & input[type='search'],
+    & textarea,
+    & select {
+        width: 100%;
+        padding: var(--ct-space-2) var(--ct-space-3);
+        font-size: var(--ct-text-sm);
+        font-family: var(--ct-font);
+        color: var(--ct-text);
+        background: var(--ct-bg-secondary);
+        border: 1px solid var(--ct-border);
+        border-radius: var(--ct-radius-sm);
+        transition: border-color var(--ct-transition-fast);
+
+        &:focus {
+            border-color: var(--ct-accent);
+            outline: none;
+        }
+    }
+
+    & textarea {
+        min-height: 100px;
+        resize: vertical;
+        line-height: 1.5;
+
+        &.ct-textarea--code {
+            font-family: var(--ct-font-mono);
+            font-size: var(--ct-text-xs);
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SEARCH INPUT
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-search {
+    position: relative;
+
+    &__icon {
+        position: absolute;
+        left: var(--ct-space-3);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--ct-text-muted);
+        pointer-events: none;
+    }
+
+    &__input {
+        padding-left: calc(var(--ct-space-3) * 2 + 1em);
+    }
+
+    &__clear {
+        position: absolute;
+        right: var(--ct-space-1);
+        top: 50%;
+        transform: translateY(-50%);
+        padding: var(--ct-space-1);
+        background: none;
+        border: none;
+        color: var(--ct-text-muted);
+        cursor: pointer;
+        opacity: 0.7;
+        transition: opacity var(--ct-transition-fast);
+
+        &:hover {
+            opacity: 1;
+            color: var(--ct-text);
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CHECKBOX / TOGGLE
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-2);
+    cursor: pointer;
+    font-size: var(--ct-text-sm);
+
+    & input[type='checkbox'] {
+        width: auto;
+        accent-color: var(--ct-accent);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FORM GROUP
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-1);
+
+    &__label {
+        font-size: var(--ct-text-sm);
+        font-weight: 500;
+        color: var(--ct-text);
+    }
+
+    &__hint {
+        font-size: var(--ct-text-xs);
+        color: var(--ct-text-dim);
+    }
+
+    &--grow {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SELECT DROPDOWN
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-select {
+    width: auto;
+    min-width: 120px;
+    padding: var(--ct-space-1) var(--ct-space-2);
+    font-size: var(--ct-text-xs);
+    font-family: var(--ct-font);
+    color: var(--ct-text);
+    background: var(--ct-bg-secondary);
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius-sm);
+    cursor: pointer;
+    transition: border-color var(--ct-transition-fast);
+
+    &:hover,
+    &:focus {
+        border-color: var(--ct-accent);
+        outline: none;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TEXTAREA VARIANTS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-textarea {
+    &--editor {
+        width: 100%;
+        height: 100%;
+        min-height: 200px;
+        resize: vertical;
+        font-family: var(--ct-font);
+        font-size: var(--ct-text-sm);
+        line-height: 1.6;
+    }
+
+    &--compact {
+        min-height: 60px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   EDITOR COMPONENTS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-editor-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 200px;
+}
+
+.ct-editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--ct-space-2);
+    padding: var(--ct-space-2);
+    background: var(--ct-bg-tertiary);
+    border: 1px solid var(--ct-border-muted);
+    border-bottom: none;
+    border-radius: var(--ct-radius) var(--ct-radius) 0 0;
+}
+
+.ct-toolbar-divider {
+    width: 1px;
+    height: 1.5em;
+    background: var(--ct-border-muted);
+    margin: 0 var(--ct-space-1);
+}
+
+/* Code editor with syntax highlighting */
+.ct-code-editor {
+    position: relative;
+    flex: 1;
+    min-height: 250px;
+    font-family: var(--ct-font-mono);
+    font-size: var(--ct-text-xs);
+    line-height: 1.6;
+    border: 1px solid var(--ct-border);
+    border-top: none;
+    border-radius: 0 0 var(--ct-radius) var(--ct-radius);
+    overflow: hidden;
+
+    &__highlight,
+    &__textarea {
+        position: absolute;
+        inset: 0;
+        margin: 0;
+        padding: var(--ct-space-3);
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow: auto;
+    }
+
+    &__highlight {
+        pointer-events: none;
+        background: var(--ct-bg-secondary);
+        color: var(--ct-text);
+
+        & code {
+            font-family: inherit;
+            background: transparent;
+        }
+    }
+
+    &__textarea {
+        background: transparent;
+        color: transparent;
+        caret-color: var(--ct-text);
+        resize: none;
+        border: none;
+        outline: none;
+        z-index: 1;
+
+        &::selection {
+            background: var(--ct-accent-muted);
+        }
+    }
+
+    /* Syntax highlighting colors (hljs classes) */
+    & .hljs-string {
+        color: var(--ct-success);
+    }
+    & .hljs-number {
+        color: var(--ct-warning);
+    }
+    & .hljs-literal {
+        color: var(--ct-accent);
+    }
+    & .hljs-attr {
+        color: var(--ct-text);
+    }
+    & .hljs-punctuation {
+        color: var(--ct-text-muted);
+    }
+}

@@ -28,6 +28,8 @@ export interface Session {
     stageFields: StageFieldSelection;
     originalData: Record<string, string>;
     configs: Record<StageName, StageConfig>;
+    /** Current result per stage (persisted separately from history for restore support) */
+    stageResults?: Record<StageName, StageResult | null>;
     history: StageResult[];
     iterationCount: number;
     /** User guidance for this session */

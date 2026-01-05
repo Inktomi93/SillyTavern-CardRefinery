@@ -1,0 +1,228 @@
+/**
+ * Drawer Component
+ *
+ * Slideout panel for preset editing.
+ * Positioned absolute within the ST popup dialog.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   DRAWER CONTAINER
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-drawer {
+    position: absolute;
+    inset: 0;
+    z-index: 100; /* Above popup content but within dialog */
+    pointer-events: none;
+    overflow: hidden;
+
+    &[aria-hidden='true'] {
+        visibility: hidden;
+    }
+
+    &--open {
+        pointer-events: auto;
+        visibility: visible;
+
+        & .ct-drawer__backdrop {
+            opacity: 1;
+        }
+
+        & .ct-drawer__panel {
+            transform: translateX(0);
+        }
+    }
+
+    /* Backdrop with fade animation */
+    &__backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        opacity: 0;
+        transition: opacity var(--ct-transition);
+        backdrop-filter: blur(4px);
+    }
+
+    /* Panel slides in from right */
+    &__panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 640px;
+        background: var(--SmartThemeBlurTintColor, var(--ct-bg));
+        border-left: 1px solid var(--ct-border);
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+        transform: translateX(100%);
+        transition: transform var(--ct-transition);
+        display: flex;
+        flex-direction: column;
+
+        @media (--mobile) {
+            max-width: none;
+        }
+    }
+
+    /* Content layout */
+    &__content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+    }
+
+    /* Header */
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--ct-space-3) var(--ct-space-4);
+        background: var(--ct-bg-secondary);
+        border-bottom: 1px solid var(--ct-border-muted);
+        flex-shrink: 0;
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+
+        & h3 {
+            margin: 0;
+            font-size: var(--ct-text-lg);
+            font-weight: 600;
+        }
+
+        & i {
+            font-size: var(--ct-text-base);
+        }
+    }
+
+    /* Body */
+    &__body {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: var(--ct-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--ct-space-4);
+    }
+
+    /* Footer */
+    &__footer {
+        display: flex;
+        align-items: center;
+        padding: var(--ct-space-3) var(--ct-space-4);
+        background: var(--ct-bg-secondary);
+        border-top: 1px solid var(--ct-border-muted);
+        flex-shrink: 0;
+
+        &--list {
+            justify-content: space-between;
+        }
+    }
+
+    /* Tabs (for list view) */
+    &__tabs {
+        display: flex;
+        background: var(--ct-bg-secondary);
+        border-bottom: 1px solid var(--ct-border-muted);
+        flex-shrink: 0;
+    }
+
+    &__tab {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--ct-space-2);
+        padding: var(--ct-space-3);
+        font-size: var(--ct-text-sm);
+        font-weight: 500;
+        color: var(--ct-text-muted);
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+        transition: all var(--ct-transition-fast);
+
+        &:hover {
+            color: var(--ct-text);
+            background: var(--ct-bg-tertiary);
+        }
+
+        &--active {
+            color: var(--ct-accent);
+            border-bottom-color: var(--ct-accent);
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PRESET MANAGEMENT
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-preset-manage {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ct-space-1);
+    padding: var(--ct-space-1);
+    color: var(--ct-text-muted);
+    background: transparent;
+    border: none;
+    border-radius: var(--ct-radius-sm);
+    cursor: pointer;
+    transition: all var(--ct-transition-fast);
+
+    &:hover {
+        color: var(--ct-accent);
+        background: var(--ct-accent-muted);
+    }
+}
+
+.ct-preset-row {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-2);
+
+    & .ct-select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    &__actions {
+        display: flex;
+        gap: var(--ct-space-1);
+        flex-shrink: 0;
+    }
+}
+
+/* Chip/tag selector */
+.ct-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--ct-space-1);
+    padding: var(--ct-space-1) var(--ct-space-2);
+    font-size: var(--ct-text-xs);
+    background: var(--ct-bg-secondary);
+    border: 1px solid var(--ct-border-muted);
+    border-radius: var(--ct-radius-pill);
+    cursor: pointer;
+    transition: all var(--ct-transition-fast);
+
+    &:hover {
+        border-color: var(--ct-accent);
+    }
+
+    &--active {
+        background: var(--ct-accent-muted);
+        border-color: var(--ct-accent);
+        color: var(--ct-accent);
+    }
+
+    & input[type='checkbox'] {
+        display: none;
+    }
+}

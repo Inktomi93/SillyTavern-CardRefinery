@@ -1,0 +1,57 @@
+/**
+ * Tabs Component
+ *
+ * Generic tabs for stage/mode selection.
+ * Used throughout the UI for navigation.
+ */
+
+.ct-tabs {
+    display: flex;
+    gap: var(--ct-space-2);
+    padding: var(--ct-space-2);
+    background: var(--ct-bg-secondary);
+    border-radius: var(--ct-radius);
+    overflow-x: auto;
+}
+
+.ct-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ct-space-2);
+    padding: var(--ct-space-2) var(--ct-space-3);
+    font-size: var(--ct-text-sm);
+    font-weight: 500;
+    color: var(--ct-text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--ct-radius-sm);
+    cursor: pointer;
+    transition: all var(--ct-transition-fast);
+    white-space: nowrap;
+
+    &:hover {
+        color: var(--ct-text);
+        background: var(--ct-bg-tertiary);
+    }
+
+    &--active {
+        color: var(--ct-text);
+        background: var(--ct-bg);
+        border-color: var(--ct-accent);
+        box-shadow: var(--ct-shadow-sm);
+    }
+
+    &__icon {
+        font-size: 1em;
+    }
+
+    &__badge {
+        font-size: var(--ct-text-xs);
+        padding: 0.1em 0.5em;
+        background: var(--ct-accent-muted);
+        color: var(--ct-accent);
+        border-radius: var(--ct-radius-pill);
+    }
+}

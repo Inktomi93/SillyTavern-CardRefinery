@@ -20,6 +20,7 @@ export {
     createNewSession,
     loadSession,
     deleteSession,
+    renameSession,
     // Field selection
     setFieldSelection,
     toggleField,
@@ -29,7 +30,6 @@ export {
     toggleStageFieldLinking,
     // Stage management
     setActiveStage,
-    toggleStageSelection,
     updateStageConfig,
     setStageStatus,
     recordStageResult,
@@ -48,6 +48,12 @@ export {
     // UI
     toggleSessionList,
     toggleHistory,
+    // History navigation
+    viewHistoryItem,
+    viewPreviousHistory,
+    viewNextHistory,
+    restoreHistoryItem,
+    getViewedHistoryItem,
 } from './popup-state';
 
 // Pipeline actions (preferred for execution orchestration)

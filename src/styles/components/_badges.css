@@ -1,0 +1,62 @@
+/**
+ * Badge Components
+ *
+ * Status and type badges in various colors and sizes.
+ */
+
+.ct-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2em 0.6em;
+    font-size: var(--ct-text-xs);
+    font-weight: 500;
+    border-radius: var(--ct-radius-pill);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+
+    &--default {
+        background: var(--ct-bg-tertiary);
+        color: var(--ct-text-muted);
+    }
+
+    &--accent {
+        background: var(--ct-accent-muted);
+        color: var(--ct-accent);
+    }
+
+    &--success {
+        background: var(--ct-success-bg);
+        color: var(--ct-success);
+    }
+
+    &--warning {
+        background: var(--ct-warning-bg);
+        color: var(--ct-warning);
+    }
+
+    &--danger {
+        background: var(--ct-danger-bg);
+        color: var(--ct-danger);
+    }
+
+    &--sm {
+        padding: 0.1em 0.4em;
+        font-size: 9px;
+    }
+
+    /* Additional badge variants (from BADGE VARIANTS section) */
+    &--small {
+        padding: 0.1em 0.4em;
+        font-size: 9px;
+    }
+
+    &--info {
+        background: var(--ct-accent-muted);
+        color: var(--ct-accent);
+    }
+
+    &--muted {
+        background: var(--ct-bg-secondary);
+        color: var(--ct-text-dim);
+    }
+}

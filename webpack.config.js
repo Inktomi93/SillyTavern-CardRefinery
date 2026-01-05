@@ -5,12 +5,20 @@ import TerserPlugin from 'terser-webpack-plugin';
 const __dirname =
     import.meta.dirname ?? path.dirname(fileURLToPath(import.meta.url));
 
-export default {
+export default (env, argv) => ({
     entry: path.join(__dirname, 'src/index.ts'),
     output: {
         path: path.join(__dirname, 'dist/'),
         filename: 'index.js',
+        library: {
+            type: 'module',
+        },
+        clean: true,
     },
+    experiments: {
+        outputModule: true,
+    },
+    devtool: argv.mode === 'development' ? 'source-map' : false,
     resolve: {
         extensions: ['.ts', '.js'],
     },
@@ -23,7 +31,7 @@ export default {
             },
             {
                 test: /\.css$/,
-                use: ['style-loader', 'css-loader'],
+                use: ['style-loader', 'css-loader', 'postcss-loader'],
             },
             {
                 test: /\.html$/,
@@ -43,4 +51,4 @@ export default {
             }),
         ],
     },
-};
+});

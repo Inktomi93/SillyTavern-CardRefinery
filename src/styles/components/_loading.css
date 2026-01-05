@@ -1,0 +1,37 @@
+/**
+ * Loading Indicator Component
+ *
+ * Generating/loading states with spinner animation.
+ */
+
+.ct-loading {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-3);
+    background: var(--ct-accent-muted);
+    border-radius: var(--ct-radius);
+    color: var(--ct-accent);
+    font-size: var(--ct-text-sm);
+    animation: ct-pulse 2s ease-in-out infinite;
+
+    &__spinner {
+        animation: ct-spin 1s linear infinite;
+    }
+}
+
+@keyframes ct-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes ct-pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}

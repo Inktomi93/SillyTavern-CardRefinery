@@ -3,7 +3,6 @@
 // POPUP STATE MANAGEMENT
 // =============================================================================
 
-import { STAGES } from '../shared';
 import { getStageDefaults } from '../data';
 import type {
     PopupState,
@@ -62,7 +61,6 @@ export function createInitialState(): PopupState {
         sessionsLoaded: false,
         hasUnsavedChanges: false,
 
-        selectedStages: [...STAGES],
         stageStatus: {
             score: 'pending',
             rewrite: 'pending',
@@ -89,6 +87,8 @@ export function createInitialState(): PopupState {
 
         sessionListExpanded: false,
         historyExpanded: true,
+
+        viewingHistoryIndex: null,
     };
 }
 
@@ -128,21 +128,22 @@ export function clearState(): void {
 // =============================================================================
 
 /**
- * Trigger auto-save.
+ * Trigger auto-save (debounced).
  */
 export function autoSave(): void {
     const s = getStateOrNull();
     if (s) {
         s.hasUnsavedChanges = true;
-        autoSaveImpl();
+        autoSaveImpl.trigger();
     }
 }
 
 /**
- * Force immediate save.
+ * Force immediate save (awaitable).
+ * Cancels any pending debounced save and executes immediately.
  */
 export async function forceSave(): Promise<void> {
-    autoSaveImpl.flush();
+    await autoSaveImpl.flush();
 }
 
 /**
@@ -182,6 +183,26 @@ export async function loadSession(sessionId: string): Promise<boolean> {
  */
 export async function deleteSession(sessionId: string): Promise<void> {
     return deleteSessionAction(getState(), sessionId);
+}
+
+/**
+ * Rename a session.
+ */
+export async function renameSession(
+    sessionId: string,
+    newName: string,
+): Promise<void> {
+    const state = getState();
+    const session = state.sessions.find((s) => s.id === sessionId);
+    if (!session) return;
+
+    // Update the session name and save
+    session.name = newName.trim() || undefined;
+    session.updatedAt = Date.now();
+
+    // Persist to storage
+    const { updateSession: storageUpdateSession } = await import('../data');
+    await storageUpdateSession(session);
 }
 
 // =============================================================================
@@ -285,21 +306,6 @@ export function toggleField(key: string, value: boolean | number[]): void {
  */
 export function setActiveStage(stage: StageName): void {
     getState().activeStage = stage;
-}
-
-/**
- * Toggle stage selection for pipeline.
- */
-export function toggleStageSelection(stage: StageName): void {
-    const s = getState();
-    const idx = s.selectedStages.indexOf(stage);
-
-    if (idx === -1) {
-        s.selectedStages.push(stage);
-        s.selectedStages.sort((a, b) => STAGES.indexOf(a) - STAGES.indexOf(b));
-    } else {
-        s.selectedStages.splice(idx, 1);
-    }
 }
 
 /**
@@ -478,4 +484,84 @@ export function toggleSessionList(): void {
 export function toggleHistory(): void {
     const s = getState();
     s.historyExpanded = !s.historyExpanded;
+}
+
+// =============================================================================
+// HISTORY NAVIGATION
+// =============================================================================
+
+/**
+ * View a specific history item (null to return to current results).
+ */
+export function viewHistoryItem(index: number | null): void {
+    const s = getState();
+    if (index !== null && (index < 0 || index >= s.iterationHistory.length)) {
+        return; // Invalid index
+    }
+    s.viewingHistoryIndex = index;
+}
+
+/**
+ * Navigate to previous history item.
+ */
+export function viewPreviousHistory(): void {
+    const s = getState();
+    if (s.iterationHistory.length === 0) return;
+
+    if (s.viewingHistoryIndex === null) {
+        // Currently viewing current - go to most recent history
+        s.viewingHistoryIndex = s.iterationHistory.length - 1;
+    } else if (s.viewingHistoryIndex > 0) {
+        s.viewingHistoryIndex--;
+    }
+}
+
+/**
+ * Navigate to next history item (or back to current).
+ */
+export function viewNextHistory(): void {
+    const s = getState();
+    if (s.viewingHistoryIndex === null) return; // Already at current
+
+    if (s.viewingHistoryIndex < s.iterationHistory.length - 1) {
+        s.viewingHistoryIndex++;
+    } else {
+        // At end of history - return to current
+        s.viewingHistoryIndex = null;
+    }
+}
+
+/**
+ * Restore a history item as the current result for its stage.
+ * Optionally specify an index, otherwise uses the currently viewed item.
+ */
+export function restoreHistoryItem(index?: number): void {
+    const s = getState();
+    const targetIndex = index ?? s.viewingHistoryIndex;
+
+    if (
+        targetIndex === null ||
+        targetIndex < 0 ||
+        targetIndex >= s.iterationHistory.length
+    ) {
+        return;
+    }
+
+    const result = s.iterationHistory[targetIndex];
+    s.stageResults[result.stage] = result;
+    s.stageStatus[result.stage] = result.error ? 'error' : 'complete';
+
+    // Return to viewing current after restore
+    s.viewingHistoryIndex = null;
+
+    autoSave();
+}
+
+/**
+ * Get the currently viewed history item (or null if viewing current).
+ */
+export function getViewedHistoryItem(): StageResult | null {
+    const s = getState();
+    if (s.viewingHistoryIndex === null) return null;
+    return s.iterationHistory[s.viewingHistoryIndex] ?? null;
 }

@@ -1,0 +1,106 @@
+/**
+ * Toolbar Component
+ *
+ * Contains stage tabs and pipeline controls.
+ * Wraps gracefully on smaller screens.
+ */
+
+.ct-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ct-space-2) var(--ct-space-3);
+    padding: var(--ct-space-2) var(--ct-space-4);
+    background: var(--ct-bg-tertiary);
+    border-bottom: 1px solid var(--ct-border-muted);
+    flex-shrink: 0;
+    flex-wrap: wrap;
+
+    @media (--tablet) {
+        gap: var(--ct-space-2);
+    }
+
+    &__controls {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+        flex-wrap: wrap;
+        flex-shrink: 0;
+    }
+}
+
+/* Pipeline controls */
+.ct-pipeline-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-2);
+
+    &__main {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+    }
+
+    &--generating {
+        padding: var(--ct-space-2) var(--ct-space-3);
+        background: var(--ct-accent-muted);
+        border-radius: var(--ct-radius);
+        flex-direction: row;
+    }
+}
+
+.ct-pipeline-status {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-2);
+    font-size: var(--ct-text-sm);
+    color: var(--ct-accent);
+}
+
+/* Iteration row - appears after analyze completes */
+.ct-iteration-row {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-2);
+    padding: var(--ct-space-2) var(--ct-space-3);
+    background: var(--ct-accent-muted);
+    border-radius: var(--ct-radius);
+    border-left: 3px solid var(--ct-accent);
+
+    &__label {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-1);
+        font-size: var(--ct-text-sm);
+        font-weight: 500;
+        color: var(--ct-accent);
+        white-space: nowrap;
+
+        & i {
+            font-size: var(--ct-text-xs);
+        }
+    }
+
+    &__input {
+        flex: 1;
+        min-width: 150px;
+        max-width: 300px;
+        padding: var(--ct-space-1) var(--ct-space-2);
+        font-size: var(--ct-text-xs);
+        border: 1px solid var(--ct-border);
+        border-radius: var(--ct-radius-sm);
+        background: var(--ct-bg);
+        color: var(--ct-text);
+        transition: border-color var(--ct-transition-fast);
+
+        &:focus {
+            border-color: var(--ct-accent);
+            outline: none;
+        }
+
+        &::placeholder {
+            color: var(--ct-text-muted);
+            font-style: italic;
+        }
+    }
+}

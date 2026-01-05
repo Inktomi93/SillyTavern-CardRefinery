@@ -1,0 +1,516 @@
+/**
+ * JSON Render / Hybrid Response Formatter
+ *
+ * Premium results display for structured output rendering.
+ * Includes hero scores, sections, fields, lists, cards, and code blocks.
+ */
+
+/* Score color tokens */
+:root {
+    --ct-score-high: #10b981;
+    --ct-score-good: #22c55e;
+    --ct-score-mid: #eab308;
+    --ct-score-low: #f97316;
+    --ct-score-bad: #ef4444;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   MAIN FORMATTED CONTAINER
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-formatted {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-2);
+    font-size: var(--ct-text-sm);
+    line-height: 1.55;
+
+    &--empty {
+        padding: var(--ct-space-4);
+        text-align: center;
+        color: var(--ct-text-dim);
+        font-style: italic;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   HERO SCORE - Compact prominent score display
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--ct-space-3) var(--ct-space-4);
+    background: linear-gradient(
+        135deg,
+        var(--ct-bg-secondary) 0%,
+        var(--ct-bg-tertiary) 100%
+    );
+    border-radius: var(--ct-radius);
+    border: 1px solid var(--ct-border);
+    text-align: center;
+    overflow: hidden;
+
+    /* Subtle glow effect behind score */
+    &::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 120px;
+        height: 120px;
+        background: var(--score-color, var(--ct-accent));
+        opacity: 0.06;
+        filter: blur(30px);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    &__label {
+        font-size: var(--ct-text-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ct-text-muted);
+        margin-bottom: var(--ct-space-1);
+    }
+
+    &__score {
+        display: flex;
+        align-items: baseline;
+        gap: 2px;
+    }
+
+    &__value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--score-color, var(--ct-accent));
+        text-shadow: 0 2px 12px
+            color-mix(
+                in srgb,
+                var(--score-color, var(--ct-accent)) 25%,
+                transparent
+            );
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__max {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--ct-text-dim);
+        margin-left: 2px;
+    }
+
+    /* Score progress bar */
+    &__bar {
+        width: 100%;
+        max-width: 160px;
+        height: 4px;
+        margin-top: var(--ct-space-2);
+        background: var(--ct-bg-tertiary);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    &__fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RENDER SECTIONS - Content groups with headers
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Note: These extend the base .ct-section from _layout.css with render-specific styles */
+.ct-formatted .ct-section {
+    background: var(--ct-bg-secondary);
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius);
+    overflow: hidden;
+
+    & .ct-section__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--ct-space-2);
+        padding: var(--ct-space-2) var(--ct-space-3);
+        background: var(--ct-bg-tertiary);
+        border-bottom: 1px solid var(--ct-border-muted);
+        margin: 0;
+    }
+
+    & .ct-section__title {
+        margin: 0;
+        font-size: var(--ct-text-sm);
+        font-weight: 700;
+        color: var(--ct-text);
+        text-transform: none;
+        letter-spacing: normal;
+    }
+
+    & .ct-section__body {
+        padding: var(--ct-space-3);
+        display: flex;
+        flex-direction: column;
+        gap: var(--ct-space-2);
+
+        &--nested {
+            background: var(--ct-bg);
+            border-left: 2px solid var(--ct-accent);
+        }
+    }
+}
+
+.ct-section__score {
+    display: inline-flex;
+    align-items: baseline;
+    padding: 2px 8px;
+    background: color-mix(
+        in srgb,
+        var(--score-color, var(--ct-accent)) 15%,
+        transparent
+    );
+    border-radius: var(--ct-radius-sm);
+    font-weight: 700;
+    font-size: var(--ct-text-sm);
+    color: var(--score-color, var(--ct-accent));
+    font-variant-numeric: tabular-nums;
+
+    &-max {
+        font-size: 0.8em;
+        font-weight: 500;
+        opacity: 0.6;
+        margin-left: 1px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   FIELDS - Key/value pairs
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-1);
+
+    &__label {
+        font-size: var(--ct-text-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--ct-text-muted);
+    }
+
+    &__value {
+        font-size: var(--ct-text-sm);
+        line-height: 1.6;
+        color: var(--ct-text);
+    }
+
+    &--empty {
+        color: var(--ct-text-dim);
+        font-style: italic;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   PARAGRAPHS - Body text
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-para {
+    margin: 0;
+    font-size: var(--ct-text-sm);
+    line-height: 1.6;
+    color: var(--ct-text);
+
+    & + & {
+        margin-top: var(--ct-space-1);
+    }
+}
+
+.ct-text {
+    font-size: var(--ct-text-sm);
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RENDER LISTS - Bullet and numbered lists
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-formatted .ct-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    & li {
+        position: relative;
+        padding-left: var(--ct-space-3);
+        font-size: var(--ct-text-sm);
+        line-height: 1.5;
+
+        &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.55em;
+            width: 5px;
+            height: 5px;
+            background: var(--ct-accent);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+    }
+
+    /* Numbered variant */
+    &--numbered {
+        counter-reset: list-counter;
+
+        & li {
+            counter-increment: list-counter;
+            padding-left: var(--ct-space-5);
+
+            &::before {
+                content: counter(list-counter);
+                width: auto;
+                height: auto;
+                background: none;
+                border-radius: 0;
+                font-size: var(--ct-text-xs);
+                font-weight: 700;
+                color: var(--ct-accent);
+                opacity: 1;
+                top: 0;
+            }
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RENDER CARDS - Complex items in arrays
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-cards {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-3);
+}
+
+.ct-formatted .ct-card {
+    padding: var(--ct-space-4);
+    background: var(--ct-bg-secondary);
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius);
+    transition:
+        border-color var(--ct-transition-fast),
+        box-shadow var(--ct-transition-fast);
+
+    &:hover {
+        border-color: var(--ct-border);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--ct-space-3);
+        margin-bottom: var(--ct-space-3);
+    }
+
+    &__title {
+        font-weight: 700;
+        font-size: var(--ct-text-base);
+        color: var(--ct-text);
+    }
+
+    &__body {
+        font-size: var(--ct-text-sm);
+        line-height: 1.7;
+        color: var(--ct-text-muted);
+    }
+
+    &__extra {
+        margin-top: var(--ct-space-3);
+        padding-top: var(--ct-space-3);
+        border-top: 1px solid var(--ct-border-muted);
+        display: flex;
+        flex-direction: column;
+        gap: var(--ct-space-2);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SCORES - Inline and badge scores
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-score {
+    display: inline-flex;
+    align-items: baseline;
+    padding: 2px 8px;
+    background: color-mix(
+        in srgb,
+        var(--score-color, var(--ct-accent)) 15%,
+        transparent
+    );
+    border-radius: var(--ct-radius-sm);
+    font-weight: 700;
+    font-size: var(--ct-text-sm);
+    color: var(--score-color, var(--ct-accent));
+    font-variant-numeric: tabular-nums;
+
+    &__max {
+        font-size: 0.75em;
+        font-weight: 500;
+        opacity: 0.6;
+        margin-left: 1px;
+    }
+}
+
+/* Inline score (within text) */
+.ct-inline-score {
+    display: inline-flex;
+    align-items: baseline;
+    padding: 1px 6px;
+    margin: 0 2px;
+    background: color-mix(
+        in srgb,
+        var(--score-color, var(--ct-accent)) 12%,
+        transparent
+    );
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.95em;
+    color: var(--score-color, var(--ct-accent));
+    font-variant-numeric: tabular-nums;
+
+    &__label {
+        font-weight: 500;
+        color: var(--ct-text-muted);
+        margin-right: 2px;
+    }
+
+    &__max {
+        font-size: 0.75em;
+        font-weight: 500;
+        opacity: 0.5;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   CODE BLOCKS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-code {
+    position: relative;
+    background: var(--ct-bg-tertiary);
+    border: 1px solid var(--ct-border);
+    border-radius: var(--ct-radius);
+    overflow: hidden;
+
+    &__lang {
+        position: absolute;
+        top: var(--ct-space-2);
+        right: var(--ct-space-2);
+        padding: 2px 8px;
+        background: var(--ct-bg-secondary);
+        border-radius: var(--ct-radius-sm);
+        font-size: var(--ct-text-xs);
+        font-weight: 600;
+        color: var(--ct-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    &__pre {
+        margin: 0;
+        padding: var(--ct-space-4);
+        overflow-x: auto;
+        font-family: var(--ct-font-mono);
+        font-size: var(--ct-text-xs);
+        line-height: 1.6;
+
+        & code {
+            font-family: inherit;
+        }
+    }
+}
+
+/* Inline code */
+.ct-inline-code {
+    padding: 2px 6px;
+    background: var(--ct-bg-tertiary);
+    border-radius: 4px;
+    font-family: var(--ct-font-mono);
+    font-size: 0.9em;
+    color: var(--ct-accent);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   BOOLEANS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-bool {
+    &--yes {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--ct-space-1);
+        color: var(--ct-success);
+        font-weight: 600;
+
+        & i {
+            font-size: 1.1em;
+        }
+    }
+
+    &--no {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--ct-space-1);
+        color: var(--ct-danger);
+        font-weight: 600;
+
+        & i {
+            font-size: 1.1em;
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UTILITY CLASSES
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-null {
+    color: var(--ct-text-dim);
+}
+
+.ct-formatted .ct-empty {
+    color: var(--ct-text-dim);
+    font-style: italic;
+}
+
+.ct-num {
+    font-family: var(--ct-font-mono);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.ct-link {
+    color: var(--ct-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--ct-transition-fast);
+
+    &:hover {
+        border-bottom-color: var(--ct-accent);
+    }
+}

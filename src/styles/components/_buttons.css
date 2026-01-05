@@ -1,0 +1,118 @@
+/**
+ * Button Variants
+ *
+ * Extends ST's .menu_button with consistent modifiers.
+ * Uses :is() for consolidated selectors across all CT contexts.
+ */
+
+/* Base menu_button normalization for ALL CT contexts */
+:is(.ct-popup, .ct-settings-modal, .ct-drawer) .menu_button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--ct-space-1);
+    padding: var(--ct-space-2) var(--ct-space-3);
+    font-size: var(--ct-text-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: var(--ct-radius-sm);
+    transition: all var(--ct-transition-fast);
+    width: auto;
+    min-width: auto;
+    margin: 0;
+
+    /* Icon-only button (square) */
+    &--icon {
+        padding: var(--ct-space-2);
+        aspect-ratio: 1;
+    }
+
+    /* Small button */
+    &--sm {
+        padding: var(--ct-space-1) var(--ct-space-2);
+        font-size: var(--ct-text-xs);
+    }
+
+    /* Large button */
+    &--lg {
+        padding: var(--ct-space-3) var(--ct-space-4);
+        font-size: var(--ct-text-base);
+    }
+
+    /* Full width button */
+    &--full {
+        width: 100%;
+    }
+
+    /* Primary (accent) button */
+    &--primary {
+        background: var(--ct-accent);
+        border-color: var(--ct-accent);
+        color: var(--ct-bg);
+        filter: none;
+
+        &:hover:not(:disabled) {
+            background: var(--ct-accent-hover);
+            border-color: var(--ct-accent-hover);
+            filter: none;
+        }
+    }
+
+    /* Danger button */
+    &--danger {
+        background: var(--ct-danger);
+        border-color: var(--ct-danger);
+        color: white;
+        filter: none;
+
+        &:hover:not(:disabled) {
+            filter: brightness(1.1);
+        }
+    }
+
+    /* Ghost button (transparent background) */
+    &--ghost {
+        background: transparent;
+        border-color: transparent;
+
+        &:hover:not(:disabled) {
+            background: var(--ct-bg-secondary);
+        }
+    }
+
+    /* Success button (popup only - sparingly used) */
+    &--success {
+        background: var(--ct-success);
+        border-color: var(--ct-success);
+        color: white;
+        filter: none;
+    }
+
+    /* Disabled state */
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        filter: grayscale(0.5);
+    }
+
+    /* Active toggle state */
+    &.ct-active {
+        color: var(--ct-accent);
+        background: var(--ct-accent-muted);
+        border-color: var(--ct-accent);
+
+        &:hover:not(:disabled) {
+            background: color-mix(in srgb, var(--ct-accent) 40%, transparent);
+        }
+    }
+}
+
+/* Button groups */
+.ct-button-group {
+    display: flex;
+    gap: var(--ct-space-2);
+
+    &--stretch .menu_button {
+        flex: 1;
+    }
+}

@@ -5,7 +5,7 @@
 // Uses ST's event system for proper initialization timing and reactive updates.
 // =============================================================================
 
-import './style.css';
+import './styles/index.css';
 
 import {
     DISPLAY_NAME,

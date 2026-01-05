@@ -1,0 +1,238 @@
+/**
+ * Results Panel Component
+ *
+ * Display area for pipeline output - JSON, raw text, or prose.
+ * Includes toolbar, toggles, and content area.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RESULTS WRAPPER
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-results-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.ct-results-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ct-space-2);
+    padding: var(--ct-space-2) var(--ct-space-3);
+    background: var(--ct-bg-secondary);
+    border-bottom: 1px solid var(--ct-border-muted);
+    flex-shrink: 0;
+}
+
+.ct-results-content {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   RESULT CONTAINER
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ct-result {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--ct-space-2) var(--ct-space-3);
+        background: var(--ct-bg-secondary);
+        border-bottom: 1px solid var(--ct-border-muted);
+        flex-shrink: 0;
+    }
+
+    &__type {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+        font-size: var(--ct-text-xs);
+        color: var(--ct-text-muted);
+    }
+
+    &__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+    }
+
+    &__content {
+        flex: 1;
+        overflow-y: auto;
+        padding: var(--ct-space-3);
+    }
+
+    &__raw {
+        margin: 0;
+        padding: var(--ct-space-3);
+        font-family: var(--ct-font-mono);
+        font-size: var(--ct-text-xs);
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: var(--ct-bg-tertiary);
+        border-radius: var(--ct-radius);
+        color: var(--ct-text);
+        user-select: text;
+    }
+
+    &__json {
+        font-family: var(--ct-font-mono);
+        font-size: var(--ct-text-xs);
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        padding: var(--ct-space-3);
+        background: var(--ct-bg-secondary);
+        border-radius: var(--ct-radius);
+    }
+
+    &__code {
+        margin: 0;
+        padding: var(--ct-space-3);
+        font-family: var(--ct-font-mono);
+        font-size: var(--ct-text-xs);
+        line-height: 1.5;
+        background: var(--ct-bg-tertiary);
+        border-radius: var(--ct-radius);
+        overflow-x: auto;
+
+        & code {
+            font-family: inherit;
+        }
+    }
+
+    /* Prose styling - minimal overrides, let showdown do its thing */
+    &__prose {
+        font-size: var(--ct-text-sm);
+        line-height: 1.7;
+
+        & h1,
+        & h2,
+        & h3 {
+            font-weight: 600;
+            margin-top: 1.25em;
+            margin-bottom: 0.5em;
+
+            &:first-child {
+                margin-top: 0;
+            }
+        }
+
+        & p {
+            margin: 0 0 0.75em 0;
+        }
+
+        & ul,
+        & ol {
+            margin: 0.5em 0;
+            padding-left: 1.5em;
+        }
+
+        & li {
+            margin: 0.25em 0;
+        }
+
+        & code {
+            font-family: var(--ct-font-mono);
+            font-size: 0.9em;
+            padding: 0.15em 0.4em;
+            background: var(--ct-bg-secondary);
+            border-radius: var(--ct-radius-sm);
+        }
+
+        & pre {
+            margin: 0.75em 0;
+            padding: var(--ct-space-2);
+            background: var(--ct-bg-secondary);
+            border-radius: var(--ct-radius);
+            overflow-x: auto;
+
+            & code {
+                padding: 0;
+                background: none;
+            }
+        }
+
+        & strong {
+            font-weight: 600;
+        }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TOGGLE BUTTON GROUPS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+:is(.ct-json-toggle, .ct-text-toggle) {
+    display: flex;
+    background: var(--ct-bg-tertiary);
+    border-radius: var(--ct-radius-sm);
+    padding: 2px;
+
+    & > button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 24px;
+        border: none;
+        background: transparent;
+        color: var(--ct-text-dim);
+        cursor: pointer;
+        border-radius: var(--ct-radius-sm);
+        transition: all var(--ct-transition-fast);
+
+        &:hover {
+            color: var(--ct-text);
+            background: var(--ct-bg-secondary);
+        }
+    }
+}
+
+:is(.ct-json-toggle__btn, .ct-text-toggle__btn)--active {
+    color: var(--ct-accent);
+    background: var(--ct-bg);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* View mode toggle */
+.ct-view-toggle {
+    display: flex;
+    gap: var(--ct-space-1);
+    background: var(--ct-bg-secondary);
+    padding: var(--ct-space-1);
+    border-radius: var(--ct-radius);
+
+    &__btn {
+        padding: var(--ct-space-1) var(--ct-space-2);
+        font-size: var(--ct-text-xs);
+        border-radius: calc(var(--ct-radius) - 2px);
+        background: transparent;
+        border: none;
+        color: var(--ct-text-dim);
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+            color: var(--ct-text);
+        }
+
+        &--active {
+            background: var(--ct-bg);
+            color: var(--ct-text);
+            box-shadow: var(--ct-shadow-sm);
+        }
+    }
+}

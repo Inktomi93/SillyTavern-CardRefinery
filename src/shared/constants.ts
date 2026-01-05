@@ -10,10 +10,10 @@ import type { CharacterField } from '../types';
 // =============================================================================
 
 /** Extension identifier - matches folder name */
-export const MODULE_NAME = 'sillytavern-extensionbase' as const;
+export const MODULE_NAME = 'SillyTavern-CardRefinery' as const;
 
 /** Display name for UI */
-export const DISPLAY_NAME = 'SillyTavern Extension Base' as const;
+export const DISPLAY_NAME = 'CardRefinery' as const;
 
 /** Current version */
 export const VERSION = '2.0.0' as const;

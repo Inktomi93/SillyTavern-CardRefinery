@@ -19,7 +19,6 @@ import {
     getCurrentFieldSelection,
     areStagesLinked,
     toggleStageFieldLinking,
-    setUserGuidance,
 } from '../../state';
 import {
     getPromptPresetsForStage,
@@ -30,8 +29,36 @@ import {
 } from '../../data';
 import { getPopulatedFields, buildCharacterSummary } from '../../domain';
 import { $, $$, on, formatTokenCount, cx } from './base';
-import { openDrawerForCreate, openDrawerForEdit } from './preset-drawer';
+import { openDrawerWithList } from './preset-drawer';
 import type { StageName, PopulatedField } from '../../types';
+
+// =============================================================================
+// INPUT DEBOUNCE TRACKING
+// =============================================================================
+
+// Track active debounced input handlers so we can flush them on close
+type DebouncedFn = ReturnType<typeof SillyTavern.libs.lodash.debounce>;
+let pendingInputDebounces: DebouncedFn[] = [];
+
+/**
+ * Flush all pending debounced input handlers.
+ * Call this before forceSave to ensure all typed content is captured.
+ */
+export function flushPendingInputs(): void {
+    for (const fn of pendingInputDebounces) {
+        fn.flush();
+    }
+}
+
+/**
+ * Clear tracked debounces (call on cleanup).
+ */
+export function clearPendingInputs(): void {
+    for (const fn of pendingInputDebounces) {
+        fn.cancel();
+    }
+    pendingInputDebounces = [];
+}
 
 // =============================================================================
 // HTML TEMPLATES
@@ -207,21 +234,12 @@ function renderPresetDropdown(
                     )
                     .join('')}
             </select>
-            <div class="ct-preset-row__actions">
-                <button class="ct-preset-manage ct-preset-edit-btn"
-                        data-type="${type}"
-                        type="button"
-                        title="Edit selected preset"
-                        ${!selectedId ? 'disabled' : ''}>
-                    <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="ct-preset-manage ct-preset-new-btn"
-                        data-type="${type}"
-                        type="button"
-                        title="Create new ${type} preset">
-                    <i class="fa-solid fa-plus"></i>
-                </button>
-            </div>
+            <button class="ct-preset-manage-btn menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                    data-type="${type}"
+                    type="button"
+                    title="Manage ${type} presets">
+                <i class="fa-solid fa-folder-open"></i>
+            </button>
         </div>
     `;
 }
@@ -343,19 +361,6 @@ export function renderStageConfig(): string {
                         </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- User Guidance -->
-            <div class="ct-stack ct-stack--tight ct-mt-4">
-                <div class="ct-row">
-                    <i class="fa-solid fa-compass ct-text-accent"></i>
-                    <span class="ct-font-medium ct-text-sm">Guidance</span>
-                    <span class="ct-text-xs ct-text-dim">(optional focus or constraints)</span>
-                </div>
-                <textarea id="${MODULE_NAME}_guidance"
-                          class="ct-textarea--compact"
-                          placeholder="e.g., 'Focus on dialogue quality' or 'Maintain a dark, brooding tone'"
-                          rows="2">${DOMPurify.sanitize(state.userGuidance)}</textarea>
             </div>
 
             <!-- Preview -->
@@ -669,6 +674,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
             },
             300,
         );
+        pendingInputDebounces.push(updatePrompt);
 
         cleanups.push(
             on(promptTextarea, 'input', () => {
@@ -780,6 +786,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
             },
             300,
         );
+        pendingInputDebounces.push(updateSchema);
 
         cleanups.push(
             on(schemaTextarea, 'input', () => {
@@ -819,26 +826,6 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         );
     }
 
-    // User guidance textarea
-    const guidanceTextarea = $(
-        `#${MODULE_NAME}_guidance`,
-        container,
-    ) as HTMLTextAreaElement;
-    if (guidanceTextarea) {
-        const updateGuidance = SillyTavern.libs.lodash.debounce(
-            (value: string) => {
-                setUserGuidance(value);
-            },
-            300,
-        );
-
-        cleanups.push(
-            on(guidanceTextarea, 'input', () => {
-                updateGuidance(guidanceTextarea.value);
-            }),
-        );
-    }
-
     // Preview button
     const previewBtn = $(`#${MODULE_NAME}_preview`, container);
     if (previewBtn) {
@@ -869,48 +856,18 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         );
     }
 
-    // Preset Edit buttons (both prompt and schema)
-    const editBtns = $$('.ct-preset-edit-btn', container);
-    for (const btn of editBtns) {
-        cleanups.push(
-            on(btn, 'click', () => {
-                const type = (btn as HTMLElement).dataset.type as
-                    | 'prompt'
-                    | 'schema';
-                const selectId = `${MODULE_NAME}_${type}_select`;
-                const select = $(
-                    `#${selectId}`,
-                    container,
-                ) as HTMLSelectElement;
-                const presetId = select?.value;
-
-                if (!presetId) {
-                    toast.warning('Select a preset first');
-                    return;
-                }
-
-                openDrawerForEdit(type, presetId, {
-                    onSave: () => {
-                        // Refresh the dropdown and update state
-                        updateStageConfig();
-                    },
-                });
-            }),
-        );
-    }
-
-    // Preset New buttons (both prompt and schema)
-    const newBtns = $$('.ct-preset-new-btn', container);
-    for (const btn of newBtns) {
+    // Preset Manage buttons (opens drawer with full list)
+    const manageBtns = $$('.ct-preset-manage-btn', container);
+    for (const btn of manageBtns) {
         cleanups.push(
             on(btn, 'click', () => {
                 const type = (btn as HTMLElement).dataset.type as
                     | 'prompt'
                     | 'schema';
 
-                openDrawerForCreate(type, {
-                    onSave: (preset) => {
-                        // Select the newly created preset
+                openDrawerWithList(type, {
+                    onSelect: (preset) => {
+                        // When a preset is selected from the list, apply it
                         const state = getState();
                         if (type === 'prompt') {
                             updateStateConfig(state.activeStage, {
@@ -925,47 +882,12 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                         }
                         updateStageConfig();
                     },
+                    onUpdate: () => {
+                        // When presets are modified, refresh the dropdown
+                        updateStageConfig();
+                    },
                 });
             }),
-        );
-    }
-
-    // Update edit button states when dropdown changes
-    const promptSelectForEdit = $(
-        `#${MODULE_NAME}_prompt_select`,
-        container,
-    ) as HTMLSelectElement;
-    const schemaSelectForEdit = $(
-        `#${MODULE_NAME}_schema_select`,
-        container,
-    ) as HTMLSelectElement;
-
-    const updateEditButtonStates = () => {
-        const promptEditBtn = $(
-            '.ct-preset-edit-btn[data-type="prompt"]',
-            container,
-        ) as HTMLButtonElement;
-        const schemaEditBtn = $(
-            '.ct-preset-edit-btn[data-type="schema"]',
-            container,
-        ) as HTMLButtonElement;
-
-        if (promptEditBtn && promptSelectForEdit) {
-            promptEditBtn.disabled = !promptSelectForEdit.value;
-        }
-        if (schemaEditBtn && schemaSelectForEdit) {
-            schemaEditBtn.disabled = !schemaSelectForEdit.value;
-        }
-    };
-
-    if (promptSelectForEdit) {
-        cleanups.push(
-            on(promptSelectForEdit, 'change', updateEditButtonStates),
-        );
-    }
-    if (schemaSelectForEdit) {
-        cleanups.push(
-            on(schemaSelectForEdit, 'change', updateEditButtonStates),
         );
     }
 

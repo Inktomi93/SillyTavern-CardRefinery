@@ -3,8 +3,16 @@
 // RESULTS PANEL COMPONENT
 // =============================================================================
 
-import { MODULE_NAME, STAGE_LABELS, STAGE_ICONS, popup } from '../../shared';
-import { getState, toggleHistory } from '../../state';
+import { MODULE_NAME, STAGE_LABELS, STAGE_ICONS, toast } from '../../shared';
+import {
+    getState,
+    toggleHistory,
+    viewHistoryItem,
+    viewPreviousHistory,
+    viewNextHistory,
+    restoreHistoryItem,
+    getViewedHistoryItem,
+} from '../../state';
 import { getSchemaPreset } from '../../data/settings';
 import { $, on, cx, truncate, morphUpdate } from './base';
 import { renderCompareView, bindCompareViewEvents } from './compare-view';
@@ -213,6 +221,7 @@ function renderResultContent(
 function renderHistoryItem(result: StageResult, index: number): string {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const moment = SillyTavern.libs.moment;
+    const state = getState();
 
     // Use moment for smarter date formatting
     const m = moment(result.timestamp);
@@ -220,19 +229,35 @@ function renderHistoryItem(result: StageResult, index: number): string {
     const fullTime = m.format('MMM D, h:mm A'); // For tooltip
 
     const preview = truncate(result.output || result.error || '', 100);
+    const isViewing = state.viewingHistoryIndex === index;
+    const isCurrentResult =
+        state.stageResults[result.stage]?.timestamp === result.timestamp;
 
     return `
-        <div class="ct-list-item ${cx(result.error && 'ct-list-item--error')}"
+        <div class="ct-list-item ${cx(
+            result.error && 'ct-list-item--error',
+            isViewing && 'ct-list-item--viewing',
+            isCurrentResult && 'ct-list-item--current',
+        )}"
              data-index="${index}">
             <div class="ct-list-item__content">
                 <div class="ct-row ct-row--between">
                     <span class="ct-list-item__title">
                         <i class="fa-solid ${STAGE_ICONS[result.stage]} ct-text-accent"></i>
                         ${STAGE_LABELS[result.stage]}
+                        ${isCurrentResult ? '<span class="ct-badge ct-badge--sm">current</span>' : ''}
                     </span>
                     <span class="ct-text-xs ct-text-dim" title="${fullTime}">${timeStr}</span>
                 </div>
                 <div class="ct-list-item__subtitle ct-truncate">${DOMPurify.sanitize(preview)}</div>
+            </div>
+            <div class="ct-list-item__actions">
+                <button class="ct-history-restore menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                        data-index="${index}"
+                        type="button"
+                        title="Restore this result as current">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
             </div>
         </div>
     `;
@@ -243,16 +268,64 @@ function renderHistoryItem(result: StageResult, index: number): string {
  */
 export function renderResultsPanel(): string {
     const state = getState();
-    const activeResult = state.stageResults[state.activeStage];
+    const viewedHistoryItem = getViewedHistoryItem();
+    const isViewingHistory = viewedHistoryItem !== null;
+
+    // When viewing history, show that result; otherwise show current stage result
+    const displayResult = isViewingHistory
+        ? viewedHistoryItem
+        : state.stageResults[state.activeStage];
+
     const hasRewrite = !!state.stageResults.rewrite;
     const hasHistory = state.iterationHistory.length > 0;
 
-    // Check if there are updates available
-    const hasUpdates = hasRewrite && buildFieldUpdates().length > 0;
+    // Check if there are updates available (only when not viewing history)
+    const hasUpdates =
+        !isViewingHistory && hasRewrite && buildFieldUpdates().length > 0;
 
-    // View toggle (only show if rewrite exists)
-    const viewToggle = hasRewrite
+    // History navigation bar (shown when viewing history)
+    const historyNavBar = isViewingHistory
         ? `
+            <div class="ct-history-nav">
+                <div class="ct-history-nav__info">
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Viewing history ${(state.viewingHistoryIndex ?? 0) + 1} of ${state.iterationHistory.length}</span>
+                </div>
+                <div class="ct-history-nav__controls">
+                    <button class="ct-history-nav__btn menu_button menu_button--icon menu_button--sm"
+                            id="${MODULE_NAME}_history_prev"
+                            type="button"
+                            title="Previous"
+                            ${state.viewingHistoryIndex === 0 ? 'disabled' : ''}>
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="ct-history-nav__btn menu_button menu_button--icon menu_button--sm"
+                            id="${MODULE_NAME}_history_next"
+                            type="button"
+                            title="Next">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                    <button class="ct-history-nav__btn menu_button menu_button--primary menu_button--sm"
+                            id="${MODULE_NAME}_history_restore"
+                            type="button"
+                            title="Restore this as current result">
+                        <i class="fa-solid fa-rotate-left"></i> Restore
+                    </button>
+                    <button class="ct-history-nav__btn menu_button menu_button--sm"
+                            id="${MODULE_NAME}_history_back"
+                            type="button"
+                            title="Back to current results">
+                        <i class="fa-solid fa-xmark"></i> Back
+                    </button>
+                </div>
+            </div>
+        `
+        : '';
+
+    // View toggle (only show if rewrite exists and not viewing history)
+    const viewToggle =
+        hasRewrite && !isViewingHistory
+            ? `
             <div class="ct-view-toggle">
                 <button class="ct-view-toggle__btn ${currentViewMode === 'result' ? 'ct-view-toggle__btn--active' : ''}"
                         data-view="result"
@@ -279,13 +352,17 @@ export function renderResultsPanel(): string {
                     : ''
             }
         `
-        : '';
+            : '';
 
     // Content based on view mode
-    const content =
-        currentViewMode === 'compare' && hasRewrite
-            ? `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`
-            : renderResultContent(activeResult, state.activeStage);
+    const content = isViewingHistory
+        ? renderResultContent(
+              displayResult,
+              displayResult?.stage ?? state.activeStage,
+          )
+        : currentViewMode === 'compare' && hasRewrite
+          ? `<div id="${MODULE_NAME}_compare_content">${renderCompareView()}</div>`
+          : renderResultContent(displayResult, state.activeStage);
 
     // Only show history section if there's actual history
     const historySection = hasHistory
@@ -310,6 +387,9 @@ export function renderResultsPanel(): string {
 
     return `
         <div class="ct-results-wrapper">
+            <!-- History Navigation (when viewing history) -->
+            ${historyNavBar}
+
             <!-- View Toggle -->
             ${viewToggle ? `<div class="ct-results-toolbar">${viewToggle}</div>` : ''}
 
@@ -573,33 +653,75 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
         );
     }
 
-    // History item click (show full result in popup)
+    // History navigation controls
+    cleanups.push(
+        on(container, 'click', (e) => {
+            const target = e.target as HTMLElement;
+
+            // Previous button
+            if (target.closest(`#${MODULE_NAME}_history_prev`)) {
+                viewPreviousHistory();
+                updateResults();
+                return;
+            }
+
+            // Next button
+            if (target.closest(`#${MODULE_NAME}_history_next`)) {
+                viewNextHistory();
+                updateResults();
+                return;
+            }
+
+            // Restore button (in nav bar)
+            if (target.closest(`#${MODULE_NAME}_history_restore`)) {
+                restoreHistoryItem();
+                toast.success('Result restored');
+                updateResults();
+                return;
+            }
+
+            // Back to current button
+            if (target.closest(`#${MODULE_NAME}_history_back`)) {
+                viewHistoryItem(null);
+                updateResults();
+                return;
+            }
+        }),
+    );
+
+    // History item interactions
     const historyList = $(`#${MODULE_NAME}_history_list`, container);
     if (historyList) {
         cleanups.push(
             on(historyList, 'click', async (e) => {
-                const DOMPurify = SillyTavern.libs.DOMPurify;
-                const item = (e.target as HTMLElement).closest('.ct-list-item');
+                const target = e.target as HTMLElement;
+
+                // Restore button on individual item
+                const restoreBtn = target.closest('.ct-history-restore');
+                if (restoreBtn) {
+                    e.stopPropagation();
+                    const index = parseInt(
+                        (restoreBtn as HTMLElement).dataset.index || '0',
+                        10,
+                    );
+                    restoreHistoryItem(index);
+                    toast.success('Result restored');
+                    updateResults();
+                    return;
+                }
+
+                // Click on item content - view in main panel
+                const item = target.closest('.ct-list-item');
                 if (!item) return;
 
                 const index = parseInt(
                     (item as HTMLElement).dataset.index || '0',
                     10,
                 );
-                const state = getState();
-                const result = state.iterationHistory[index];
 
-                if (!result) return;
-
-                const date = new Date(result.timestamp);
-                const content = result.error
-                    ? `<div class="ct-error-box">${DOMPurify.sanitize(result.error)}</div>`
-                    : `<div class="ct-preview-content">${formatResponse(result.output)}</div>`;
-
-                popup.alert(
-                    `${STAGE_LABELS[result.stage]} - ${date.toLocaleString()}`,
-                    content,
-                );
+                // View this history item in the main panel
+                viewHistoryItem(index);
+                updateResults();
             }),
         );
     }

@@ -1,0 +1,116 @@
+/**
+ * Session Option Component
+ *
+ * Session list item in the session dropdown.
+ * Shows name, metadata, and inline action buttons.
+ */
+
+.ct-session-option {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-2);
+    padding: var(--ct-space-2) var(--ct-space-3);
+    border-bottom: 1px solid var(--ct-border-muted);
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    &:hover {
+        background: var(--ct-bg-tertiary);
+    }
+
+    &--active {
+        background: var(--ct-accent-muted);
+
+        &:hover {
+            background: var(--ct-accent-muted);
+        }
+    }
+
+    &__content {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    &__name {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+        font-size: var(--ct-text-sm);
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    &__indicator {
+        font-size: 6px;
+        color: var(--ct-accent);
+        flex-shrink: 0;
+    }
+
+    &__name-input {
+        flex: 1;
+        padding: var(--ct-space-1) var(--ct-space-2);
+        font-size: var(--ct-text-sm);
+        border: 1px solid var(--ct-accent);
+        border-radius: var(--ct-radius-sm);
+        background: var(--ct-bg);
+        color: var(--ct-text);
+        outline: none;
+
+        &:focus {
+            box-shadow: 0 0 0 2px var(--ct-accent-muted);
+        }
+    }
+
+    &__meta {
+        display: flex;
+        gap: var(--ct-space-2);
+        font-size: var(--ct-text-xs);
+        color: var(--ct-text-muted);
+
+        & span::after {
+            content: '•';
+            margin-left: var(--ct-space-2);
+            opacity: 0.5;
+        }
+
+        & span:last-child::after {
+            display: none;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        gap: 2px;
+        opacity: 0;
+        transition: opacity 0.15s ease;
+
+        &--editing {
+            opacity: 1;
+        }
+
+        & .menu_button--ghost {
+            padding: var(--ct-space-1);
+
+            &:hover {
+                background: var(--ct-bg-secondary);
+            }
+        }
+
+        & .ct-session-delete:hover {
+            color: var(--ct-danger);
+        }
+    }
+
+    &:hover &__actions {
+        opacity: 1;
+    }
+}

@@ -48,7 +48,6 @@ export interface PopupState {
     hasUnsavedChanges: boolean;
 
     // Pipeline
-    selectedStages: StageName[];
     stageStatus: Record<StageName, StageStatus>;
     stageResults: Record<StageName, StageResult | null>;
     stageConfigs: Record<StageName, StageConfig>;
@@ -71,4 +70,8 @@ export interface PopupState {
     // UI
     sessionListExpanded: boolean;
     historyExpanded: boolean;
+
+    // History navigation
+    /** Index of history item being viewed (null = viewing current results) */
+    viewingHistoryIndex: number | null;
 }

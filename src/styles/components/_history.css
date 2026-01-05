@@ -1,0 +1,102 @@
+/**
+ * History Panel Component
+ *
+ * Collapsible panel showing previous results.
+ * Supports navigation between history items.
+ */
+
+.ct-history {
+    flex-shrink: 0;
+    border-top: 1px solid var(--ct-border-muted);
+    background: var(--ct-bg);
+
+    &--collapsed &__toggle-icon {
+        transform: rotate(-90deg);
+    }
+
+    &--collapsed &__list {
+        display: none;
+    }
+
+    &__toggle {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+        width: 100%;
+        padding: var(--ct-space-2) var(--ct-space-3);
+        background: var(--ct-bg-secondary);
+        border: none;
+        cursor: pointer;
+        font-size: var(--ct-text-xs);
+        font-weight: 500;
+        color: var(--ct-text-muted);
+        text-align: left;
+
+        &:hover {
+            background: var(--ct-bg-tertiary);
+            color: var(--ct-text);
+        }
+    }
+
+    &__toggle-icon {
+        margin-left: auto;
+        transition: transform var(--ct-transition-fast);
+    }
+
+    &__list {
+        max-height: 180px;
+        overflow-y: auto;
+        padding: var(--ct-space-1);
+        background: var(--ct-bg-secondary);
+    }
+}
+
+/* History navigation bar (shown when viewing history) */
+.ct-history-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-2) var(--ct-space-3);
+    background: var(--ct-accent-muted);
+    border-bottom: 1px solid var(--ct-accent);
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+        font-size: var(--ct-text-sm);
+        font-weight: 500;
+        color: var(--ct-accent);
+    }
+
+    &__controls {
+        display: flex;
+        align-items: center;
+        gap: var(--ct-space-2);
+    }
+
+    &__btn {
+        flex-shrink: 0;
+    }
+}
+
+/* List item states for history */
+.ct-list-item {
+    &--error {
+        border-left: 3px solid var(--ct-danger);
+
+        & .ct-list-item__title {
+            color: var(--ct-danger);
+        }
+    }
+
+    &--viewing {
+        background: var(--ct-accent-muted);
+        border-left: 3px solid var(--ct-accent);
+    }
+
+    &--current {
+        opacity: 0.7;
+    }
+}

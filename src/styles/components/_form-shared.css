@@ -1,0 +1,144 @@
+/**
+ * Shared Form Elements
+ *
+ * Form elements used across settings modal and preset drawer.
+ */
+
+.ct-label {
+    display: block;
+    margin-bottom: var(--ct-space-1);
+    font-size: var(--ct-text-sm);
+    font-weight: 500;
+    color: var(--ct-text);
+}
+
+.ct-required {
+    color: var(--ct-danger);
+}
+
+.ct-input {
+    width: 100%;
+    padding: var(--ct-space-2) var(--ct-space-3);
+    font-size: var(--ct-text-sm);
+    font-family: var(--ct-font);
+}
+
+.ct-hint {
+    display: block;
+    margin-top: var(--ct-space-1);
+    font-size: var(--ct-text-xs);
+    color: var(--ct-text-dim);
+}
+
+.ct-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ct-space-3);
+    padding: var(--ct-space-2);
+    background: var(--ct-bg-tertiary);
+    border-radius: var(--ct-radius-sm);
+}
+
+.ct-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--ct-space-2);
+    font-size: var(--ct-text-sm);
+    color: var(--ct-text);
+    cursor: pointer;
+
+    & input[type='checkbox'] {
+        width: auto;
+        accent-color: var(--ct-accent);
+        cursor: pointer;
+    }
+}
+
+.ct-schema-toolbar {
+    display: flex;
+    gap: var(--ct-space-2);
+    margin-bottom: var(--ct-space-2);
+}
+
+/* Validation messages */
+.ct-errors,
+.ct-warnings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ct-space-1);
+    padding: var(--ct-space-3);
+    border-radius: var(--ct-radius-sm);
+}
+
+.ct-errors {
+    background: var(--ct-danger-bg);
+    border: 1px solid var(--ct-danger);
+}
+
+.ct-warnings {
+    background: var(--ct-warning-bg);
+    border: 1px solid var(--ct-warning);
+}
+
+.ct-error {
+    font-size: var(--ct-text-sm);
+    color: var(--ct-danger);
+}
+
+.ct-warning {
+    font-size: var(--ct-text-sm);
+    color: var(--ct-warning);
+}
+
+/* Collapsible details */
+.ct-collapsible {
+    border: 1px solid var(--ct-border-muted);
+    border-radius: var(--ct-radius-sm);
+
+    & summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--ct-space-2) var(--ct-space-3);
+        font-size: var(--ct-text-sm);
+        font-weight: 500;
+        cursor: pointer;
+        background: var(--ct-bg-secondary);
+        list-style: none;
+        transition: background var(--ct-transition-fast);
+
+        &:hover {
+            background: var(--ct-bg-tertiary);
+        }
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+    }
+
+    &[open] summary {
+        border-bottom: 1px solid var(--ct-border-muted);
+    }
+
+    &__content {
+        padding: var(--ct-space-3);
+    }
+}
+
+/* Shortcut display */
+.ct-shortcut {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--ct-space-2);
+    border-radius: var(--ct-radius-sm);
+
+    &__keys {
+        display: flex;
+        gap: var(--ct-space-1);
+    }
+
+    &__desc {
+        color: var(--ct-text-muted);
+    }
+}

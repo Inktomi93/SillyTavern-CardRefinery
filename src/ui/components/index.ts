@@ -10,10 +10,9 @@ export * from './stage-config';
 export * from './results-panel';
 export * from './compare-view';
 export * from './apply-suggestions';
-export * from './session-list';
+export * from './session-dropdown';
 export * from './settings-modal';
 export * from './preset-drawer';
-export * from './preset-manager';
 export * from './api-status';
 
 // UI update coordination

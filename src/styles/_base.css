@@ -1,0 +1,55 @@
+/**
+ * Base Reset & Typography
+ *
+ * Normalize elements within CT containers for consistent rendering.
+ * Inherits ST's native font settings.
+ */
+
+.ct-popup {
+    /* Use ST's native font settings */
+    font-family: var(--ct-font);
+    font-size: var(--ct-font-size);
+    color: var(--ct-text);
+    line-height: 1.5;
+    box-sizing: border-box;
+
+    /* Box sizing reset for all descendants */
+    & *,
+    & *::before,
+    & *::after {
+        box-sizing: inherit;
+    }
+
+    /* Headings */
+    & h1,
+    & h2,
+    & h3,
+    & h4 {
+        margin: 0;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--ct-text);
+    }
+
+    & h2 {
+        font-size: var(--ct-text-lg);
+    }
+
+    & h3 {
+        font-size: var(--ct-text-base);
+    }
+
+    & h4 {
+        font-size: var(--ct-text-sm);
+    }
+
+    /* Links */
+    & a {
+        color: var(--ct-accent);
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

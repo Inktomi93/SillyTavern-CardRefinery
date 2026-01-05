@@ -1,0 +1,55 @@
+/**
+ * Responsive & Accessibility Overrides
+ *
+ * Mobile-first means base styles are mobile.
+ * These add desktop enhancements and accessibility improvements.
+ */
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   TOUCH-FRIENDLY TARGETS ON MOBILE
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@media (--mobile) {
+    .ct-popup .menu_button {
+        min-height: 44px;
+        padding: var(--ct-space-3);
+    }
+
+    .ct-tab {
+        min-height: 44px;
+    }
+
+    .ct-list-item {
+        padding: var(--ct-space-4);
+    }
+
+    /* Always show action buttons on mobile (no hover) */
+    .ct-list-item__actions {
+        opacity: 1;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION FOR ACCESSIBILITY
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@media (--reduced-motion) {
+    .ct-popup *,
+    .ct-popup *::before,
+    .ct-popup *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   HIGH CONTRAST MODE
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+@media (--high-contrast) {
+    .ct-popup {
+        --ct-border: var(--ct-text);
+        --ct-border-muted: var(--ct-text-muted);
+    }
+}

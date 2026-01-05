@@ -1,5 +1,6 @@
 {
-    "display_name": "SillyTavern-ExtensionBase",
+    "display_name": "CardRefinery",
+    "description": "AI-powered character card scoring, rewriting, and refinement pipeline",
     "loading_order": 1,
     "requires": [],
     "optional": [],
@@ -7,6 +8,6 @@
     "css": "",
     "author": "Inktomi93",
     "version": "1.0.0",
-    "homePage": "https://github.com/Inktomi93/SillyTavern-ExtensionBase",
+    "homePage": "https://github.com/Inktomi93/SillyTavern-CardRefinery",
     "auto_update": true
 }

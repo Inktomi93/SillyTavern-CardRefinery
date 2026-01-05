@@ -15,6 +15,7 @@ import {
     MODULE_NAME,
     STAGE_LABELS,
     STAGES,
+    VERSION,
     popup,
     log,
     toast,
@@ -23,6 +24,8 @@ import {
     presetRegistry,
     validatePromptPreset,
     validateSchemaPreset,
+    getSettings,
+    save,
 } from '../../data';
 import {
     validateSchema,
@@ -42,7 +45,7 @@ import type {
 // =============================================================================
 
 export type PresetType = 'prompt' | 'schema';
-export type DrawerMode = 'create' | 'edit' | 'duplicate';
+export type DrawerMode = 'list' | 'create' | 'edit' | 'duplicate';
 
 export interface DrawerState {
     isOpen: boolean;
@@ -54,6 +57,8 @@ export interface DrawerState {
 
 interface DrawerCallbacks {
     onSave?: (preset: PromptPreset | SchemaPreset) => void;
+    onSelect?: (preset: PromptPreset | SchemaPreset) => void;
+    onUpdate?: () => void;
     onClose?: () => void;
 }
 
@@ -358,6 +363,167 @@ function renderDrawerFooter(): string {
 }
 
 // =============================================================================
+// LIST VIEW TEMPLATES
+// =============================================================================
+
+function renderListHeader(): string {
+    const { type } = drawerState;
+
+    return `
+        <header class="ct-drawer__header">
+            <div class="ct-drawer__title">
+                <i class="fa-solid fa-bookmark ct-text-accent"></i>
+                <h3>Manage Presets</h3>
+            </div>
+            <button id="${MODULE_NAME}_drawer_close"
+                    class="menu_button menu_button--icon menu_button--ghost"
+                    type="button"
+                    aria-label="Close drawer">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </header>
+        <div class="ct-drawer__tabs">
+            <button class="ct-drawer__tab ${type === 'prompt' ? 'ct-drawer__tab--active' : ''}"
+                    data-tab="prompt" type="button">
+                <i class="fa-solid fa-message"></i>
+                Prompts
+            </button>
+            <button class="ct-drawer__tab ${type === 'schema' ? 'ct-drawer__tab--active' : ''}"
+                    data-tab="schema" type="button">
+                <i class="fa-solid fa-code"></i>
+                Schemas
+            </button>
+        </div>
+    `;
+}
+
+function renderListBody(): string {
+    const { type } = drawerState;
+    const presets =
+        type === 'prompt'
+            ? presetRegistry.getPromptPresets()
+            : presetRegistry.getSchemaPresets();
+
+    // Sort: custom first, then builtin
+    const sorted = [...presets].sort((a, b) => {
+        if (a.isBuiltin !== b.isBuiltin) return a.isBuiltin ? 1 : -1;
+        return a.name.localeCompare(b.name);
+    });
+
+    const customCount = sorted.filter((p) => !p.isBuiltin).length;
+    const builtinCount = sorted.filter((p) => p.isBuiltin).length;
+
+    return `
+        <div class="ct-drawer__body ct-drawer__body--list">
+            ${
+                sorted.length === 0
+                    ? `
+                <div class="ct-empty ct-empty--compact">
+                    <i class="fa-solid fa-bookmark ct-empty__icon"></i>
+                    <div class="ct-empty__title">No ${type} presets</div>
+                    <div class="ct-empty__text">Create one to get started</div>
+                </div>
+            `
+                    : `
+                <div class="ct-preset-list ct-scrollable">
+                    ${customCount > 0 ? '<div class="ct-preset-list__section-label">Custom</div>' : ''}
+                    ${sorted
+                        .filter((p) => !p.isBuiltin)
+                        .map((p) => renderPresetListItem(p, type))
+                        .join('')}
+                    ${builtinCount > 0 ? '<div class="ct-preset-list__section-label">Built-in</div>' : ''}
+                    ${sorted
+                        .filter((p) => p.isBuiltin)
+                        .map((p) => renderPresetListItem(p, type))
+                        .join('')}
+                </div>
+            `
+            }
+        </div>
+    `;
+}
+
+function renderPresetListItem(
+    preset: PromptPreset | SchemaPreset,
+    type: PresetType,
+): string {
+    const DOMPurify = SillyTavern.libs.DOMPurify;
+    const stagesText =
+        preset.stages.length > 0
+            ? preset.stages.map((s) => STAGE_LABELS[s]).join(', ')
+            : 'All stages';
+
+    return `
+        <div class="ct-preset-list__item ${preset.isBuiltin ? 'ct-preset-list__item--builtin' : ''}"
+             data-id="${preset.id}"
+             data-type="${type}">
+            <button class="ct-preset-list__select" type="button" title="Apply this preset">
+                <div class="ct-preset-list__info">
+                    <span class="ct-preset-list__name">
+                        ${preset.isBuiltin ? '<i class="fa-solid fa-lock ct-text-dim"></i>' : ''}
+                        ${DOMPurify.sanitize(preset.name)}
+                    </span>
+                    <span class="ct-preset-list__stages">${stagesText}</span>
+                </div>
+            </button>
+            <div class="ct-preset-list__actions">
+                ${
+                    !preset.isBuiltin
+                        ? `
+                    <button class="ct-preset-list__action ct-preset-list__action--edit menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                            type="button" title="Edit">
+                        <i class="fa-solid fa-pen"></i>
+                    </button>
+                `
+                        : ''
+                }
+                <button class="ct-preset-list__action ct-preset-list__action--duplicate menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                        type="button" title="${preset.isBuiltin ? 'Create editable copy' : 'Duplicate'}">
+                    <i class="fa-solid fa-copy"></i>
+                </button>
+                ${
+                    !preset.isBuiltin
+                        ? `
+                    <button class="ct-preset-list__action ct-preset-list__action--delete menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                            type="button" title="Delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `
+                        : ''
+                }
+            </div>
+        </div>
+    `;
+}
+
+function renderListFooter(): string {
+    return `
+        <footer class="ct-drawer__footer ct-drawer__footer--list">
+            <button id="${MODULE_NAME}_drawer_list_create"
+                    class="menu_button menu_button--primary"
+                    type="button">
+                <i class="fa-solid fa-plus"></i>
+                New Preset
+            </button>
+            <div class="ct-row ct-gap-2">
+                <button id="${MODULE_NAME}_drawer_list_import"
+                        class="menu_button menu_button--ghost"
+                        type="button"
+                        title="Import presets from file">
+                    <i class="fa-solid fa-file-import"></i>
+                </button>
+                <button id="${MODULE_NAME}_drawer_list_export"
+                        class="menu_button menu_button--ghost"
+                        type="button"
+                        title="Export custom presets">
+                    <i class="fa-solid fa-file-export"></i>
+                </button>
+            </div>
+        </footer>
+    `;
+}
+
+// =============================================================================
 // DRAWER MANAGEMENT
 // =============================================================================
 
@@ -465,6 +631,24 @@ export function openDrawerForDuplicate(
 }
 
 /**
+ * Open the drawer in list mode for managing presets.
+ */
+export function openDrawerWithList(
+    type: PresetType,
+    callbacks?: DrawerCallbacks,
+): void {
+    drawerState = {
+        isOpen: true,
+        type,
+        mode: 'list',
+        preset: null,
+        activeTab: 'edit',
+    };
+    drawerCallbacks = callbacks || {};
+    showDrawer();
+}
+
+/**
  * Close the drawer.
  */
 export function closeDrawer(): void {
@@ -514,36 +698,52 @@ function showDrawer(): void {
         return;
     }
 
-    // Update drawer content
+    // Update drawer content based on mode
     const panel = $('.ct-drawer__panel', drawer);
     if (panel) {
-        panel.innerHTML = `
-            <div class="ct-drawer__content">
-                ${renderDrawerHeader()}
-                ${renderDrawerBody()}
-                ${renderDrawerFooter()}
-            </div>
-        `;
+        if (drawerState.mode === 'list') {
+            panel.innerHTML = `
+                <div class="ct-drawer__content ct-drawer__content--list">
+                    ${renderListHeader()}
+                    ${renderListBody()}
+                    ${renderListFooter()}
+                </div>
+            `;
+        } else {
+            panel.innerHTML = `
+                <div class="ct-drawer__content">
+                    ${renderDrawerHeader()}
+                    ${renderDrawerBody()}
+                    ${renderDrawerFooter()}
+                </div>
+            `;
+        }
     }
 
     // Bind events
-    bindDrawerEvents(drawer);
+    if (drawerState.mode === 'list') {
+        bindListEvents(drawer);
+    } else {
+        bindDrawerEvents(drawer);
+    }
 
     // Show drawer with animation
     requestAnimationFrame(() => {
         drawer.classList.add('ct-drawer--open');
         drawer.setAttribute('aria-hidden', 'false');
 
-        // Focus first input
-        const nameInput = $(`#${MODULE_NAME}_drawer_name`, drawer);
-        if (nameInput) {
-            (nameInput as HTMLInputElement).focus();
-            (nameInput as HTMLInputElement).select();
-        }
+        // Focus first input (only in edit modes)
+        if (drawerState.mode !== 'list') {
+            const nameInput = $(`#${MODULE_NAME}_drawer_name`, drawer);
+            if (nameInput) {
+                (nameInput as HTMLInputElement).focus();
+                (nameInput as HTMLInputElement).select();
+            }
 
-        // Initialize syntax highlighting for schema
-        if (drawerState.type === 'schema') {
-            updateSchemaHighlighting();
+            // Initialize syntax highlighting for schema
+            if (drawerState.type === 'schema') {
+                updateSchemaHighlighting();
+            }
         }
     });
 }
@@ -1003,4 +1203,372 @@ async function handleDelete(): Promise<void> {
 
     toast.success('Preset deleted');
     closeDrawer();
+}
+
+// =============================================================================
+// LIST VIEW EVENTS
+// =============================================================================
+
+function bindListEvents(drawer: HTMLElement): void {
+    // Close button
+    const closeBtn = $(`#${MODULE_NAME}_drawer_close`, drawer);
+    if (closeBtn) {
+        cleanupFns.push(on(closeBtn, 'click', closeDrawer));
+    }
+
+    // Backdrop click
+    const backdrop = $('.ct-drawer__backdrop', drawer);
+    if (backdrop) {
+        cleanupFns.push(on(backdrop, 'click', closeDrawer));
+    }
+
+    // Tab switching
+    const tabs = $$('.ct-drawer__tab', drawer);
+    for (const tab of tabs) {
+        cleanupFns.push(
+            on(tab, 'click', () => {
+                const tabType = (tab as HTMLElement).dataset.tab as PresetType;
+                if (tabType === drawerState.type) return;
+
+                drawerState.type = tabType;
+
+                // Update tab styles
+                tabs.forEach((t) =>
+                    t.classList.remove('ct-drawer__tab--active'),
+                );
+                tab.classList.add('ct-drawer__tab--active');
+
+                // Re-render list body
+                const bodyContainer = $('.ct-drawer__body--list', drawer);
+                if (bodyContainer) {
+                    bodyContainer.outerHTML = renderListBody();
+                }
+            }),
+        );
+    }
+
+    // Preset list actions (event delegation)
+    const listContainer = $('.ct-preset-list', drawer);
+    if (listContainer) {
+        cleanupFns.push(
+            on(listContainer, 'click', async (e) => {
+                const target = e.target as HTMLElement;
+                const item = target.closest(
+                    '.ct-preset-list__item',
+                ) as HTMLElement;
+                if (!item) return;
+
+                const id = item.dataset.id;
+                const type = item.dataset.type as PresetType;
+                if (!id || !type) return;
+
+                const preset =
+                    type === 'prompt'
+                        ? presetRegistry.getPromptPreset(id)
+                        : presetRegistry.getSchemaPreset(id);
+                if (!preset) return;
+
+                // Select preset (clicking main button)
+                if (target.closest('.ct-preset-list__select')) {
+                    drawerCallbacks.onSelect?.(preset);
+                    closeDrawer();
+                    return;
+                }
+
+                // Edit
+                if (target.closest('.ct-preset-list__action--edit')) {
+                    switchToEditMode(type, id);
+                    return;
+                }
+
+                // Duplicate
+                if (target.closest('.ct-preset-list__action--duplicate')) {
+                    switchToDuplicateMode(type, id);
+                    return;
+                }
+
+                // Delete
+                if (target.closest('.ct-preset-list__action--delete')) {
+                    const confirmed = await popup.confirm(
+                        'Delete Preset',
+                        `Are you sure you want to delete "${preset.name}"?`,
+                    );
+                    if (!confirmed) return;
+
+                    if (type === 'prompt') {
+                        presetRegistry.deletePromptPreset(id);
+                    } else {
+                        presetRegistry.deleteSchemaPreset(id);
+                    }
+
+                    toast.success('Preset deleted');
+                    drawerCallbacks.onUpdate?.();
+                    refreshListView(drawer);
+                }
+            }),
+        );
+    }
+
+    // Create button
+    const createBtn = $(`#${MODULE_NAME}_drawer_list_create`, drawer);
+    if (createBtn) {
+        cleanupFns.push(
+            on(createBtn, 'click', () => {
+                switchToCreateMode(drawerState.type);
+            }),
+        );
+    }
+
+    // Import button
+    const importBtn = $(`#${MODULE_NAME}_drawer_list_import`, drawer);
+    if (importBtn) {
+        cleanupFns.push(on(importBtn, 'click', handleImport));
+    }
+
+    // Export button
+    const exportBtn = $(`#${MODULE_NAME}_drawer_list_export`, drawer);
+    if (exportBtn) {
+        cleanupFns.push(on(exportBtn, 'click', handleExport));
+    }
+
+    // Escape key
+    const handleKeydown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && drawerState.isOpen) {
+            e.preventDefault();
+            e.stopPropagation();
+            closeDrawer();
+        }
+    };
+    document.addEventListener('keydown', handleKeydown);
+    cleanupFns.push(() =>
+        document.removeEventListener('keydown', handleKeydown),
+    );
+}
+
+function refreshListView(drawer: HTMLElement): void {
+    const bodyContainer = $('.ct-drawer__body--list', drawer);
+    if (bodyContainer) {
+        bodyContainer.outerHTML = renderListBody();
+    }
+}
+
+function switchToCreateMode(type: PresetType): void {
+    // Clean up current events
+    cleanupFns.forEach((fn) => fn());
+    cleanupFns = [];
+
+    // Update state
+    drawerState.mode = 'create';
+    drawerState.type = type;
+    drawerState.preset = null;
+
+    // Re-render with edit view
+    const drawer = $(`#${MODULE_NAME}_preset_drawer`);
+    if (!drawer) return;
+
+    const panel = $('.ct-drawer__panel', drawer);
+    if (panel) {
+        panel.innerHTML = `
+            <div class="ct-drawer__content">
+                ${renderDrawerHeader()}
+                ${renderDrawerBody()}
+                ${renderDrawerFooter()}
+            </div>
+        `;
+    }
+
+    bindDrawerEvents(drawer);
+
+    // Focus name input
+    const nameInput = $(`#${MODULE_NAME}_drawer_name`, drawer);
+    if (nameInput) {
+        (nameInput as HTMLInputElement).focus();
+    }
+}
+
+function switchToEditMode(type: PresetType, presetId: string): void {
+    const preset =
+        type === 'prompt'
+            ? presetRegistry.getPromptPreset(presetId)
+            : presetRegistry.getSchemaPreset(presetId);
+
+    if (!preset) return;
+
+    // Clean up current events
+    cleanupFns.forEach((fn) => fn());
+    cleanupFns = [];
+
+    // Update state
+    drawerState.mode = 'edit';
+    drawerState.type = type;
+    drawerState.preset = preset;
+
+    // Re-render with edit view
+    const drawer = $(`#${MODULE_NAME}_preset_drawer`);
+    if (!drawer) return;
+
+    const panel = $('.ct-drawer__panel', drawer);
+    if (panel) {
+        panel.innerHTML = `
+            <div class="ct-drawer__content">
+                ${renderDrawerHeader()}
+                ${renderDrawerBody()}
+                ${renderDrawerFooter()}
+            </div>
+        `;
+    }
+
+    bindDrawerEvents(drawer);
+
+    // Focus name input
+    const nameInput = $(`#${MODULE_NAME}_drawer_name`, drawer);
+    if (nameInput) {
+        (nameInput as HTMLInputElement).focus();
+        (nameInput as HTMLInputElement).select();
+    }
+
+    // Initialize schema highlighting
+    if (type === 'schema') {
+        updateSchemaHighlighting();
+    }
+}
+
+function switchToDuplicateMode(type: PresetType, presetId: string): void {
+    const preset =
+        type === 'prompt'
+            ? presetRegistry.getPromptPreset(presetId)
+            : presetRegistry.getSchemaPreset(presetId);
+
+    if (!preset) return;
+
+    // Clean up current events
+    cleanupFns.forEach((fn) => fn());
+    cleanupFns = [];
+
+    // Update state
+    drawerState.mode = 'duplicate';
+    drawerState.type = type;
+    drawerState.preset = preset;
+
+    // Re-render with edit view
+    const drawer = $(`#${MODULE_NAME}_preset_drawer`);
+    if (!drawer) return;
+
+    const panel = $('.ct-drawer__panel', drawer);
+    if (panel) {
+        panel.innerHTML = `
+            <div class="ct-drawer__content">
+                ${renderDrawerHeader()}
+                ${renderDrawerBody()}
+                ${renderDrawerFooter()}
+            </div>
+        `;
+    }
+
+    bindDrawerEvents(drawer);
+
+    // Focus name input
+    const nameInput = $(`#${MODULE_NAME}_drawer_name`, drawer);
+    if (nameInput) {
+        (nameInput as HTMLInputElement).focus();
+        (nameInput as HTMLInputElement).select();
+    }
+
+    // Initialize schema highlighting
+    if (type === 'schema') {
+        updateSchemaHighlighting();
+    }
+}
+
+// =============================================================================
+// IMPORT/EXPORT
+// =============================================================================
+
+async function handleImport(): Promise<void> {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.onchange = async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+
+        try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+
+            const settings = getSettings();
+            let importCount = 0;
+
+            if (Array.isArray(data.promptPresets)) {
+                for (const preset of data.promptPresets) {
+                    if (!preset.isBuiltin) {
+                        preset.id = crypto.randomUUID();
+                        settings.promptPresets.push(preset);
+                        importCount++;
+                    }
+                }
+            }
+
+            if (Array.isArray(data.schemaPresets)) {
+                for (const preset of data.schemaPresets) {
+                    if (!preset.isBuiltin) {
+                        preset.id = crypto.randomUUID();
+                        settings.schemaPresets.push(preset);
+                        importCount++;
+                    }
+                }
+            }
+
+            save();
+            toast.success(
+                `Imported ${importCount} preset${importCount !== 1 ? 's' : ''}`,
+            );
+            drawerCallbacks.onUpdate?.();
+
+            // Refresh list view
+            const drawer = $(`#${MODULE_NAME}_preset_drawer`);
+            if (drawer && drawerState.mode === 'list') {
+                refreshListView(drawer);
+            }
+        } catch (error) {
+            toast.error('Failed to import presets');
+            console.error('Import error:', error);
+        }
+    };
+
+    input.click();
+}
+
+function handleExport(): void {
+    const settings = getSettings();
+    const customPrompts = settings.promptPresets.filter((p) => !p.isBuiltin);
+    const customSchemas = settings.schemaPresets.filter((p) => !p.isBuiltin);
+
+    if (customPrompts.length === 0 && customSchemas.length === 0) {
+        toast.warning('No custom presets to export');
+        return;
+    }
+
+    const data = {
+        version: VERSION,
+        exportedAt: new Date().toISOString(),
+        promptPresets: customPrompts,
+        schemaPresets: customSchemas,
+    };
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `character-tools-presets-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+
+    URL.revokeObjectURL(url);
+    toast.success(
+        `Exported ${customPrompts.length + customSchemas.length} preset${customPrompts.length + customSchemas.length !== 1 ? 's' : ''}`,
+    );
 }

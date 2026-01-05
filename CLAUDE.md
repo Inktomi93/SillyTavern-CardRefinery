@@ -4,16 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Character Tools** is a SillyTavern extension for AI-powered character card analysis, scoring, and enhancement. It provides a multi-stage pipeline (Score, Rewrite, Analyze) that uses LLM APIs to evaluate and improve character cards.
+**CardRefinery** is a SillyTavern extension for AI-powered character card scoring, rewriting, and refinement. It provides an iterative pipeline (Score → Rewrite → Analyze) that uses LLM APIs to evaluate and improve character cards while preserving their "soul" (essential character identity).
 
 ## Build Commands
 
 ```bash
-npm run build         # Production build (webpack --mode production)
-npm run lint          # ESLint check
-npm run lint:fix      # ESLint auto-fix
-npm run format        # Prettier format
-npm run format:check  # Prettier check
+npm run dev           # Watch mode - rebuilds on file changes
+npm run build         # Production build (minified)
+npm run clean         # Remove dist/ folder
+npm run rebuild       # Clean + build in sequence
+npm run check         # Run ALL checks (typecheck + lint + format:check)
+npm run fix           # Run ALL auto-fixes (lint:fix + format)
 ```
 
 The build outputs to `dist/index.js`, which is the entry point referenced in `manifest.json`.

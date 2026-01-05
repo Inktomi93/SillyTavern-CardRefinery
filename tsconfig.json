@@ -7,7 +7,10 @@
         "strict": true,
         "esModuleInterop": true,
         "sourceMap": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "skipLibCheck": true,
+        "noFallthroughCasesInSwitch": true,
+        "isolatedModules": true
     },
     "include": ["src/**/*.ts", "src/**/*.tsx", "globals.d.ts"],
     "exclude": ["node_modules", "dist", "bin"]
