@@ -21,5 +21,8 @@ export * from './pipeline';
 // Schema validation (Anthropic/OpenAI structured output constraints)
 export * from './schema';
 
+// Preset validation (business rules for prompt/schema presets)
+export * from './preset-validation';
+
 // Generation utilities (error handling, retries)
 export * from './generation';

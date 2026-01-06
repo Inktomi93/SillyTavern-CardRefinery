@@ -7,6 +7,7 @@ import { MODULE_NAME, DEBOUNCE } from '../../shared';
 import { getPopulatedFields } from '../../domain';
 import { getState, setCharacter } from '../../state';
 import { $, $$, on, truncate } from './base';
+import { withRenderBoundary } from '../error-boundary';
 import { refreshAfterCharacterChange } from './update-coordinator';
 import type { Character } from '../../types';
 
@@ -170,7 +171,7 @@ function renderDropdownList(): string {
 /**
  * Render character selector component.
  */
-export function renderCharacterSelector(): string {
+const _renderCharacterSelector = (): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const state = getState();
     const selectedChar = state.character;
@@ -222,7 +223,11 @@ export function renderCharacterSelector(): string {
             </div>
         </div>
     `;
-}
+};
+export const renderCharacterSelector = withRenderBoundary(
+    _renderCharacterSelector,
+    { name: 'CharacterSelector' },
+);
 
 /**
  * Update the dropdown display.

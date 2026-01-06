@@ -1,0 +1,121 @@
+/**
+ * Error Fallback Component
+ *
+ * Displays a fallback UI when a component fails to render.
+ * Debug mode shows additional details (error message, stack trace).
+ */
+
+.cr-error-fallback {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-4);
+    background: var(--cr-warning-bg);
+    border: 1px solid var(--cr-warning);
+    border-radius: var(--cr-radius);
+    color: var(--cr-text);
+}
+
+.cr-error-fallback__icon {
+    flex-shrink: 0;
+    font-size: var(--cr-text-xl);
+    color: var(--cr-warning);
+    line-height: 1;
+}
+
+.cr-error-fallback__content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--cr-space-1);
+}
+
+.cr-error-fallback__title {
+    font-weight: 600;
+    font-size: var(--cr-text-sm);
+    color: var(--cr-text);
+}
+
+.cr-error-fallback__message {
+    font-size: var(--cr-text-xs);
+    color: var(--cr-text-muted);
+    word-break: break-word;
+}
+
+/* Debug mode: expandable stack trace */
+.cr-error-fallback__details {
+    margin-top: var(--cr-space-2);
+
+    & summary {
+        font-size: var(--cr-text-xs);
+        color: var(--cr-text-dim);
+        cursor: pointer;
+        user-select: none;
+
+        &:hover {
+            color: var(--cr-text-muted);
+        }
+    }
+
+    & pre {
+        margin: var(--cr-space-2) 0 0 0;
+        padding: var(--cr-space-2);
+        background: var(--cr-bg-tertiary);
+        border-radius: var(--cr-radius-sm);
+        font-family: var(--cr-font-mono);
+        font-size: 0.7rem;
+        line-height: 1.4;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 200px;
+        color: var(--cr-text-muted);
+    }
+}
+
+/* Compact variant for smaller components */
+.cr-error-fallback--compact {
+    padding: var(--cr-space-2);
+    gap: var(--cr-space-2);
+
+    & .cr-error-fallback__icon {
+        font-size: var(--cr-text-base);
+    }
+
+    & .cr-error-fallback__title {
+        font-size: var(--cr-text-xs);
+    }
+
+    & .cr-error-fallback__message {
+        display: none;
+    }
+}
+
+/* Inline variant for within-component errors */
+.cr-error-fallback--inline {
+    display: inline-flex;
+    padding: var(--cr-space-1) var(--cr-space-2);
+    gap: var(--cr-space-1);
+    font-size: var(--cr-text-xs);
+    border-radius: var(--cr-radius-sm);
+
+    & .cr-error-fallback__icon {
+        font-size: var(--cr-text-sm);
+    }
+
+    & .cr-error-fallback__content {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--cr-space-1);
+    }
+
+    & .cr-error-fallback__title {
+        font-size: var(--cr-text-xs);
+    }
+
+    & .cr-error-fallback__message,
+    & .cr-error-fallback__details {
+        display: none;
+    }
+}

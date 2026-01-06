@@ -3,7 +3,7 @@
 // MAIN POPUP - Restructured with modern tab-based layout
 // =============================================================================
 
-import { MODULE_NAME } from '../shared';
+import { MODULE_NAME, log, toast } from '../shared';
 import { clearCache } from '../data';
 import {
     initState,
@@ -12,7 +12,6 @@ import {
     abortGeneration,
     getState,
 } from '../state';
-import { log } from '../shared';
 import {
     renderCharacterSelector,
     bindCharacterSelectorEvents,
@@ -48,6 +47,13 @@ import {
     flushPendingInputs,
     clearPendingInputs,
 } from './components';
+import {
+    tryCatch,
+    tryCatchAsync,
+    withRenderBoundary,
+    withEventBoundary,
+    withUpdateBoundary,
+} from './error-boundary';
 
 // =============================================================================
 // POPUP MANAGEMENT
@@ -72,7 +78,7 @@ let popupElement: HTMLElement | null = null;
  * │                    │                                        │
  * └─────────────────────────────────────────────────────────────┘
  */
-function renderPopupContent(): string {
+function _renderPopupContent(): string {
     return /* html */ `
 <div id="${MODULE_NAME}_popup" class="cr-popup">
     <header class="cr-header">
@@ -123,59 +129,130 @@ function renderPopupContent(): string {
 </div>`;
 }
 
+// Wrap with error boundary
+const renderPopupContent = withRenderBoundary(_renderPopupContent, {
+    name: 'PopupContent',
+    showToast: true,
+});
+
 // Event cleanup functions
 let eventCleanups: Array<() => void> = [];
+
+// =============================================================================
+// WRAPPED UPDATE FUNCTIONS
+// =============================================================================
+
+const safeUpdateCharacterSelector = withUpdateBoundary(
+    updateCharacterSelector,
+    { name: 'CharacterSelector' },
+);
+const safeUpdateStageTabs = withUpdateBoundary(updateStageTabs, {
+    name: 'StageTabs',
+});
+const safeUpdatePipelineControls = withUpdateBoundary(updatePipelineControls, {
+    name: 'PipelineControls',
+});
+const safeUpdateStageConfig = withUpdateBoundary(updateStageConfig, {
+    name: 'StageConfig',
+});
+const safeUpdateResults = withUpdateBoundary(updateResults, {
+    name: 'Results',
+});
+const safeUpdateSessionDropdown = withUpdateBoundary(updateSessionDropdown, {
+    name: 'SessionDropdown',
+});
+
+// =============================================================================
+// WRAPPED BIND FUNCTIONS
+// =============================================================================
+
+const safeBindCharacterSelector = withEventBoundary(
+    bindCharacterSelectorEvents,
+    { name: 'CharacterSelector' },
+);
+const safeBindSessionDropdown = withEventBoundary(bindSessionDropdownEvents, {
+    name: 'SessionDropdown',
+});
+const safeBindStageTabs = withEventBoundary(bindStageTabsEvents, {
+    name: 'StageTabs',
+});
+const safeBindStageConfig = withEventBoundary(bindStageConfigEvents, {
+    name: 'StageConfig',
+});
+const safeBindResultsPanel = withEventBoundary(bindResultsPanelEvents, {
+    name: 'ResultsPanel',
+});
+const safeBindApiStatus = withEventBoundary(bindApiStatusEvents, {
+    name: 'ApiStatus',
+});
 
 /**
  * Open the main popup.
  */
 export async function openPopup(): Promise<void> {
-    const context = SillyTavern.getContext();
-    const { DOMPurify } = SillyTavern.libs;
+    try {
+        const context = SillyTavern.getContext();
+        const { DOMPurify } = SillyTavern.libs;
 
-    // Initialize fresh state
-    initState();
+        // Initialize fresh state
+        initState();
 
-    // Build content
-    const content = renderPopupContent();
+        // Build content (wrapped with error boundary)
+        const content = renderPopupContent();
 
-    // Create popup
-    const popup = new context.Popup(
-        DOMPurify.sanitize(content),
-        context.POPUP_TYPE.TEXT,
-        '',
-        {
-            wide: true,
-            large: true,
-            allowVerticalScrolling: true,
-            okButton: false,
-            cancelButton: false,
-        },
-    );
+        // Create popup
+        const popup = new context.Popup(
+            DOMPurify.sanitize(content),
+            context.POPUP_TYPE.TEXT,
+            '',
+            {
+                wide: true,
+                large: true,
+                allowVerticalScrolling: true,
+                okButton: false,
+                cancelButton: false,
+            },
+        );
 
-    // Show and handle close
-    popup.show().then(async () => {
-        await onPopupClose();
-    });
+        // Show and handle close
+        popup.show().then(async () => {
+            await tryCatchAsync(() => onPopupClose(), {
+                name: 'PopupClose',
+            });
+        });
 
-    // Wait for DOM
-    await new Promise((resolve) => setTimeout(resolve, 0));
+        // Wait for DOM
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
-    // Get popup element
-    popupElement = document.getElementById(`${MODULE_NAME}_popup`);
-    if (!popupElement) {
-        log.error('Popup element not found');
-        return;
+        // Get popup element
+        popupElement = document.getElementById(`${MODULE_NAME}_popup`);
+        if (!popupElement) {
+            log.error('Popup element not found');
+            return;
+        }
+
+        // Initialize drawers (appends to popup) - each wrapped with error boundary
+        tryCatch(() => initDrawer(popupElement!), {
+            name: 'PresetDrawer',
+        });
+        tryCatch(() => initSettingsDrawer(popupElement!), {
+            name: 'SettingsDrawer',
+        });
+
+        // Bind all component events
+        tryCatch(() => bindAllEvents(popupElement!), {
+            name: 'EventBinding',
+            showToast: true,
+            onError: () => {
+                toast.warning('Some features may not work correctly');
+            },
+        });
+
+        log.debug('Popup opened');
+    } catch (error) {
+        log.error('Failed to open popup:', error);
+        toast.error('Failed to open Card Refinery');
     }
-
-    // Initialize drawers (appends to popup)
-    initDrawer(popupElement);
-    initSettingsDrawer(popupElement);
-
-    // Bind all component events
-    bindAllEvents(popupElement);
-
-    log.debug('Popup opened');
 }
 
 /**
@@ -185,7 +262,7 @@ export async function openPopup(): Promise<void> {
 function registerComponentUpdates(): void {
     // Character selector updates on character/session changes
     eventCleanups.push(
-        registerUpdate('characterSelector', updateCharacterSelector, [
+        registerUpdate('characterSelector', safeUpdateCharacterSelector, [
             'character',
             'session',
         ]),
@@ -193,12 +270,12 @@ function registerComponentUpdates(): void {
 
     // Stage tabs update on stage/pipeline changes
     eventCleanups.push(
-        registerUpdate('stageTabs', updateStageTabs, ['stage', 'pipeline']),
+        registerUpdate('stageTabs', safeUpdateStageTabs, ['stage', 'pipeline']),
     );
 
     // Pipeline controls update on pipeline changes
     eventCleanups.push(
-        registerUpdate('pipelineControls', updatePipelineControls, [
+        registerUpdate('pipelineControls', safeUpdatePipelineControls, [
             'pipeline',
             'character',
         ]),
@@ -206,7 +283,7 @@ function registerComponentUpdates(): void {
 
     // Stage config updates on stage/config/fields/character changes
     eventCleanups.push(
-        registerUpdate('stageConfig', updateStageConfig, [
+        registerUpdate('stageConfig', safeUpdateStageConfig, [
             'stage',
             'config',
             'fields',
@@ -216,12 +293,12 @@ function registerComponentUpdates(): void {
 
     // Results panel updates on results/stage changes
     eventCleanups.push(
-        registerUpdate('results', updateResults, ['results', 'stage']),
+        registerUpdate('results', safeUpdateResults, ['results', 'stage']),
     );
 
     // Session dropdown updates on session/character changes
     eventCleanups.push(
-        registerUpdate('sessionDropdown', updateSessionDropdown, [
+        registerUpdate('sessionDropdown', safeUpdateSessionDropdown, [
             'session',
             'character',
         ]),
@@ -239,12 +316,12 @@ function bindAllEvents(container: HTMLElement): void {
     // Register update functions with coordinator
     registerComponentUpdates();
 
-    // Bind component events
-    eventCleanups.push(bindCharacterSelectorEvents(container));
-    eventCleanups.push(bindSessionDropdownEvents(container));
-    eventCleanups.push(bindStageTabsEvents(container));
-    eventCleanups.push(bindStageConfigEvents(container));
-    eventCleanups.push(bindResultsPanelEvents(container));
+    // Bind component events (each wrapped with error boundary)
+    eventCleanups.push(safeBindCharacterSelector(container));
+    eventCleanups.push(safeBindSessionDropdown(container));
+    eventCleanups.push(safeBindStageTabs(container));
+    eventCleanups.push(safeBindStageConfig(container));
+    eventCleanups.push(safeBindResultsPanel(container));
 
     // Bind API status events
     const apiStatusContainer = $(
@@ -252,7 +329,7 @@ function bindAllEvents(container: HTMLElement): void {
         container,
     );
     if (apiStatusContainer) {
-        eventCleanups.push(bindApiStatusEvents(apiStatusContainer));
+        eventCleanups.push(safeBindApiStatus(apiStatusContainer));
     }
 
     // Settings button - opens drawer instead of modal
@@ -260,7 +337,10 @@ function bindAllEvents(container: HTMLElement): void {
     if (settingsBtn) {
         eventCleanups.push(
             on(settingsBtn, 'click', () => {
-                openSettingsDrawer(container);
+                tryCatch(() => openSettingsDrawer(container), {
+                    name: 'OpenSettingsDrawer',
+                    showToast: true,
+                });
             }),
         );
     }
@@ -277,21 +357,25 @@ function bindAllEvents(container: HTMLElement): void {
 
     // Global keyboard shortcuts
     const handleKeydown = (e: KeyboardEvent) => {
-        const state = getState();
+        try {
+            const state = getState();
 
-        // Ctrl+Enter: Run current stage
-        if (e.ctrlKey && e.key === 'Enter') {
-            e.preventDefault();
-            const runBtn = $(`#${MODULE_NAME}_run_stage`, container);
-            if (runBtn && !state.isGenerating && state.character) {
-                (runBtn as HTMLButtonElement).click();
+            // Ctrl+Enter: Run current stage
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                const runBtn = $(`#${MODULE_NAME}_run_stage`, container);
+                if (runBtn && !state.isGenerating && state.character) {
+                    (runBtn as HTMLButtonElement).click();
+                }
             }
-        }
 
-        // Escape: Abort generation
-        if (e.key === 'Escape' && state.isGenerating) {
-            e.preventDefault();
-            abortGeneration();
+            // Escape: Abort generation
+            if (e.key === 'Escape' && state.isGenerating) {
+                e.preventDefault();
+                abortGeneration();
+            }
+        } catch (error) {
+            log.error('Keyboard handler failed:', error);
         }
     };
 

@@ -13,6 +13,7 @@ import {
     renameSession,
 } from '../../state';
 import { $, on, cx } from './base';
+import { withRenderBoundary } from '../error-boundary';
 import { refreshAfterSessionChange } from './update-coordinator';
 import type { Session } from '../../types';
 
@@ -162,7 +163,7 @@ function renderDropdownList(): string {
 /**
  * Render session dropdown component.
  */
-export function renderSessionDropdown(): string {
+const _renderSessionDropdown = (): string => {
     const state = getState();
     const activeSession = state.sessions.find(
         (s) => s.id === state.activeSessionId,
@@ -221,7 +222,13 @@ export function renderSessionDropdown(): string {
             </div>
         </div>
     `;
-}
+};
+export const renderSessionDropdown = withRenderBoundary(
+    _renderSessionDropdown,
+    {
+        name: 'SessionDropdown',
+    },
+);
 
 /**
  * Update the session dropdown display.

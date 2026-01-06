@@ -11,10 +11,13 @@
 // - Single source of truth for which updates happen together
 // - Debouncing to prevent excessive re-renders
 // - Clear dependency management between components
+// - Automatic subscription to store state changes
 //
 // =============================================================================
 
 import { log } from '../../shared';
+import { store } from '../../state/store';
+import type { StateSlice } from '../../types/store';
 
 // =============================================================================
 // TYPES
@@ -39,7 +42,37 @@ export type UpdateCategory =
 interface UpdateRegistration {
     fn: () => void;
     categories: UpdateCategory[];
+    storeUnsubscribe?: () => void;
 }
+
+// =============================================================================
+// CATEGORY TO SLICE MAPPING
+// =============================================================================
+
+/**
+ * Maps UpdateCategory to StateSlice for store subscriptions.
+ * When a category is triggered, the corresponding slices are watched.
+ */
+const CATEGORY_TO_SLICES: Record<UpdateCategory, StateSlice[]> = {
+    character: ['character'],
+    session: ['session'],
+    stage: ['pipeline'], // activeStage is in pipeline slice
+    pipeline: ['pipeline'],
+    fields: ['fields'],
+    config: ['config'],
+    results: ['results'],
+    all: [
+        'character',
+        'session',
+        'pipeline',
+        'results',
+        'config',
+        'fields',
+        'search',
+        'ui',
+        'guidance',
+    ],
+};
 
 // =============================================================================
 // COORDINATOR
@@ -51,6 +84,10 @@ let updateScheduled = false;
 
 /**
  * Register an update function for specific categories.
+ *
+ * The function will be called when:
+ * 1. triggerUpdate() is called with matching categories (legacy)
+ * 2. The store's corresponding slices change (automatic)
  *
  * @param id - Unique identifier for this registration
  * @param fn - Update function to call
@@ -69,13 +106,33 @@ export function registerUpdate(
     fn: () => void,
     categories: UpdateCategory[],
 ): () => void {
-    registrations.set(id, { fn, categories });
-    return () => registrations.delete(id);
+    // Calculate which store slices to watch
+    const slices = [
+        ...new Set(categories.flatMap((c) => CATEGORY_TO_SLICES[c])),
+    ];
+
+    // Subscribe to store for automatic updates
+    const storeUnsubscribe = store.subscribe(slices, () => {
+        // When store changes, trigger the update through coordinator
+        // This ensures batching still works
+        triggerUpdate(...categories);
+    });
+
+    registrations.set(id, { fn, categories, storeUnsubscribe });
+
+    return () => {
+        const reg = registrations.get(id);
+        reg?.storeUnsubscribe?.();
+        registrations.delete(id);
+    };
 }
 
 /**
  * Trigger UI updates for specific categories.
  * Updates are batched within a microtask for efficiency.
+ *
+ * Note: With store integration, you often don't need to call this directly.
+ * Store state changes automatically trigger registered updates.
  *
  * @param categories - Categories of changes that occurred
  *
@@ -128,6 +185,11 @@ export function flushUpdates(): void {
  * Clear all registrations (for cleanup on popup close).
  */
 export function clearRegistrations(): void {
+    // Unsubscribe all store subscriptions
+    for (const reg of registrations.values()) {
+        reg.storeUnsubscribe?.();
+    }
+
     registrations.clear();
     pendingCategories.clear();
     updateScheduled = false;

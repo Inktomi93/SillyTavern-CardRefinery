@@ -8,6 +8,9 @@
  * - Iteration staleness: stage N+1 seeing stage N-1's results instead of stage N's
  * - Result accumulation: passing ALL historical results instead of just current
  * - State mutation: stageResults not being updated after each stage completes
+ *
+ * NOTE: With the store pattern, state is immutable from the caller's perspective.
+ * After each action, we must get fresh state from the store to see updates.
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -124,7 +127,8 @@ import {
     executeQuickIterateAction,
     executeAllStagesAction,
 } from '../../src/state/pipeline-actions';
-import { initState, clearState } from '../../src/state/popup-state';
+import { initState, clearState, getState } from '../../src/state/popup-state';
+import { setState } from '../../src/state/store';
 import { createMockCharacter } from '../setup';
 
 // =============================================================================
@@ -132,9 +136,12 @@ import { createMockCharacter } from '../setup';
 // =============================================================================
 
 function createMockState(): PopupState {
-    const state = initState();
-    state.character = createMockCharacter() as PopupState['character'];
-    return state;
+    initState();
+    // Use setState to set character so it goes through the store
+    setState('character', {
+        character: createMockCharacter() as PopupState['character'],
+    });
+    return getState();
 }
 
 function createStageResult(
@@ -163,17 +170,19 @@ describe('executeStageAction', () => {
     });
 
     it('passes current stageResults as previousResults to runStage', async () => {
-        const state = createMockState();
+        createMockState();
 
-        // Set up existing results
+        // Set up existing results through the store
         const scoreResult = createStageResult('score', 'Score: 7/10');
-        state.stageResults.score = scoreResult;
+        setState('results', {
+            stageResults: { ...getState().stageResults, score: scoreResult },
+        });
 
         mockRunStage.mockResolvedValue(
             createStageResult('rewrite', 'Improved description'),
         );
 
-        await executeStageAction(state, { stage: 'rewrite' });
+        await executeStageAction(getState(), { stage: 'rewrite' });
 
         // Verify runStage was called with correct previousResults
         expect(mockRunStage).toHaveBeenCalledTimes(1);
@@ -184,30 +193,32 @@ describe('executeStageAction', () => {
     });
 
     it('updates stageResults after execution', async () => {
-        const state = createMockState();
+        createMockState();
         const expectedResult = createStageResult('score', 'Score: 8/10');
 
         mockRunStage.mockResolvedValue(expectedResult);
 
-        await executeStageAction(state, { stage: 'score' });
+        await executeStageAction(getState(), { stage: 'score' });
 
-        expect(state.stageResults.score).toEqual(expectedResult);
+        // Get fresh state from store to see updates
+        const freshState = getState();
+        expect(freshState.stageResults.score).toEqual(expectedResult);
     });
 
     it('does not run if no character selected', async () => {
-        const state = initState(); // No character
+        initState(); // No character
 
-        const result = await executeStageAction(state, { stage: 'score' });
+        const result = await executeStageAction(getState(), { stage: 'score' });
 
         expect(result).toBeNull();
         expect(mockRunStage).not.toHaveBeenCalled();
     });
 
     it('does not run if already generating', async () => {
-        const state = createMockState();
-        state.isGenerating = true;
+        createMockState();
+        setState('pipeline', { isGenerating: true });
 
-        const result = await executeStageAction(state, { stage: 'score' });
+        const result = await executeStageAction(getState(), { stage: 'score' });
 
         expect(result).toBeNull();
         expect(mockRunStage).not.toHaveBeenCalled();
@@ -226,12 +237,17 @@ describe('executeQuickIterateAction - Iteration Staleness', () => {
     });
 
     it('analyze stage receives FRESH rewrite result, not stale state', async () => {
-        const state = createMockState();
+        createMockState();
 
-        // Set up initial state with old results
+        // Set up initial state with old results through store
         const oldAnalyze = createStageResult('analyze', 'Old analysis');
-        state.stageResults.analyze = oldAnalyze;
-        state.stageResults.score = createStageResult('score', 'Score: 6/10');
+        setState('results', {
+            stageResults: {
+                score: createStageResult('score', 'Score: 6/10'),
+                rewrite: null,
+                analyze: oldAnalyze,
+            },
+        });
 
         // Fresh rewrite output from this iteration
         const freshRewrite = createStageResult(
@@ -253,7 +269,7 @@ describe('executeQuickIterateAction - Iteration Staleness', () => {
             return createStageResult(ctx.stage, 'Output');
         });
 
-        await executeQuickIterateAction(state, {});
+        await executeQuickIterateAction(getState(), {});
 
         // CRITICAL: Analyze should see the FRESH rewrite, not any stale value
         expect(analyzeContextCapture).not.toBeNull();
@@ -264,46 +280,46 @@ describe('executeQuickIterateAction - Iteration Staleness', () => {
     });
 
     it('stageResults are updated after each stage, not batched at end', async () => {
-        const state = createMockState();
-        state.stageResults.analyze = createStageResult(
-            'analyze',
-            'Initial analyze',
-        );
+        createMockState();
+        setState('results', {
+            stageResults: {
+                score: null,
+                rewrite: null,
+                analyze: createStageResult('analyze', 'Initial analyze'),
+            },
+        });
 
         const rewriteResult = createStageResult('rewrite', 'Rewritten');
         const analyzeResult = createStageResult('analyze', 'Analyzed');
 
-        const stateSnapshotsAfterStage: Record<
-            string,
-            typeof state.stageResults
-        >[] = [];
-
         mockRunStage.mockImplementation(async (ctx) => {
             if (ctx.stage === 'rewrite') {
-                // Snapshot state AFTER rewrite would complete
                 return rewriteResult;
             }
             if (ctx.stage === 'analyze') {
-                // Capture state at this point - rewrite should already be recorded
-                stateSnapshotsAfterStage.push({
-                    atAnalyzeStart: { ...state.stageResults },
-                });
                 return analyzeResult;
             }
             return createStageResult(ctx.stage, 'Output');
         });
 
-        await executeQuickIterateAction(state, {});
+        await executeQuickIterateAction(getState(), {});
 
-        // After completion, both should be updated
-        expect(state.stageResults.rewrite).toEqual(rewriteResult);
-        expect(state.stageResults.analyze).toEqual(analyzeResult);
+        // Get fresh state - both should be updated
+        const freshState = getState();
+        expect(freshState.stageResults.rewrite).toEqual(rewriteResult);
+        expect(freshState.stageResults.analyze).toEqual(analyzeResult);
     });
 
     it('increments iteration count before running', async () => {
-        const state = createMockState();
-        state.stageResults.analyze = createStageResult('analyze', 'Initial');
-        state.iterationCount = 0;
+        createMockState();
+        setState('results', {
+            stageResults: {
+                score: null,
+                rewrite: null,
+                analyze: createStageResult('analyze', 'Initial'),
+            },
+            iterationCount: 0,
+        });
 
         let iterationAtRewrite = -1;
 
@@ -314,20 +330,23 @@ describe('executeQuickIterateAction - Iteration Staleness', () => {
             return createStageResult(ctx.stage, 'Output');
         });
 
-        await executeQuickIterateAction(state, {});
+        await executeQuickIterateAction(getState(), {});
 
         // Iteration should have been incremented before rewrite ran
         expect(iterationAtRewrite).toBe(1);
-        expect(state.iterationCount).toBe(1);
+        expect(getState().iterationCount).toBe(1);
     });
 
     it('multiple iterations each see fresh data from previous iteration', async () => {
-        const state = createMockState();
-        state.stageResults.analyze = createStageResult(
-            'analyze',
-            'Initial analyze',
-        );
-        state.iterationCount = 0;
+        createMockState();
+        setState('results', {
+            stageResults: {
+                score: null,
+                rewrite: null,
+                analyze: createStageResult('analyze', 'Initial analyze'),
+            },
+            iterationCount: 0,
+        });
 
         const rewriteOutputs = ['Rewrite v1', 'Rewrite v2', 'Rewrite v3'];
         const analyzeInputsReceived: string[] = [];
@@ -356,7 +375,7 @@ describe('executeQuickIterateAction - Iteration Staleness', () => {
         // Run 3 iterations
         for (let i = 0; i < 3; i++) {
             iterationIndex = i;
-            await executeQuickIterateAction(state, {});
+            await executeQuickIterateAction(getState(), {});
         }
 
         // Each analyze should have seen the FRESH rewrite from that iteration
@@ -365,38 +384,47 @@ describe('executeQuickIterateAction - Iteration Staleness', () => {
         expect(analyzeInputsReceived[2]).toBe('Rewrite v3');
 
         // Final iteration count should be 3
-        expect(state.iterationCount).toBe(3);
+        expect(getState().iterationCount).toBe(3);
     });
 
     it('does not accumulate results in iterationHistory incorrectly', async () => {
-        const state = createMockState();
-        state.stageResults.analyze = createStageResult('analyze', 'Initial');
-        state.iterationHistory = []; // Start fresh
+        createMockState();
+        setState('results', {
+            stageResults: {
+                score: null,
+                rewrite: null,
+                analyze: createStageResult('analyze', 'Initial'),
+            },
+            iterationHistory: [], // Start fresh
+        });
 
         mockRunStage.mockImplementation(async (ctx) => {
             return createStageResult(ctx.stage, `Output for ${ctx.stage}`);
         });
 
         // Run 2 iterations
-        await executeQuickIterateAction(state, {});
-        await executeQuickIterateAction(state, {});
+        await executeQuickIterateAction(getState(), {});
+        await executeQuickIterateAction(getState(), {});
 
         // Should have 4 entries: 2 iterations * 2 stages (rewrite + analyze)
-        expect(state.iterationHistory).toHaveLength(4);
+        const freshState = getState();
+        expect(freshState.iterationHistory).toHaveLength(4);
 
         // Results should be in order: rewrite1, analyze1, rewrite2, analyze2
-        expect(state.iterationHistory[0].stage).toBe('rewrite');
-        expect(state.iterationHistory[1].stage).toBe('analyze');
-        expect(state.iterationHistory[2].stage).toBe('rewrite');
-        expect(state.iterationHistory[3].stage).toBe('analyze');
+        expect(freshState.iterationHistory[0].stage).toBe('rewrite');
+        expect(freshState.iterationHistory[1].stage).toBe('analyze');
+        expect(freshState.iterationHistory[2].stage).toBe('rewrite');
+        expect(freshState.iterationHistory[3].stage).toBe('analyze');
     });
 
     it('requires analyze result to run (prevents undefined behavior)', async () => {
-        const state = createMockState();
+        createMockState();
         // No analyze result
-        state.stageResults.analyze = null;
+        setState('results', {
+            stageResults: { score: null, rewrite: null, analyze: null },
+        });
 
-        const result = await executeQuickIterateAction(state, {});
+        const result = await executeQuickIterateAction(getState(), {});
 
         expect(result).toEqual({ rewrite: null, analyze: null });
         expect(mockRunStage).not.toHaveBeenCalled();
@@ -415,10 +443,12 @@ describe('executeAllStagesAction - Data Flow', () => {
     });
 
     it('each stage receives results from previous stages in same run', async () => {
-        const state = createMockState();
+        createMockState();
 
         // Ensure state starts with no results
-        state.stageResults = { score: null, rewrite: null, analyze: null };
+        setState('results', {
+            stageResults: { score: null, rewrite: null, analyze: null },
+        });
 
         const contextCaptures: Record<StageName, unknown> = {
             score: null,
@@ -435,7 +465,7 @@ describe('executeAllStagesAction - Data Flow', () => {
             return createStageResult(ctx.stage, `Output for ${ctx.stage}`);
         });
 
-        await executeAllStagesAction(state, {
+        await executeAllStagesAction(getState(), {
             stages: ['score', 'rewrite', 'analyze'],
         });
 
@@ -468,7 +498,7 @@ describe('executeAllStagesAction - Data Flow', () => {
     });
 
     it('stops pipeline on error without corrupting state', async () => {
-        const state = createMockState();
+        createMockState();
 
         mockRunStage.mockImplementation(async (ctx) => {
             if (ctx.stage === 'score') {
@@ -477,7 +507,7 @@ describe('executeAllStagesAction - Data Flow', () => {
             return createStageResult(ctx.stage, 'Should not reach');
         });
 
-        const result = await executeAllStagesAction(state, {
+        const result = await executeAllStagesAction(getState(), {
             stages: ['score', 'rewrite', 'analyze'],
         });
 
@@ -489,8 +519,9 @@ describe('executeAllStagesAction - Data Flow', () => {
         expect(result.rewrite).toBeNull();
         expect(result.analyze).toBeNull();
 
-        // State should reflect the error
-        expect(state.stageStatus.score).toBe('error');
+        // Get fresh state - should reflect the error
+        const freshState = getState();
+        expect(freshState.stageStatus.score).toBe('error');
     });
 });
 
@@ -506,9 +537,15 @@ describe('State Isolation', () => {
     });
 
     it('stageResults gets overwritten while iterationHistory grows', async () => {
-        const state = createMockState();
-        state.stageResults.analyze = createStageResult('analyze', 'Initial');
-        state.iterationHistory = [];
+        createMockState();
+        setState('results', {
+            stageResults: {
+                score: null,
+                rewrite: null,
+                analyze: createStageResult('analyze', 'Initial'),
+            },
+            iterationHistory: [],
+        });
 
         let callCount = 0;
         mockRunStage.mockImplementation(async (ctx) => {
@@ -517,39 +554,46 @@ describe('State Isolation', () => {
         });
 
         // Run iteration 1
-        await executeQuickIterateAction(state, {});
+        await executeQuickIterateAction(getState(), {});
 
         // After iteration 1: stageResults has latest, history has 2 entries
-        expect(state.stageResults.rewrite?.output).toBe('Output 1');
-        expect(state.stageResults.analyze?.output).toBe('Output 2');
-        expect(state.iterationHistory).toHaveLength(2);
+        let freshState = getState();
+        expect(freshState.stageResults.rewrite?.output).toBe('Output 1');
+        expect(freshState.stageResults.analyze?.output).toBe('Output 2');
+        expect(freshState.iterationHistory).toHaveLength(2);
 
         // Run iteration 2
-        await executeQuickIterateAction(state, {});
+        await executeQuickIterateAction(getState(), {});
 
         // After iteration 2: stageResults OVERWRITES to latest
-        expect(state.stageResults.rewrite?.output).toBe('Output 3');
-        expect(state.stageResults.analyze?.output).toBe('Output 4');
+        freshState = getState();
+        expect(freshState.stageResults.rewrite?.output).toBe('Output 3');
+        expect(freshState.stageResults.analyze?.output).toBe('Output 4');
 
         // iterationHistory GROWS (append-only) - has all 4 entries
-        expect(state.iterationHistory).toHaveLength(4);
-        expect(state.iterationHistory[0].output).toBe('Output 1');
-        expect(state.iterationHistory[1].output).toBe('Output 2');
-        expect(state.iterationHistory[2].output).toBe('Output 3');
-        expect(state.iterationHistory[3].output).toBe('Output 4');
+        expect(freshState.iterationHistory).toHaveLength(4);
+        expect(freshState.iterationHistory[0].output).toBe('Output 1');
+        expect(freshState.iterationHistory[1].output).toBe('Output 2');
+        expect(freshState.iterationHistory[2].output).toBe('Output 3');
+        expect(freshState.iterationHistory[3].output).toBe('Output 4');
     });
 
     it('previousResults uses stageResults (current), not iterationHistory (all)', async () => {
-        const state = createMockState();
-        state.stageResults.analyze = createStageResult('analyze', 'Initial');
-        state.iterationHistory = [
-            createStageResult('score', 'Old score 1'),
-            createStageResult('rewrite', 'Old rewrite 1'),
-            createStageResult('analyze', 'Old analyze 1'),
-        ];
+        createMockState();
 
-        // Set specific current results
-        state.stageResults.score = createStageResult('score', 'CURRENT score');
+        // Set up history and current results through the store
+        setState('results', {
+            stageResults: {
+                score: createStageResult('score', 'CURRENT score'),
+                rewrite: null,
+                analyze: createStageResult('analyze', 'Initial'),
+            },
+            iterationHistory: [
+                createStageResult('score', 'Old score 1'),
+                createStageResult('rewrite', 'Old rewrite 1'),
+                createStageResult('analyze', 'Old analyze 1'),
+            ],
+        });
 
         let rewriteContextCapture: unknown = null;
 
@@ -563,7 +607,7 @@ describe('State Isolation', () => {
             return createStageResult(ctx.stage, `New ${ctx.stage}`);
         });
 
-        await executeQuickIterateAction(state, {});
+        await executeQuickIterateAction(getState(), {});
 
         // Rewrite should see CURRENT stageResults, not old history
         const rewriteCtx = rewriteContextCapture as {

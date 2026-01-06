@@ -3,10 +3,13 @@
 // APPLY/SAVE FUNCTIONS
 // =============================================================================
 
-import { toast } from '../../../shared';
+import {
+    toast,
+    editCharacterAttribute,
+    getCharacterJson,
+} from '../../../shared';
 import { getState } from '../../../state';
 import { downloadCharacterPng } from '../../../domain/png-writer';
-import { editCharacterAttribute, getCharacterJson } from './api';
 
 // =============================================================================
 // APPLY FUNCTIONS

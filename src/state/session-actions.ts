@@ -2,6 +2,11 @@
 // =============================================================================
 // SESSION-RELATED STATE ACTIONS
 // =============================================================================
+//
+// These actions manage session lifecycle using the centralized store.
+// All state mutations go through setState() to ensure proper notifications.
+//
+// =============================================================================
 
 import { STAGES, log } from '../shared';
 import {
@@ -17,6 +22,7 @@ import {
     getPopulatedFields,
 } from '../domain';
 import type { PopupState, Character, Session, FieldSelection } from '../types';
+import { setState, batch } from './store';
 
 // =============================================================================
 // SESSION ACTIONS
@@ -35,63 +41,74 @@ export async function setCharacterAction(
     // Save current session first
     await forceSave();
 
-    // Set loading flag to prevent auto-save during state transition
-    (state as unknown as { _isLoading?: boolean })._isLoading = true;
+    // Reset all state for new character
+    batch(() => {
+        setState('character', { character: char });
+        setState('fields', {
+            selectedFields: {},
+            stageFields: { base: {}, linked: true, overrides: {} },
+        });
+        setState('session', {
+            activeSessionId: null,
+            sessions: [],
+            sessionsLoaded: false,
+            hasUnsavedChanges: false,
+        });
+        setState('pipeline', {
+            stageStatus: {
+                score: 'pending',
+                rewrite: 'pending',
+                analyze: 'pending',
+            },
+        });
+        setState('results', {
+            stageResults: { score: null, rewrite: null, analyze: null },
+            iterationCount: 0,
+            iterationHistory: [],
+        });
+    });
 
-    try {
-        state.character = char;
-        state.selectedFields = {};
-        state.stageFields = { base: {}, linked: true, overrides: {} };
-        state.activeSessionId = null;
-        state.sessions = [];
-        state.sessionsLoaded = false;
-
-        // Reset pipeline state
-        state.stageStatus = {
-            score: 'pending',
-            rewrite: 'pending',
-            analyze: 'pending',
-        };
-        state.stageResults = { score: null, rewrite: null, analyze: null };
-        state.iterationCount = 0;
-        state.iterationHistory = [];
-        state.hasUnsavedChanges = false;
-
-        if (char) {
-            // Ensure character is fully loaded (not shallow)
-            try {
-                state.character = await ensureUnshallowed(char);
-                log.debug(`Character loaded: ${state.character.name}`);
-            } catch (e) {
-                log.error('Failed to unshallow character', e);
-                state.character = char; // Use as-is
-            }
-
-            // Auto-select all populated fields
-            const populatedFields = getPopulatedFields(state.character);
-            const baseSelection: FieldSelection = {};
-            for (const field of populatedFields) {
-                baseSelection[field.key] = true;
-            }
-            state.stageFields = {
-                base: baseSelection,
-                linked: true,
-                overrides: {},
-            };
-            state.selectedFields = baseSelection; // Keep legacy in sync
-
-            // Load sessions for this character (but don't auto-select)
-            state.sessions = await getSessionsForCharacter(char.avatar);
-            state.sessionsLoaded = true;
-
-            // No auto-selection - sessions are lazy-created on first meaningful action
-            log.debug(
-                `Character ${char.name}: ${state.sessions.length} sessions, ${populatedFields.length} fields selected`,
-            );
+    if (char) {
+        // Ensure character is fully loaded (not shallow)
+        let loadedChar = char;
+        try {
+            loadedChar = await ensureUnshallowed(char);
+            log.debug(`Character loaded: ${loadedChar.name}`);
+        } catch (e) {
+            log.error('Failed to unshallow character', e);
+            // Use as-is
         }
-    } finally {
-        // Clear loading flag
-        (state as unknown as { _isLoading?: boolean })._isLoading = false;
+
+        // Auto-select all populated fields
+        const populatedFields = getPopulatedFields(loadedChar);
+        const baseSelection: FieldSelection = {};
+        for (const field of populatedFields) {
+            baseSelection[field.key] = true;
+        }
+
+        // Load sessions for this character (but don't auto-select)
+        const sessions = await getSessionsForCharacter(loadedChar.avatar);
+
+        // Update state with loaded data
+        batch(() => {
+            setState('character', { character: loadedChar });
+            setState('fields', {
+                stageFields: {
+                    base: baseSelection,
+                    linked: true,
+                    overrides: {},
+                },
+                selectedFields: baseSelection, // Keep legacy in sync
+            });
+            setState('session', {
+                sessions,
+                sessionsLoaded: true,
+            });
+        });
+
+        log.debug(
+            `Character ${loadedChar.name}: ${sessions.length} sessions, ${populatedFields.length} fields selected`,
+        );
     }
 }
 
@@ -128,10 +145,12 @@ export async function ensureActiveSessionAction(
         configs: state.stageConfigs,
     });
 
-    state.sessions.unshift(session);
-    state.activeSessionId = session.id;
-    log.debug(`Lazy-created new session: ${session.id}`);
+    setState('session', {
+        sessions: [session, ...state.sessions],
+        activeSessionId: session.id,
+    });
 
+    log.debug(`Lazy-created new session: ${session.id}`);
     return session;
 }
 
@@ -165,17 +184,25 @@ export async function createNewSessionAction(
     });
 
     // Update state
-    state.sessions.unshift(session);
-    state.activeSessionId = session.id;
-    state.iterationCount = 0;
-    state.iterationHistory = [];
-    state.stageResults = { score: null, rewrite: null, analyze: null };
-    state.stageStatus = {
-        score: 'pending',
-        rewrite: 'pending',
-        analyze: 'pending',
-    };
-    state.hasUnsavedChanges = false;
+    batch(() => {
+        setState('session', {
+            sessions: [session, ...state.sessions],
+            activeSessionId: session.id,
+            hasUnsavedChanges: false,
+        });
+        setState('results', {
+            iterationCount: 0,
+            iterationHistory: [],
+            stageResults: { score: null, rewrite: null, analyze: null },
+        });
+        setState('pipeline', {
+            stageStatus: {
+                score: 'pending',
+                rewrite: 'pending',
+                analyze: 'pending',
+            },
+        });
+    });
 
     return session;
 }
@@ -194,56 +221,72 @@ export async function loadSessionAction(
     const session = await getSession(sessionId);
     if (!session) return false;
 
-    // Set loading flag to prevent auto-save during state transition
-    (state as unknown as { _isLoading?: boolean })._isLoading = true;
-
-    try {
-        // Load character if different
-        if (state.character?.avatar !== session.characterId) {
-            const characters = SillyTavern.getContext().characters;
-            const char = characters.find(
-                (c: Character) => c.avatar === session.characterId,
-            );
-            if (!char) return false;
-            state.character = char;
-        }
-
-        // Restore state from session
-        const _ = SillyTavern.libs.lodash;
-        state.activeSessionId = session.id;
-        state.stageFields = _.cloneDeep(session.stageFields);
-        state.selectedFields = _.cloneDeep(session.stageFields.base); // Keep legacy in sync
-        state.stageConfigs = _.cloneDeep(session.configs);
-        state.iterationHistory = _.cloneDeep(session.history);
-        state.iterationCount = session.iterationCount;
-        state.userGuidance = session.userGuidance || '';
-        state.hasUnsavedChanges = false;
-
-        // Restore results - prefer saved stageResults, fall back to deriving from history
-        if (session.stageResults) {
-            state.stageResults = _.cloneDeep(session.stageResults);
-        } else {
-            // Legacy: derive from history (last result per stage)
-            state.stageResults = { score: null, rewrite: null, analyze: null };
-            for (const result of session.history) {
-                state.stageResults[result.stage] = result;
-            }
-        }
-
-        // Update status based on results
-        for (const stage of STAGES) {
-            state.stageStatus[stage] = state.stageResults[stage]
-                ? state.stageResults[stage]!.error
-                    ? 'error'
-                    : 'complete'
-                : 'pending';
-        }
-
-        return true;
-    } finally {
-        // Clear loading flag
-        (state as unknown as { _isLoading?: boolean })._isLoading = false;
+    // Load character if different
+    let character = state.character;
+    if (state.character?.avatar !== session.characterId) {
+        const characters = SillyTavern.getContext().characters;
+        const char = characters.find(
+            (c: Character) => c.avatar === session.characterId,
+        );
+        if (!char) return false;
+        character = char;
     }
+
+    // Restore state from session
+    const _ = SillyTavern.libs.lodash;
+
+    // Restore results - prefer saved stageResults, fall back to deriving from history
+    let stageResults = { score: null, rewrite: null, analyze: null } as Record<
+        string,
+        unknown
+    >;
+    if (session.stageResults) {
+        stageResults = _.cloneDeep(session.stageResults);
+    } else {
+        // Legacy: derive from history (last result per stage)
+        for (const result of session.history) {
+            stageResults[result.stage] = result;
+        }
+    }
+
+    // Calculate status based on results
+    const stageStatus: Record<string, string> = {};
+    for (const stage of STAGES) {
+        const result = stageResults[stage] as { error?: string } | null;
+        stageStatus[stage] = result
+            ? result.error
+                ? 'error'
+                : 'complete'
+            : 'pending';
+    }
+
+    batch(() => {
+        setState('character', { character });
+        setState('session', {
+            activeSessionId: session.id,
+            hasUnsavedChanges: false,
+        });
+        setState('fields', {
+            stageFields: _.cloneDeep(session.stageFields),
+            selectedFields: _.cloneDeep(session.stageFields.base),
+        });
+        setState('config', {
+            stageConfigs: _.cloneDeep(session.configs),
+        });
+        setState('results', {
+            iterationHistory: _.cloneDeep(session.history),
+            iterationCount: session.iterationCount,
+            stageResults: stageResults as PopupState['stageResults'],
+        });
+        setState('pipeline', {
+            stageStatus: stageStatus as PopupState['stageStatus'],
+        });
+        setState('guidance', {
+            userGuidance: session.userGuidance || '',
+        });
+    });
+
+    return true;
 }
 
 /**
@@ -261,20 +304,32 @@ export async function deleteSessionAction(
     }
 
     // Remove from state
-    const idx = state.sessions.findIndex((sess) => sess.id === sessionId);
-    if (idx !== -1) state.sessions.splice(idx, 1);
+    const updatedSessions = state.sessions.filter(
+        (sess) => sess.id !== sessionId,
+    );
 
     // Clear if it was active
     if (state.activeSessionId === sessionId) {
-        state.activeSessionId = null;
-        state.iterationHistory = [];
-        state.iterationCount = 0;
-        state.stageResults = { score: null, rewrite: null, analyze: null };
-        state.stageStatus = {
-            score: 'pending',
-            rewrite: 'pending',
-            analyze: 'pending',
-        };
+        batch(() => {
+            setState('session', {
+                sessions: updatedSessions,
+                activeSessionId: null,
+            });
+            setState('results', {
+                iterationHistory: [],
+                iterationCount: 0,
+                stageResults: { score: null, rewrite: null, analyze: null },
+            });
+            setState('pipeline', {
+                stageStatus: {
+                    score: 'pending',
+                    rewrite: 'pending',
+                    analyze: 'pending',
+                },
+            });
+        });
+    } else {
+        setState('session', { sessions: updatedSessions });
     }
 
     return true;
@@ -298,16 +353,24 @@ export async function deleteAllSessionsAction(
     }
 
     // Clear state
-    state.sessions = [];
-    state.activeSessionId = null;
-    state.iterationHistory = [];
-    state.iterationCount = 0;
-    state.stageResults = { score: null, rewrite: null, analyze: null };
-    state.stageStatus = {
-        score: 'pending',
-        rewrite: 'pending',
-        analyze: 'pending',
-    };
+    batch(() => {
+        setState('session', {
+            sessions: [],
+            activeSessionId: null,
+        });
+        setState('results', {
+            iterationHistory: [],
+            iterationCount: 0,
+            stageResults: { score: null, rewrite: null, analyze: null },
+        });
+        setState('pipeline', {
+            stageStatus: {
+                score: 'pending',
+                rewrite: 'pending',
+                analyze: 'pending',
+            },
+        });
+    });
 
     return result;
 }

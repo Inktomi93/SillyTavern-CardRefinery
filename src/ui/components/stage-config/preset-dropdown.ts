@@ -9,17 +9,18 @@ import {
     getSchemaPresetsForStage,
 } from '../../../data';
 import { $ } from '../base';
+import { withRenderBoundary } from '../../error-boundary';
 import type { StageName } from '../../../types';
 
 // =============================================================================
 // PRESET DROPDOWN
 // =============================================================================
 
-export function renderPresetDropdown(
+const _renderPresetDropdown = (
     type: 'prompt' | 'schema',
     stage: StageName,
     selectedId: string | null,
-): string {
+): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const presets =
         type === 'prompt'
@@ -52,7 +53,10 @@ export function renderPresetDropdown(
             </button>
         </div>
     `;
-}
+};
+export const renderPresetDropdown = withRenderBoundary(_renderPresetDropdown, {
+    name: 'PresetDropdown',
+});
 
 // =============================================================================
 // DROPDOWN REFRESH

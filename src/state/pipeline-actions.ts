@@ -4,10 +4,8 @@
 // =============================================================================
 //
 // Orchestrates pipeline execution at the state layer, keeping UI components
-// focused purely on presentation. This separation enables:
-// - Testable execution logic without DOM dependencies
-// - Reusable pipeline triggers from multiple sources
-// - Clean single-responsibility for UI components
+// focused purely on presentation. All state mutations go through the
+// centralized store for proper notification handling.
 //
 // =============================================================================
 
@@ -24,7 +22,12 @@ import {
     getRefinementPrompt,
 } from '../data';
 import type { StageName, StageResult, PopupState } from '../types';
-import { getFieldSelectionForStage, ensureActiveSession } from './popup-state';
+import {
+    getFieldSelectionForStage,
+    ensureActiveSession,
+    getState,
+} from './popup-state';
+import { setState, batch } from './store';
 
 // =============================================================================
 // TYPES
@@ -67,48 +70,74 @@ const deps: ExecutionDependencies = {
 // =============================================================================
 
 /**
- * Update state for stage status.
- * These are inline mutations to avoid circular imports with popup-state.
+ * Update stage status through the store.
  */
-function setStageStatusInState(
-    state: PopupState,
+function setStageStatus(
     stage: StageName,
     status: 'pending' | 'running' | 'complete' | 'error',
 ): void {
-    state.stageStatus[stage] = status;
+    const freshState = getState();
+    setState('pipeline', {
+        stageStatus: {
+            ...freshState.stageStatus,
+            [stage]: status,
+        },
+    });
 }
 
-function setGeneratingInState(
-    state: PopupState,
+/**
+ * Set generating state through the store.
+ */
+function setGenerating(
     generating: boolean,
     controller?: AbortController,
 ): void {
-    state.isGenerating = generating;
-    state.abortController = generating
-        ? (controller ?? new AbortController())
-        : null;
+    setState('pipeline', {
+        isGenerating: generating,
+        abortController: generating
+            ? (controller ?? new AbortController())
+            : null,
+    });
 }
 
 /**
  * Conditionally clear generating state only if this controller is still active.
  * Prevents race condition where old pipeline clears state for new pipeline.
  */
-function clearGeneratingIfOwned(
-    state: PopupState,
-    controller: AbortController,
-): void {
+function clearGeneratingIfOwned(controller: AbortController): void {
+    const freshState = getState();
     // Only clear if this controller is still the active one
-    if (state.abortController === controller) {
-        state.isGenerating = false;
-        state.abortController = null;
+    if (freshState.abortController === controller) {
+        setState('pipeline', {
+            isGenerating: false,
+            abortController: null,
+        });
     }
 }
 
-function recordResultInState(state: PopupState, result: StageResult): void {
-    state.stageResults[result.stage] = result;
-    state.stageStatus[result.stage] = result.error ? 'error' : 'complete';
-    state.iterationHistory.push(result);
-    state.hasUnsavedChanges = true;
+/**
+ * Record a stage result through the store.
+ */
+function recordResult(result: StageResult): void {
+    const freshState = getState();
+    batch(() => {
+        setState('results', {
+            stageResults: {
+                ...freshState.stageResults,
+                [result.stage]: result,
+            },
+            iterationHistory: [...freshState.iterationHistory, result],
+        });
+        setState('pipeline', {
+            stageStatus: {
+                ...freshState.stageStatus,
+                [result.stage]: result.error ? 'error' : 'complete',
+            },
+        });
+        setState('session', {
+            hasUnsavedChanges: true,
+        });
+    });
 }
 
 // =============================================================================
@@ -117,21 +146,20 @@ function recordResultInState(state: PopupState, result: StageResult): void {
 
 /**
  * Build stage context from current state.
+ * Fetches fresh state to ensure we have latest values after any setState calls.
  */
-function buildStageContext(
-    state: PopupState,
-    stage: StageName,
-): StageContext | null {
-    if (!state.character) return null;
+function buildStageContext(stage: StageName): StageContext | null {
+    const freshState = getState();
+    if (!freshState.character) return null;
 
     return {
-        character: state.character,
+        character: freshState.character,
         selection: getFieldSelectionForStage(stage),
         stage,
-        config: state.stageConfigs[stage],
-        previousResults: state.stageResults,
-        iterationCount: state.iterationCount,
-        guidance: state.userGuidance || undefined,
+        config: freshState.stageConfigs[stage],
+        previousResults: freshState.stageResults,
+        iterationCount: freshState.iterationCount,
+        guidance: freshState.userGuidance || undefined,
     };
 }
 
@@ -142,20 +170,9 @@ function buildStageContext(
 /**
  * Execute a single pipeline stage.
  *
- * @param state - Current popup state (will be mutated)
+ * @param state - Current popup state (read-only, mutations go through store)
  * @param options - Execution options
  * @returns The stage result, or null if execution couldn't start
- *
- * @example
- * ```ts
- * const result = await executeStageAction(getState(), {
- *     stage: 'score',
- *     callbacks: {
- *         onStageStart: () => updateUI(),
- *         onStageComplete: () => updateUI(),
- *     }
- * });
- * ```
  */
 export async function executeStageAction(
     state: PopupState,
@@ -178,13 +195,13 @@ export async function executeStageAction(
     await ensureActiveSession();
 
     // Build context
-    const context = buildStageContext(state, stage);
+    const context = buildStageContext(stage);
     if (!context) return null;
 
     // Setup
     const controller = new AbortController();
-    setGeneratingInState(state, true, controller);
-    setStageStatusInState(state, stage, 'running');
+    setGenerating(true, controller);
+    setStageStatus(stage, 'running');
 
     callbacks?.onStageStart?.(stage);
 
@@ -197,7 +214,7 @@ export async function executeStageAction(
             },
         });
 
-        recordResultInState(state, result);
+        recordResult(result);
         callbacks?.onStageComplete?.(stage, result);
 
         if (result.error) {
@@ -210,31 +227,21 @@ export async function executeStageAction(
             error instanceof Error ? error.message : 'Unknown error';
         log.error(`Stage ${stage} failed:`, error);
 
-        setStageStatusInState(state, stage, 'error');
+        setStageStatus(stage, 'error');
         callbacks?.onError?.(stage, errorMsg);
 
         return null;
     } finally {
-        clearGeneratingIfOwned(state, controller);
+        clearGeneratingIfOwned(controller);
     }
 }
 
 /**
  * Execute multiple stages in sequence.
  *
- * @param state - Current popup state (will be mutated)
+ * @param state - Current popup state (read-only, mutations go through store)
  * @param options - Execution options
  * @returns Map of stage results
- *
- * @example
- * ```ts
- * const results = await executeAllStagesAction(getState(), {
- *     callbacks: {
- *         onStageStart: (stage) => highlightTab(stage),
- *         onProgress: (msg) => showProgress(msg),
- *     }
- * });
- * ```
  */
 export async function executeAllStagesAction(
     state: PopupState,
@@ -255,12 +262,16 @@ export async function executeAllStagesAction(
 
     // Setup
     const controller = new AbortController();
-    setGeneratingInState(state, true, controller);
+    setGenerating(true, controller);
 
     // Mark all stages as pending initially
-    for (const stage of STAGES) {
-        setStageStatusInState(state, stage, 'pending');
-    }
+    setState('pipeline', {
+        stageStatus: {
+            score: 'pending',
+            rewrite: 'pending',
+            analyze: 'pending',
+        },
+    });
 
     const results: Record<StageName, StageResult | null> = {
         score: state.stageResults.score,
@@ -277,13 +288,13 @@ export async function executeAllStagesAction(
             }
 
             // Build fresh context with accumulated results
-            const context = buildStageContext(state, stage);
+            const context = buildStageContext(stage);
             if (!context) break;
 
             // Update context with current results
             context.previousResults = results;
 
-            setStageStatusInState(state, stage, 'running');
+            setStageStatus(stage, 'running');
             callbacks?.onStageStart?.(stage);
             callbacks?.onProgress?.(`Running ${stage}...`);
 
@@ -296,7 +307,7 @@ export async function executeAllStagesAction(
             });
 
             results[stage] = result;
-            recordResultInState(state, result);
+            recordResult(result);
             callbacks?.onStageComplete?.(stage, result);
 
             // Stop on error
@@ -309,9 +320,9 @@ export async function executeAllStagesAction(
         const errorMsg =
             error instanceof Error ? error.message : 'Unknown error';
         log.error('Pipeline execution failed:', error);
-        callbacks?.onError?.(state.activeStage, errorMsg);
+        callbacks?.onError?.(getState().activeStage, errorMsg);
     } finally {
-        clearGeneratingIfOwned(state, controller);
+        clearGeneratingIfOwned(controller);
     }
 
     return results;
@@ -325,7 +336,7 @@ export async function executeAllStagesAction(
  * 2. Runs analyze on the new rewrite result
  * 3. Increments iteration counter once
  *
- * @param state - Current popup state (will be mutated)
+ * @param state - Current popup state (read-only, mutations go through store)
  * @param options - Execution options with extended callbacks
  * @returns Object with both results, or nulls if execution couldn't complete
  */
@@ -358,10 +369,13 @@ export async function executeQuickIterateAction(
 
     // Setup
     const controller = new AbortController();
-    setGeneratingInState(state, true, controller);
+    setGenerating(true, controller);
 
     // Increment iteration count before running
-    state.iterationCount++;
+    const currentState = getState();
+    setState('results', {
+        iterationCount: currentState.iterationCount + 1,
+    });
 
     const results: {
         rewrite: StageResult | null;
@@ -373,13 +387,13 @@ export async function executeQuickIterateAction(
 
     try {
         // Step 1: Run refinement (rewrite with analyze feedback)
-        const rewriteContext = buildStageContext(state, 'rewrite');
+        const rewriteContext = buildStageContext('rewrite');
         if (!rewriteContext) {
             return results;
         }
         rewriteContext.isRefinement = true;
 
-        setStageStatusInState(state, 'rewrite', 'running');
+        setStageStatus('rewrite', 'running');
         callbacks?.onStageStart?.('rewrite');
         callbacks?.onProgress?.('Refining rewrite with feedback...');
 
@@ -392,7 +406,7 @@ export async function executeQuickIterateAction(
         });
 
         results.rewrite = rewriteResult;
-        recordResultInState(state, rewriteResult);
+        recordResult(rewriteResult);
         callbacks?.onStageComplete?.('rewrite', rewriteResult);
 
         // Stop if rewrite failed
@@ -408,17 +422,18 @@ export async function executeQuickIterateAction(
         }
 
         // Step 2: Run analyze on the new rewrite
-        const analyzeContext = buildStageContext(state, 'analyze');
+        const analyzeContext = buildStageContext('analyze');
         if (!analyzeContext) {
             return results;
         }
-        // Update context with fresh rewrite result
+        // Update context with fresh rewrite result from this iteration
+        // (buildStageContext already fetched fresh state, but we need to add the just-created rewrite)
         analyzeContext.previousResults = {
-            ...state.stageResults,
+            ...analyzeContext.previousResults,
             rewrite: rewriteResult,
         };
 
-        setStageStatusInState(state, 'analyze', 'running');
+        setStageStatus('analyze', 'running');
         callbacks?.onStageStart?.('analyze');
         callbacks?.onProgress?.('Analyzing refined version...');
 
@@ -431,7 +446,7 @@ export async function executeQuickIterateAction(
         });
 
         results.analyze = analyzeResult;
-        recordResultInState(state, analyzeResult);
+        recordResult(analyzeResult);
         callbacks?.onStageComplete?.('analyze', analyzeResult);
 
         if (analyzeResult.error) {
@@ -444,35 +459,46 @@ export async function executeQuickIterateAction(
         const errorMsg =
             error instanceof Error ? error.message : 'Unknown error';
         log.error('Quick iterate failed:', error);
-        callbacks?.onError?.(state.activeStage, errorMsg);
+        callbacks?.onError?.(getState().activeStage, errorMsg);
         return results;
     } finally {
-        clearGeneratingIfOwned(state, controller);
+        clearGeneratingIfOwned(controller);
     }
 }
 
+/**
+ * Abort current pipeline execution.
+ */
 export function abortPipelineAction(state: PopupState): void {
     if (state.abortController) {
         state.abortController.abort();
-        state.abortController = null;
-        state.isGenerating = false;
+        setState('pipeline', {
+            abortController: null,
+            isGenerating: false,
+        });
         log.debug('Pipeline aborted by user');
     }
 }
 
 /**
  * Reset pipeline state (clear results, keep character & session).
- *
- * @param state - Current popup state
  */
 export function resetPipelineAction(state: PopupState): void {
-    state.stageStatus = {
-        score: 'pending',
-        rewrite: 'pending',
-        analyze: 'pending',
-    };
-    state.stageResults = { score: null, rewrite: null, analyze: null };
-    state.iterationCount = 0;
-    state.hasUnsavedChanges = true;
+    batch(() => {
+        setState('pipeline', {
+            stageStatus: {
+                score: 'pending',
+                rewrite: 'pending',
+                analyze: 'pending',
+            },
+        });
+        setState('results', {
+            stageResults: { score: null, rewrite: null, analyze: null },
+            iterationCount: 0,
+        });
+        setState('session', {
+            hasUnsavedChanges: true,
+        });
+    });
     // Keep history for reference
 }

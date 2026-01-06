@@ -7,6 +7,7 @@
 import { MODULE_NAME } from '../../shared';
 import { getState } from '../../state';
 import { $ } from './base';
+import { withRenderBoundary } from '../error-boundary';
 import { getPopulatedFields } from '../../domain/character/fields';
 
 // =============================================================================
@@ -200,7 +201,7 @@ function renderComparisonRow(comparison: FieldComparison): string {
 /**
  * Render compare view.
  */
-export function renderCompareView(): string {
+const _renderCompareView = (): string => {
     const state = getState();
 
     if (!state.character) {
@@ -232,7 +233,10 @@ export function renderCompareView(): string {
             </div>
         </div>
     `;
-}
+};
+export const renderCompareView = withRenderBoundary(_renderCompareView, {
+    name: 'CompareView',
+});
 
 /**
  * Update compare view.

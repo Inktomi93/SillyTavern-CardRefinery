@@ -17,9 +17,9 @@ export {
 // Preset Registry (new centralized API)
 export { presetRegistry } from './registry';
 
-// Preset CRUD & Validation (legacy + validation)
+// Preset CRUD (legacy API - delegates to registry)
+// For validation, use validatePromptPreset/validateSchemaPreset from domain
 export {
-    // Legacy API (delegates to registry)
     getPromptPresetsForStage,
     getPromptPreset,
     savePromptPreset,
@@ -30,9 +30,6 @@ export {
     saveSchemaPreset,
     updateSchemaPreset,
     deleteSchemaPreset,
-    // Validation
-    validatePromptPreset,
-    validateSchemaPreset,
 } from './presets';
 
 // Defaults

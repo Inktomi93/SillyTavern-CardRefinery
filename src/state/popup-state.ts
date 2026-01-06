@@ -2,8 +2,13 @@
 // =============================================================================
 // POPUP STATE MANAGEMENT
 // =============================================================================
+//
+// This module provides the public API for popup state management.
+// It delegates to the centralized store for actual state storage.
+//
+// =============================================================================
 
-import { getStageDefaults, setStageDefaults } from '../data';
+import { setStageDefaults } from '../data';
 import type {
     PopupState,
     StageName,
@@ -13,6 +18,14 @@ import type {
     Session,
     FieldSelection,
 } from '../types';
+import {
+    initStore,
+    resetStore,
+    getState as storeGetState,
+    getStateOrNull as storeGetStateOrNull,
+    setState,
+    batch,
+} from './store';
 import { createAutoSave } from './auto-save';
 import {
     setCharacterAction,
@@ -24,96 +37,49 @@ import {
 } from './session-actions';
 
 // =============================================================================
-// STATE SINGLETON
-// =============================================================================
-
-let state: PopupState | null = null;
-
-// =============================================================================
 // AUTO-SAVE SETUP
 // =============================================================================
 
 const autoSaveImpl = createAutoSave(
-    () => state,
+    () => storeGetStateOrNull(),
     (value) => {
-        if (state) state.hasUnsavedChanges = value;
+        const s = storeGetStateOrNull();
+        if (s) {
+            setState('session', { hasUnsavedChanges: value });
+        }
     },
 );
+
+// =============================================================================
+// RE-EXPORT: createInitialState for tests
+// =============================================================================
+
+export { createInitialState } from './store';
 
 // =============================================================================
 // INITIALIZATION
 // =============================================================================
 
 /**
- * Create fresh popup state.
- */
-export function createInitialState(): PopupState {
-    return {
-        character: null,
-        selectedFields: {}, // Deprecated, kept for compatibility
-        stageFields: {
-            base: {},
-            linked: true,
-            overrides: {},
-        },
-
-        activeSessionId: null,
-        sessions: [],
-        sessionsLoaded: false,
-        hasUnsavedChanges: false,
-
-        stageStatus: {
-            score: 'pending',
-            rewrite: 'pending',
-            analyze: 'pending',
-        },
-        stageResults: { score: null, rewrite: null, analyze: null },
-        stageConfigs: {
-            score: getStageDefaults('score'),
-            rewrite: getStageDefaults('rewrite'),
-            analyze: getStageDefaults('analyze'),
-        },
-        activeStage: 'score',
-        iterationCount: 0,
-        iterationHistory: [],
-        userGuidance: '',
-
-        isGenerating: false,
-        abortController: null,
-
-        searchQuery: '',
-        searchResults: [],
-        searchSelectedIndex: -1,
-        dropdownOpen: false,
-
-        sessionListExpanded: false,
-        historyExpanded: false,
-
-        viewingHistoryIndex: null,
-    };
-}
-
-/**
  * Initialize state.
  */
 export function initState(): PopupState {
-    state = createInitialState();
-    return state;
+    initStore();
+    return storeGetState() as PopupState;
 }
 
 /**
  * Get current state.
  */
 export function getState(): PopupState {
-    if (!state) throw new Error('State not initialized');
-    return state;
+    return storeGetState() as PopupState;
 }
 
 /**
  * Get state or null (for cleanup checks).
  */
 export function getStateOrNull(): PopupState | null {
-    return state;
+    return storeGetStateOrNull() as PopupState | null;
 }
 
 /**
@@ -121,7 +87,7 @@ export function getStateOrNull(): PopupState | null {
  */
 export function clearState(): void {
     cancelAutoSave();
-    state = null;
+    resetStore();
 }
 
 // =============================================================================
@@ -132,9 +98,9 @@ export function clearState(): void {
  * Trigger auto-save (debounced).
  */
 export function autoSave(): void {
-    const s = getStateOrNull();
+    const s = storeGetStateOrNull();
     if (s) {
-        s.hasUnsavedChanges = true;
+        setState('session', { hasUnsavedChanges: true });
         autoSaveImpl.trigger();
     }
 }
@@ -265,15 +231,23 @@ export function areStagesLinked(): boolean {
  */
 export function toggleStageFieldLinking(): void {
     const s = getState();
-    s.stageFields.linked = !s.stageFields.linked;
+    const { lodash } = SillyTavern.libs;
+
+    const newLinked = !s.stageFields.linked;
+    const newOverrides = { ...s.stageFields.overrides };
 
     // When unlinking, copy base to current stage override
-    if (!s.stageFields.linked) {
-        const { lodash } = SillyTavern.libs;
-        s.stageFields.overrides[s.activeStage] = lodash.cloneDeep(
-            s.stageFields.base,
-        );
+    if (!newLinked) {
+        newOverrides[s.activeStage] = lodash.cloneDeep(s.stageFields.base);
     }
+
+    setState('fields', {
+        stageFields: {
+            ...s.stageFields,
+            linked: newLinked,
+            overrides: newOverrides,
+        },
+    });
 
     autoSave();
 }
@@ -283,11 +257,15 @@ export function toggleStageFieldLinking(): void {
  */
 export function toggleField(key: string, value: boolean | number[]): void {
     const s = getState();
+    const { lodash } = SillyTavern.libs;
+
+    // Deep clone the stageFields to avoid mutations
+    const newStageFields = lodash.cloneDeep(s.stageFields);
 
     // Determine which selection to modify
-    const selection = s.stageFields.linked
-        ? s.stageFields.base
-        : (s.stageFields.overrides[s.activeStage] ??= {});
+    const selection = newStageFields.linked
+        ? newStageFields.base
+        : (newStageFields.overrides[s.activeStage] ??= {});
 
     if (value === false || (Array.isArray(value) && value.length === 0)) {
         delete selection[key];
@@ -312,8 +290,12 @@ export function toggleField(key: string, value: boolean | number[]): void {
         }
     }
 
-    // Keep legacy field in sync
-    s.selectedFields = { ...selection };
+    // Update state with store
+    setState('fields', {
+        stageFields: newStageFields,
+        selectedFields: { ...selection }, // Keep legacy field in sync
+    });
+
     autoSave();
 }
 
@@ -325,7 +307,7 @@ export function toggleField(key: string, value: boolean | number[]): void {
  * Set active stage view.
  */
 export function setActiveStage(stage: StageName): void {
-    getState().activeStage = stage;
+    setState('pipeline', { activeStage: stage });
 }
 
 /**
@@ -336,11 +318,16 @@ export function updateStageConfig(
     updates: Partial<StageConfig>,
 ): void {
     const s = getState();
-    Object.assign(s.stageConfigs[stage], updates);
+    const newConfigs = {
+        ...s.stageConfigs,
+        [stage]: { ...s.stageConfigs[stage], ...updates },
+    };
+
+    setState('config', { stageConfigs: newConfigs });
     autoSave();
 
     // Also persist to settings as default template for new sessions
-    setStageDefaults(stage, s.stageConfigs[stage]);
+    setStageDefaults(stage, newConfigs[stage]);
 }
 
 // =============================================================================
@@ -358,8 +345,7 @@ export function getUserGuidance(): string {
  * Set user guidance text.
  */
 export function setUserGuidance(guidance: string): void {
-    const s = getState();
-    s.userGuidance = guidance;
+    setState('guidance', { userGuidance: guidance });
     autoSave();
 }
 
@@ -371,11 +357,13 @@ export function setUserGuidance(guidance: string): void {
  * Abort current generation.
  */
 export function abortGeneration(): void {
-    const s = getStateOrNull();
+    const s = storeGetStateOrNull();
     if (s?.abortController) {
         s.abortController.abort();
-        s.abortController = null;
-        s.isGenerating = false;
+        setState('pipeline', {
+            abortController: null,
+            isGenerating: false,
+        });
     }
 }
 
@@ -388,7 +376,7 @@ export function abortGeneration(): void {
  * Call this when CHARACTER_EDITED fires to get updated data.
  */
 export function refreshCharacter(): void {
-    const s = getStateOrNull();
+    const s = storeGetStateOrNull();
     if (!s?.character) return;
 
     const ctx = SillyTavern.getContext();
@@ -400,7 +388,7 @@ export function refreshCharacter(): void {
     );
 
     if (updated) {
-        s.character = updated;
+        setState('character', { character: updated });
     }
 }
 
@@ -413,7 +401,7 @@ export function refreshCharacter(): void {
  */
 export function toggleHistory(): void {
     const s = getState();
-    s.historyExpanded = !s.historyExpanded;
+    setState('ui', { historyExpanded: !s.historyExpanded });
 }
 
 // =============================================================================
@@ -428,7 +416,7 @@ export function viewHistoryItem(index: number | null): void {
     if (index !== null && (index < 0 || index >= s.iterationHistory.length)) {
         return; // Invalid index
     }
-    s.viewingHistoryIndex = index;
+    setState('ui', { viewingHistoryIndex: index });
 }
 
 /**
@@ -440,9 +428,9 @@ export function viewPreviousHistory(): void {
 
     if (s.viewingHistoryIndex === null) {
         // Currently viewing current - go to most recent history
-        s.viewingHistoryIndex = s.iterationHistory.length - 1;
+        setState('ui', { viewingHistoryIndex: s.iterationHistory.length - 1 });
     } else if (s.viewingHistoryIndex > 0) {
-        s.viewingHistoryIndex--;
+        setState('ui', { viewingHistoryIndex: s.viewingHistoryIndex - 1 });
     }
 }
 
@@ -454,10 +442,10 @@ export function viewNextHistory(): void {
     if (s.viewingHistoryIndex === null) return; // Already at current
 
     if (s.viewingHistoryIndex < s.iterationHistory.length - 1) {
-        s.viewingHistoryIndex++;
+        setState('ui', { viewingHistoryIndex: s.viewingHistoryIndex + 1 });
     } else {
         // At end of history - return to current
-        s.viewingHistoryIndex = null;
+        setState('ui', { viewingHistoryIndex: null });
     }
 }
 
@@ -478,11 +466,22 @@ export function restoreHistoryItem(index?: number): void {
     }
 
     const result = s.iterationHistory[targetIndex];
-    s.stageResults[result.stage] = result;
-    s.stageStatus[result.stage] = result.error ? 'error' : 'complete';
 
-    // Return to viewing current after restore
-    s.viewingHistoryIndex = null;
+    batch(() => {
+        setState('results', {
+            stageResults: {
+                ...s.stageResults,
+                [result.stage]: result,
+            },
+        });
+        setState('pipeline', {
+            stageStatus: {
+                ...s.stageStatus,
+                [result.stage]: result.error ? 'error' : 'complete',
+            },
+        });
+        setState('ui', { viewingHistoryIndex: null });
+    });
 
     autoSave();
 }

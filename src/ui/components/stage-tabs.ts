@@ -27,6 +27,7 @@ import {
     getUserGuidance,
 } from '../../state';
 import { $, on, cx } from './base';
+import { withRenderBoundary } from '../error-boundary';
 import { updateStageConfig } from './stage-config';
 import { updateResults } from './results-panel';
 import type { StageName, StageStatus } from '../../types';
@@ -79,13 +80,16 @@ function renderStageTab(stage: StageName): string {
 /**
  * Render stage tabs navigation.
  */
-export function renderStageTabs(): string {
+const _renderStageTabs = (): string => {
     return /* html */ `
         <nav class="cr-stage-tabs" role="tablist" aria-label="Pipeline stages">
             ${STAGES.map(renderStageTab).join('')}
         </nav>
     `;
-}
+};
+export const renderStageTabs = withRenderBoundary(_renderStageTabs, {
+    name: 'StageTabs',
+});
 
 /**
  * Render pipeline controls (run buttons, status).
@@ -94,7 +98,7 @@ export function renderStageTabs(): string {
  * - Single row: Run/Redo, Run All, Reset, [Iterate when available]
  * - Guidance input appears inline when iterate is available
  */
-export function renderPipelineControls(): string {
+const _renderPipelineControls = (): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const state = getState();
     const canRun = state.character && !state.isGenerating;
@@ -205,7 +209,13 @@ export function renderPipelineControls(): string {
             ${iterationControls}
         </div>
     `;
-}
+};
+export const renderPipelineControls = withRenderBoundary(
+    _renderPipelineControls,
+    {
+        name: 'PipelineControls',
+    },
+);
 
 /**
  * Update stage tabs display.
