@@ -12,6 +12,7 @@ export default [
             'dist/**',
             'node_modules/**',
             'coverage/**',
+            '.st-types/**',
             '*.config.*',
             '*.d.ts',
         ],

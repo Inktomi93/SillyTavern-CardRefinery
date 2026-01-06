@@ -47,7 +47,7 @@ export interface CharacterData {
     };
     character_book?: {
         name?: string;
-        entries: Array<{
+        entries?: Array<{
             id: number;
             keys: string[];
             content: string;

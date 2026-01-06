@@ -45,3 +45,6 @@ coverage/
 
 # Project-specific dev artifacts
 UX-AUDIT.md
+
+# Fetched SillyTavern types (synced from GitHub)
+.st-types/
