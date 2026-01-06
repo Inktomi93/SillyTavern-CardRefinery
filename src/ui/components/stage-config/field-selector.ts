@@ -7,6 +7,7 @@ import { MODULE_NAME } from '../../../shared';
 import { getState, getCurrentFieldSelection } from '../../../state';
 import { getPopulatedFields } from '../../../domain';
 import { $, $$, formatTokenCount } from '../base';
+import { withRenderBoundary } from '../../error-boundary';
 import { loadFieldTokens, updateFieldTotal } from './token-display';
 import type { PopulatedField } from '../../../types';
 
@@ -14,7 +15,7 @@ import type { PopulatedField } from '../../../types';
 // FIELD SELECTOR
 // =============================================================================
 
-export function renderFieldSelector(): string {
+const _renderFieldSelector = (): string => {
     const state = getState();
 
     if (!state.character) {
@@ -53,13 +54,16 @@ export function renderFieldSelector(): string {
             <span class="cr-token-warning__text"></span>
         </div>
     `;
-}
+};
+export const renderFieldSelector = withRenderBoundary(_renderFieldSelector, {
+    name: 'FieldSelector',
+});
 
 // =============================================================================
 // FIELD ITEM
 // =============================================================================
 
-export function renderFieldItem(field: PopulatedField): string {
+const _renderFieldItem = (field: PopulatedField): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const selection = getCurrentFieldSelection();
     const isSelected = field.key in selection && selection[field.key] !== false;
@@ -144,7 +148,10 @@ export function renderFieldItem(field: PopulatedField): string {
             </div>
         </div>
     `;
-}
+};
+export const renderFieldItem = withRenderBoundary(_renderFieldItem, {
+    name: 'FieldItem',
+});
 
 // =============================================================================
 // CHECKBOX STATE UPDATES

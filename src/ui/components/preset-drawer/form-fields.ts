@@ -5,13 +5,14 @@
 
 import { MODULE_NAME, STAGE_LABELS, STAGES } from '../../../shared';
 import { drawerState } from './state';
+import { withRenderBoundary } from '../../error-boundary';
 import type { PromptPreset } from '../../../types';
 
 // =============================================================================
 // FIELD RENDERERS
 // =============================================================================
 
-export function renderNameField(): string {
+const _renderNameField = (): string => {
     const { preset, mode } = drawerState;
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
@@ -35,9 +36,12 @@ export function renderNameField(): string {
                    autocomplete="off"/>
         </div>
     `;
-}
+};
+export const renderNameField = withRenderBoundary(_renderNameField, {
+    name: 'PresetNameField',
+});
 
-export function renderStagesField(): string {
+const _renderStagesField = (): string => {
     const { preset } = drawerState;
     const stages = preset?.stages || [];
 
@@ -62,9 +66,12 @@ export function renderStagesField(): string {
             </div>
         </div>
     `;
-}
+};
+export const renderStagesField = withRenderBoundary(_renderStagesField, {
+    name: 'PresetStagesField',
+});
 
-export function renderPromptEditor(): string {
+const _renderPromptEditor = (): string => {
     const { preset } = drawerState;
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const promptText = (preset as PromptPreset)?.prompt || '';
@@ -99,9 +106,12 @@ The prompt will be sent to the LLM along with the selected character fields."
             </div>
         </div>
     `;
-}
+};
+export const renderPromptEditor = withRenderBoundary(_renderPromptEditor, {
+    name: 'PresetPromptEditor',
+});
 
-export function renderSchemaEditor(): string {
+const _renderSchemaEditor = (): string => {
     const { preset } = drawerState;
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
@@ -167,4 +177,7 @@ export function renderSchemaEditor(): string {
             <div id="${MODULE_NAME}_drawer_warnings" class="cr-warnings cr-hidden"></div>
         </div>
     `;
-}
+};
+export const renderSchemaEditor = withRenderBoundary(_renderSchemaEditor, {
+    name: 'PresetSchemaEditor',
+});

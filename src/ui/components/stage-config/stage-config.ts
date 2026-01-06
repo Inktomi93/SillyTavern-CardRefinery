@@ -7,6 +7,7 @@ import { MODULE_NAME, STAGE_LABELS, STAGE_ICONS } from '../../../shared';
 import { getState, areStagesLinked } from '../../../state';
 import { getPromptPreset, getSchemaPreset } from '../../../data';
 import { $, cx } from '../base';
+import { withRenderBoundary } from '../../error-boundary';
 import { renderFieldSelector } from './field-selector';
 import { renderPresetDropdown, refreshPresetDropdown } from './preset-dropdown';
 import { updatePromptTokenCount } from './token-display';
@@ -18,7 +19,7 @@ import { updatePromptTokenCount } from './token-display';
 /**
  * Render stage configuration panel.
  */
-export function renderStageConfig(): string {
+const _renderStageConfig = (): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const state = getState();
     const stage = state.activeStage;
@@ -162,7 +163,10 @@ export function renderStageConfig(): string {
             </div>
         </section>
     `;
-}
+};
+export const renderStageConfig = withRenderBoundary(_renderStageConfig, {
+    name: 'StageConfig',
+});
 
 // =============================================================================
 // UPDATE

@@ -6,6 +6,7 @@
 import { MODULE_NAME, STAGE_LABELS, popup, toast } from '../../../shared';
 import { presetRegistry } from '../../../data';
 import { $, $$, on } from '../base';
+import { withRenderBoundary } from '../../error-boundary';
 import { drawerState, drawerCallbacks, addCleanup } from './state';
 import type { PresetType } from './types';
 import type { PromptPreset, SchemaPreset } from '../../../types';
@@ -14,7 +15,7 @@ import type { PromptPreset, SchemaPreset } from '../../../types';
 // LIST VIEW TEMPLATES
 // =============================================================================
 
-export function renderListHeader(): string {
+const _renderListHeader = (): string => {
     const { type } = drawerState;
 
     return /* html */ `
@@ -43,9 +44,12 @@ export function renderListHeader(): string {
             </button>
         </div>
     `;
-}
+};
+export const renderListHeader = withRenderBoundary(_renderListHeader, {
+    name: 'PresetListHeader',
+});
 
-export function renderListBody(): string {
+const _renderListBody = (): string => {
     const { type } = drawerState;
     const presets =
         type === 'prompt'
@@ -89,12 +93,15 @@ export function renderListBody(): string {
             }
         </div>
     `;
-}
+};
+export const renderListBody = withRenderBoundary(_renderListBody, {
+    name: 'PresetListBody',
+});
 
-export function renderPresetListItem(
+const _renderPresetListItem = (
     preset: PromptPreset | SchemaPreset,
     type: PresetType,
-): string {
+): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const stagesText =
         preset.stages.length > 0
@@ -142,9 +149,12 @@ export function renderPresetListItem(
             </div>
         </div>
     `;
-}
+};
+export const renderPresetListItem = withRenderBoundary(_renderPresetListItem, {
+    name: 'PresetListItem',
+});
 
-export function renderListFooter(): string {
+const _renderListFooter = (): string => {
     return /* html */ `
         <footer class="cr-drawer__footer cr-drawer__footer--list">
             <button id="${MODULE_NAME}_drawer_list_create"
@@ -169,7 +179,10 @@ export function renderListFooter(): string {
             </div>
         </footer>
     `;
-}
+};
+export const renderListFooter = withRenderBoundary(_renderListFooter, {
+    name: 'PresetListFooter',
+});
 
 // =============================================================================
 // LIST VIEW EVENTS

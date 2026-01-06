@@ -33,3 +33,6 @@ export type { Settings } from './settings';
 
 // State types
 export type { FieldSelection, StageFieldSelection, PopupState } from './state';
+
+// Store types (only export what's used externally)
+export type { StateSlice } from './store';

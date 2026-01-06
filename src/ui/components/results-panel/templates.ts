@@ -7,6 +7,7 @@ import { MODULE_NAME, STAGE_LABELS, STAGE_ICONS } from '../../../shared';
 import { getState, getViewedHistoryItem } from '../../../state';
 import { getSchemaPreset } from '../../../data/settings';
 import { cx, truncate } from '../base';
+import { withRenderBoundary } from '../../error-boundary';
 import { renderCompareView } from '../compare-view';
 import {
     formatResponse,
@@ -23,10 +24,10 @@ import { getViewMode, getJsonDisplayMode, getTextDisplayMode } from './state';
 /**
  * Render the content for a single result.
  */
-export function renderResultContent(
+const _renderResultContent = (
     result: StageResult | null,
     stage: StageName,
-): string {
+): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const hljs = SillyTavern.libs.hljs;
 
@@ -174,12 +175,15 @@ export function renderResultContent(
             </div>
         </div>
     `;
-}
+};
+export const renderResultContent = withRenderBoundary(_renderResultContent, {
+    name: 'ResultContent',
+});
 
 /**
  * Render a single history item.
  */
-export function renderHistoryItem(result: StageResult, index: number): string {
+const _renderHistoryItem = (result: StageResult, index: number): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const moment = SillyTavern.libs.moment;
     const state = getState();
@@ -222,12 +226,15 @@ export function renderHistoryItem(result: StageResult, index: number): string {
             </div>
         </div>
     `;
-}
+};
+export const renderHistoryItem = withRenderBoundary(_renderHistoryItem, {
+    name: 'HistoryItem',
+});
 
 /**
  * Render the complete results panel.
  */
-export function renderResultsPanel(): string {
+const _renderResultsPanel = (): string => {
     const state = getState();
     const viewedHistoryItem = getViewedHistoryItem();
     const isViewingHistory = viewedHistoryItem !== null;
@@ -368,4 +375,7 @@ export function renderResultsPanel(): string {
             ${historySection}
         </div>
     `;
-}
+};
+export const renderResultsPanel = withRenderBoundary(_renderResultsPanel, {
+    name: 'ResultsPanel',
+});

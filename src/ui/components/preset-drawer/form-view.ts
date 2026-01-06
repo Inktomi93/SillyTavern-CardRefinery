@@ -10,6 +10,7 @@ import {
     generateSchemaFromDescription,
 } from '../../../domain/schema';
 import { $, $$, on } from '../base';
+import { withRenderBoundary } from '../../error-boundary';
 import { drawerState, addCleanup } from './state';
 import {
     renderNameField,
@@ -22,7 +23,7 @@ import {
 // FORM VIEW TEMPLATES
 // =============================================================================
 
-export function renderDrawer(): string {
+const _renderDrawer = (): string => {
     return /* html */ `
         <div id="${MODULE_NAME}_preset_drawer" class="cr-drawer" aria-hidden="true">
             <div class="cr-drawer__backdrop"></div>
@@ -35,9 +36,12 @@ export function renderDrawer(): string {
             </aside>
         </div>
     `;
-}
+};
+export const renderDrawer = withRenderBoundary(_renderDrawer, {
+    name: 'PresetDrawer',
+});
 
-export function renderDrawerHeader(): string {
+const _renderDrawerHeader = (): string => {
     const { type, mode, preset } = drawerState;
 
     let title = '';
@@ -69,9 +73,12 @@ export function renderDrawerHeader(): string {
             </button>
         </header>
     `;
-}
+};
+export const renderDrawerHeader = withRenderBoundary(_renderDrawerHeader, {
+    name: 'PresetDrawerHeader',
+});
 
-export function renderDrawerBody(): string {
+const _renderDrawerBody = (): string => {
     const { type, mode, preset } = drawerState;
     const isBuiltinDuplicate = mode === 'duplicate' && preset?.isBuiltin;
 
@@ -96,9 +103,12 @@ export function renderDrawerBody(): string {
             ${type === 'prompt' ? renderPromptEditor() : renderSchemaEditor()}
         </div>
     `;
-}
+};
+export const renderDrawerBody = withRenderBoundary(_renderDrawerBody, {
+    name: 'PresetDrawerBody',
+});
 
-export function renderDrawerFooter(): string {
+const _renderDrawerFooter = (): string => {
     const { mode, preset } = drawerState;
     const isBuiltin = preset?.isBuiltin || false;
 
@@ -143,7 +153,10 @@ export function renderDrawerFooter(): string {
             </div>
         </footer>
     `;
-}
+};
+export const renderDrawerFooter = withRenderBoundary(_renderDrawerFooter, {
+    name: 'PresetDrawerFooter',
+});
 
 // =============================================================================
 // FORM VIEW EVENTS

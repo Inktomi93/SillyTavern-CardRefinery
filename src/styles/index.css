@@ -73,6 +73,7 @@
 @import './components/_badges.css';
 @import './components/_alerts.css';
 @import './components/_loading.css';
+@import './components/_error-fallback.css';
 
 /* ═══════════════════════════════════════════════════════════════════════════════
    7. OVERLAYS & MODALS

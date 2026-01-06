@@ -13,6 +13,7 @@ import {
 } from '../../../shared';
 import type { ProfileInfo, ApiStatus } from '../../../shared';
 import { getSettings } from '../../../data';
+import { withRenderBoundary } from '../../error-boundary';
 
 // =============================================================================
 // HELPER FUNCTIONS
@@ -42,7 +43,7 @@ export function truncateModel(model: string): string {
 /**
  * Render API status banner.
  */
-export function renderApiStatusBanner(status: ApiStatus): string {
+const _renderApiStatusBanner = (status: ApiStatus): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const settings = getSettings();
     const statusClass = status.isReady
@@ -83,12 +84,18 @@ export function renderApiStatusBanner(status: ApiStatus): string {
                 : ''
         }
     `;
-}
+};
+export const renderApiStatusBanner = withRenderBoundary(
+    _renderApiStatusBanner,
+    {
+        name: 'SettingsApiStatusBanner',
+    },
+);
 
 /**
  * Render selected profile info card.
  */
-export function renderProfileInfo(profile: ProfileInfo | null): string {
+const _renderProfileInfo = (profile: ProfileInfo | null): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
     if (!profile) {
@@ -138,12 +145,15 @@ export function renderProfileInfo(profile: ProfileInfo | null): string {
             }
         </div>
     `;
-}
+};
+export const renderProfileInfo = withRenderBoundary(_renderProfileInfo, {
+    name: 'SettingsProfileInfo',
+});
 
 /**
  * Render the drawer header.
  */
-export function renderDrawerHeader(): string {
+const _renderDrawerHeader = (): string => {
     return /* html */ `
         <header class="cr-drawer__header">
             <div class="cr-drawer__title">
@@ -158,12 +168,15 @@ export function renderDrawerHeader(): string {
             </button>
         </header>
     `;
-}
+};
+export const renderDrawerHeader = withRenderBoundary(_renderDrawerHeader, {
+    name: 'SettingsDrawerHeader',
+});
 
 /**
  * Render the drawer body with settings sections.
  */
-export function renderDrawerBody(): string {
+const _renderDrawerBody = (): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const settings = getSettings();
     const profiles = getAvailableProfiles();
@@ -406,12 +419,15 @@ export function renderDrawerBody(): string {
             </section>
         </div>
     `;
-}
+};
+export const renderDrawerBody = withRenderBoundary(_renderDrawerBody, {
+    name: 'SettingsDrawerBody',
+});
 
 /**
  * Render the drawer footer.
  */
-export function renderDrawerFooter(): string {
+const _renderDrawerFooter = (): string => {
     return /* html */ `
         <footer class="cr-drawer__footer cr-drawer__footer--spaced">
             <span class="cr-version">v${VERSION}</span>
@@ -423,12 +439,15 @@ export function renderDrawerFooter(): string {
             </button>
         </footer>
     `;
-}
+};
+export const renderDrawerFooter = withRenderBoundary(_renderDrawerFooter, {
+    name: 'SettingsDrawerFooter',
+});
 
 /**
  * Render the complete drawer container.
  */
-export function renderDrawer(): string {
+const _renderDrawer = (): string => {
     return /* html */ `
         <div id="${MODULE_NAME}_settings_drawer" class="cr-drawer" aria-hidden="true">
             <div class="cr-drawer__backdrop"></div>
@@ -441,4 +460,7 @@ export function renderDrawer(): string {
             </aside>
         </div>
     `;
-}
+};
+export const renderDrawer = withRenderBoundary(_renderDrawer, {
+    name: 'SettingsDrawer',
+});

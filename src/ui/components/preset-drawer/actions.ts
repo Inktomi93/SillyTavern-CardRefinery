@@ -5,13 +5,8 @@
 
 import { MODULE_NAME, VERSION, popup, toast, log } from '../../../shared';
 import { STAGES } from '../../../shared/constants';
-import {
-    presetRegistry,
-    validatePromptPreset,
-    validateSchemaPreset,
-    getSettings,
-    save,
-} from '../../../data';
+import { presetRegistry, getSettings, save } from '../../../data';
+import { validatePromptPreset, validateSchemaPreset } from '../../../domain';
 import { $, $$ } from '../base';
 import { drawerState, drawerCallbacks } from './state';
 import { showFormErrors } from './form-view';

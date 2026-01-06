@@ -13,6 +13,7 @@ import {
 } from '../../shared';
 import { getSettings, save } from '../../data';
 import { $, on, cx } from './base';
+import { withRenderBoundary } from '../error-boundary';
 import type { ProfileInfo } from '../../shared/profiles';
 
 // =============================================================================
@@ -50,7 +51,7 @@ function renderProfileOption(
 /**
  * Render API status indicator with optional profile selector.
  */
-export function renderApiStatus(): string {
+const _renderApiStatus = (): string => {
     const DOMPurify = SillyTavern.libs.DOMPurify;
     const status = getApiStatus(selectedProfileId);
     const cmrsAvailable = hasCMRS();
@@ -97,12 +98,15 @@ export function renderApiStatus(): string {
             }
         </div>
     `;
-}
+};
+export const renderApiStatus = withRenderBoundary(_renderApiStatus, {
+    name: 'ApiStatus',
+});
 
 /**
  * Render compact API status for header.
  */
-export function renderApiStatusCompact(): string {
+const _renderApiStatusCompact = (): string => {
     const status = getApiStatus(selectedProfileId);
 
     const statusIcon = status.isReady
@@ -116,7 +120,13 @@ export function renderApiStatusCompact(): string {
             <span>${status.modelDisplay}</span>
         </div>
     `;
-}
+};
+export const renderApiStatusCompact = withRenderBoundary(
+    _renderApiStatusCompact,
+    {
+        name: 'ApiStatusCompact',
+    },
+);
 
 /**
  * Update API status display.
