@@ -15,6 +15,8 @@
 // DOCS: https://docs.sillytavern.app/for-contributors/writing-extensions/
 // =============================================================================
 
+import { log } from './debug';
+
 // =============================================================================
 // POPUP NAMESPACE
 // =============================================================================
@@ -35,7 +37,8 @@ export const popup = {
             title,
             message,
         );
-        return result === true;
+        // ST popup returns true or 1 for confirm, false/undefined/0 for cancel
+        return result === true || result === 1;
     },
 
     async input(
@@ -393,7 +396,7 @@ export async function storeLargeData(
         await SillyTavern.libs.localforage.setItem(key, data);
         return true;
     } catch (e) {
-        console.error(`[storeLargeData] Failed to store ${key}:`, e);
+        log.error(`storeLargeData: Failed to store ${key}:`, e);
         return false;
     }
 }
@@ -407,7 +410,7 @@ export async function loadLargeData<T = unknown>(
     try {
         return await SillyTavern.libs.localforage.getItem<T>(key);
     } catch (e) {
-        console.error(`[loadLargeData] Failed to load ${key}:`, e);
+        log.error(`loadLargeData: Failed to load ${key}:`, e);
         return null;
     }
 }
@@ -420,7 +423,7 @@ export async function removeLargeData(key: string): Promise<boolean> {
         await SillyTavern.libs.localforage.removeItem(key);
         return true;
     } catch (e) {
-        console.error(`[removeLargeData] Failed to remove ${key}:`, e);
+        log.error(`removeLargeData: Failed to remove ${key}:`, e);
         return false;
     }
 }

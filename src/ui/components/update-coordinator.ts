@@ -14,6 +14,8 @@
 //
 // =============================================================================
 
+import { log } from '../../shared';
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -116,7 +118,7 @@ export function flushUpdates(): void {
             try {
                 reg.fn();
             } catch (e) {
-                console.error('[UpdateCoordinator] Update failed:', e);
+                log.error('UpdateCoordinator update failed:', e);
             }
         }
     }

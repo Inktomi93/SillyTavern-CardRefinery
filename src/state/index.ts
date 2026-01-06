@@ -20,7 +20,9 @@ export {
     createNewSession,
     loadSession,
     deleteSession,
+    deleteAllSessions,
     renameSession,
+    ensureActiveSession,
     // Field selection
     setFieldSelection,
     toggleField,

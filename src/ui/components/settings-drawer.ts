@@ -23,6 +23,7 @@ import {
     resetSettings,
     BASE_SYSTEM_PROMPT,
     BASE_REFINEMENT_PROMPT,
+    purgeAllSessions,
 } from '../../data';
 import { $, $$, on } from './base';
 
@@ -59,11 +60,21 @@ let drawerCallbacks: SettingsDrawerCallbacks = {};
  */
 function renderApiStatusBanner(status: ApiStatus): string {
     const DOMPurify = SillyTavern.libs.DOMPurify;
+    const settings = getSettings();
     const statusClass = status.isReady
         ? 'cr-api-banner--ready'
         : 'cr-api-banner--error';
     const icon = status.isReady ? 'fa-circle-check' : 'fa-circle-xmark';
     const typeLabel = status.apiType === 'cc' ? 'Chat' : 'Text';
+
+    // Show override value if set, otherwise show API max
+    const hasOverride = settings.maxTokensOverride !== null;
+    const displayMaxOutput = hasOverride
+        ? settings.maxTokensOverride!
+        : status.maxOutput;
+    const overrideIndicator = hasOverride
+        ? '<i class="fa-solid fa-pen cr-api-banner__override-icon" title="Custom output limit active"></i>'
+        : '';
 
     return /* html */ `
         <div class="cr-api-banner ${statusClass}">
@@ -74,7 +85,7 @@ function renderApiStatusBanner(status: ApiStatus): string {
             </div>
             <div class="cr-api-banner__right">
                 <span class="cr-api-banner__model" title="${DOMPurify.sanitize(status.model)}">${DOMPurify.sanitize(status.modelDisplay)}</span>
-                <span class="cr-api-banner__limits">${status.maxOutput.toLocaleString()}t max</span>
+                <span class="cr-api-banner__limits ${hasOverride ? 'cr-api-banner__limits--override' : ''}">${overrideIndicator}${displayMaxOutput.toLocaleString()}t max</span>
             </div>
         </div>
         ${
@@ -404,6 +415,29 @@ function renderDrawerBody(): string {
                 </button>
             </section>
 
+            <!-- Data Management -->
+            <section class="cr-settings-section">
+                <h3>
+                    <i class="fa-solid fa-database"></i>
+                    Data Management
+                </h3>
+                <div class="cr-danger-zone">
+                    <div class="cr-danger-zone__warning">
+                        <i class="fa-solid fa-skull-crossbones"></i>
+                        <div>
+                            <strong>Danger Zone</strong>
+                            <p>These actions are destructive and cannot be undone.</p>
+                        </div>
+                    </div>
+                    <button id="${MODULE_NAME}_purge_all_sessions"
+                            class="menu_button menu_button--danger"
+                            type="button">
+                        <i class="fa-solid fa-trash"></i>
+                        Delete All Sessions (All Characters)
+                    </button>
+                </div>
+            </section>
+
             <!-- Keyboard Shortcuts -->
             <section class="cr-settings-section">
                 <h3>
@@ -722,6 +756,34 @@ function bindDrawerEvents(drawer: HTMLElement): void {
             on(revertRefinementBtn, 'click', () => {
                 baseRefinementPromptTextarea.value = BASE_REFINEMENT_PROMPT;
                 toast.info('Base refinement prompt reverted to default');
+            }),
+        );
+    }
+
+    // Purge all sessions (global)
+    const purgeBtn = $(`#${MODULE_NAME}_purge_all_sessions`, drawer);
+    if (purgeBtn) {
+        cleanupFns.push(
+            on(purgeBtn, 'click', async () => {
+                const confirmed = await popup.confirm(
+                    'Delete ALL Sessions?',
+                    'This will permanently delete ALL sessions for ALL characters. This action cannot be undone.',
+                );
+                if (!confirmed) return;
+
+                try {
+                    const result = await purgeAllSessions();
+                    if (result.success) {
+                        toast.success(
+                            `Deleted ${result.count} session${result.count !== 1 ? 's' : ''} across all characters`,
+                        );
+                    } else {
+                        toast.error('Failed to delete sessions');
+                    }
+                } catch (error) {
+                    toast.error('Failed to delete sessions');
+                    log.error('Purge all sessions error:', error);
+                }
             }),
         );
     }

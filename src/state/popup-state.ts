@@ -20,6 +20,8 @@ import {
     createNewSessionAction,
     loadSessionAction,
     deleteSessionAction,
+    deleteAllSessionsAction,
+    ensureActiveSessionAction,
 } from './session-actions';
 
 // =============================================================================
@@ -181,8 +183,28 @@ export async function loadSession(sessionId: string): Promise<boolean> {
 /**
  * Delete a session.
  */
-export async function deleteSession(sessionId: string): Promise<void> {
+export async function deleteSession(sessionId: string): Promise<boolean> {
     return deleteSessionAction(getState(), sessionId);
+}
+
+/**
+ * Delete all sessions for the current character.
+ */
+export async function deleteAllSessions(): Promise<{
+    success: boolean;
+    count: number;
+}> {
+    return deleteAllSessionsAction(getState());
+}
+
+/**
+ * Ensure a session exists, creating one lazily if needed.
+ * Call this before any action that requires session persistence
+ * (e.g., starting generation, changing configs, changing fields).
+ */
+export async function ensureActiveSession(): Promise<boolean> {
+    const session = await ensureActiveSessionAction(getState(), forceSave);
+    return session !== null;
 }
 
 /**

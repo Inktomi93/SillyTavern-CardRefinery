@@ -14,6 +14,7 @@ export {
     updateSession,
     deleteSession,
     deleteAllSessionsForCharacter,
+    purgeAllSessions,
     renameSession,
     getSessionCount,
     type CreateSessionParams,

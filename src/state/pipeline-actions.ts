@@ -24,7 +24,7 @@ import {
     getRefinementPrompt,
 } from '../data';
 import type { StageName, StageResult, PopupState } from '../types';
-import { getFieldSelectionForStage } from './popup-state';
+import { getFieldSelectionForStage, ensureActiveSession } from './popup-state';
 
 // =============================================================================
 // TYPES
@@ -173,6 +173,9 @@ export async function executeStageAction(
         log.warn('Cannot execute stage: generation already in progress');
         return null;
     }
+
+    // Ensure we have an active session (lazy creation)
+    await ensureActiveSession();
 
     // Build context
     const context = buildStageContext(state, stage);

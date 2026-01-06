@@ -13,12 +13,75 @@
     display: flex;
     flex-direction: column;
     gap: var(--cr-space-1);
-    max-height: 200px;
+    min-height: 80px;
+    max-height: 280px;
     overflow-y: auto;
     padding: var(--cr-space-2);
     background: var(--cr-bg-secondary);
     border: 1px solid var(--cr-border-muted);
-    border-radius: var(--cr-radius);
+    border-radius: var(--cr-radius) var(--cr-radius) 0 0;
+    border-bottom: none;
+    text-align: left;
+}
+
+/* Field total footer */
+.cr-field-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2);
+    background: var(--cr-bg-tertiary);
+    border: 1px solid var(--cr-border-muted);
+    border-radius: 0 0 var(--cr-radius) var(--cr-radius);
+    font-size: var(--cr-text-xs);
+
+    &__label {
+        color: var(--cr-text-muted);
+    }
+
+    &__value {
+        font-weight: 500;
+        color: var(--cr-text);
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+/* Token warning banner (shown in rewrite stage) */
+.cr-token-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    margin-top: var(--cr-space-2);
+    font-size: var(--cr-text-xs);
+    line-height: 1.4;
+    border-radius: var(--cr-radius-sm);
+
+    & i {
+        flex-shrink: 0;
+        margin-top: 0.1em;
+    }
+
+    &--warning {
+        color: var(--cr-warning);
+        background: color-mix(
+            in srgb,
+            var(--cr-warning) 10%,
+            var(--cr-bg-secondary)
+        );
+        border: 1px solid color-mix(in srgb, var(--cr-warning) 30%, transparent);
+    }
+
+    &--critical {
+        color: var(--cr-danger);
+        background: color-mix(
+            in srgb,
+            var(--cr-danger) 10%,
+            var(--cr-bg-secondary)
+        );
+        border: 1px solid color-mix(in srgb, var(--cr-danger) 30%, transparent);
+    }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -155,7 +218,7 @@
         position: relative;
         margin: 0;
         padding: var(--cr-space-2);
-        max-height: 100px;
+        max-height: 80px;
         overflow: hidden;
         font-size: var(--cr-text-xs);
         font-family: var(--cr-font-mono);
@@ -173,7 +236,7 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 30px;
+            height: 24px;
             background: linear-gradient(transparent, var(--cr-bg-tertiary));
             pointer-events: none;
         }
@@ -213,38 +276,43 @@
     }
 }
 
-/* Popup preview styles */
+/* Popup preview styles - matches results panel raw text display */
 .cr-popup-preview {
     margin: 0;
-    padding: var(--cr-space-4);
+    padding: var(--cr-space-3);
     max-height: 70vh;
     min-height: 200px;
     overflow-y: auto;
     font-family: var(--cr-font-mono);
-    font-size: var(--cr-text-sm);
+    font-size: var(--cr-text-xs);
     line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-word;
-    background: var(--cr-bg-secondary);
-    border: 1px solid var(--cr-border-muted);
+    background: var(--cr-bg-tertiary);
     border-radius: var(--cr-radius);
+    color: var(--cr-text);
+    user-select: text;
+    text-align: left;
 }
 
 /* Preview content in popup - ensure proper scrolling */
 .cr-preview-content {
     max-height: 70vh;
     overflow-y: auto;
+    text-align: left;
 
     & pre {
         margin: 0;
-        padding: var(--cr-space-4);
+        padding: var(--cr-space-3);
         font-family: var(--cr-font-mono);
-        font-size: var(--cr-text-sm);
+        font-size: var(--cr-text-xs);
         line-height: 1.6;
         white-space: pre-wrap;
         word-break: break-word;
-        background: var(--cr-bg-secondary);
-        border: 1px solid var(--cr-border-muted);
+        background: var(--cr-bg-tertiary);
         border-radius: var(--cr-radius);
+        color: var(--cr-text);
+        user-select: text;
+        text-align: left;
     }
 }

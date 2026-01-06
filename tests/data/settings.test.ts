@@ -406,7 +406,8 @@ describe('Version Migration', () => {
         expect(settings.stageDefaults.score.customPrompt).toContain(
             'Additional scoring',
         );
-        expect(settings.stageDefaults.score.useStructuredOutput).toBe(true);
+        // Note: useStructuredOutput is forcibly disabled in migration v2 for score/analyze stages
+        expect(settings.stageDefaults.score.useStructuredOutput).toBe(false);
 
         // System prompts preserved
         expect(settings.baseSystemPrompt).toContain('kawaii');

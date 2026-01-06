@@ -115,3 +115,26 @@
         opacity: 0.7;
     }
 }
+
+/* Compact history items - override default list item spacing */
+.cr-history__list .cr-list-item {
+    padding: var(--cr-space-2);
+    gap: var(--cr-space-2);
+    align-items: center;
+
+    & .cr-list-item__content {
+        gap: 0;
+    }
+
+    & .cr-list-item__title {
+        font-size: var(--cr-text-xs);
+    }
+
+    & .cr-list-item__subtitle {
+        display: none; /* Hide preview in compact mode */
+    }
+
+    & .cr-row {
+        gap: var(--cr-space-2);
+    }
+}

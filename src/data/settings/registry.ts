@@ -11,7 +11,7 @@
 //
 // =============================================================================
 
-import { PRESET_VERSION } from '../../shared';
+import { PRESET_VERSION, log } from '../../shared';
 import type {
     PresetId,
     PromptPreset,
@@ -403,7 +403,7 @@ class PresetRegistry {
             try {
                 listener(event);
             } catch (e) {
-                console.error('[PresetRegistry] Listener error:', e);
+                log.error('PresetRegistry listener error:', e);
             }
         }
     }

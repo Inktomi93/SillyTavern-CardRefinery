@@ -170,6 +170,22 @@
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
+    &__limits {
+        display: flex;
+        align-items: center;
+        gap: var(--cr-space-1);
+
+        &--override {
+            color: var(--cr-accent);
+            font-weight: 500;
+        }
+    }
+
+    &__override-icon {
+        font-size: 0.6rem;
+        color: var(--cr-accent);
+    }
 }
 
 .cr-api-error {
@@ -568,5 +584,45 @@
     & i {
         flex-shrink: 0;
         margin-top: 0.1em;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   DANGER ZONE
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cr-danger-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--cr-space-3);
+    padding: var(--cr-space-3);
+    background: color-mix(in srgb, var(--cr-danger) 5%, var(--cr-bg-secondary));
+    border: 1px solid color-mix(in srgb, var(--cr-danger) 30%, transparent);
+    border-radius: var(--cr-radius);
+    text-align: left;
+
+    &__warning {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--cr-space-3);
+        color: var(--cr-danger);
+        font-size: var(--cr-text-sm);
+
+        & i {
+            flex-shrink: 0;
+            font-size: 1.25em;
+            margin-top: 0.1em;
+        }
+
+        & strong {
+            display: block;
+            margin-bottom: var(--cr-space-1);
+        }
+
+        & p {
+            margin: 0;
+            opacity: 0.85;
+        }
     }
 }

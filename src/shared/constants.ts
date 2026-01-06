@@ -26,7 +26,7 @@ export const DEBUG = true as const;
 // =============================================================================
 
 /** Settings schema version - bump when Settings shape changes */
-export const SETTINGS_VERSION = 1 as const;
+export const SETTINGS_VERSION = 2 as const;
 
 /** Storage schema version - bump when Session/Index shape changes */
 export const STORAGE_VERSION = 2 as const;

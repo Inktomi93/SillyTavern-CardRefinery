@@ -3,7 +3,13 @@
 // RESULTS PANEL COMPONENT
 // =============================================================================
 
-import { MODULE_NAME, STAGE_LABELS, STAGE_ICONS, toast } from '../../shared';
+import {
+    MODULE_NAME,
+    STAGE_LABELS,
+    STAGE_ICONS,
+    toast,
+    log,
+} from '../../shared';
 import {
     getState,
     toggleHistory,
@@ -26,10 +32,18 @@ import type { StageName, StageResult } from '../../types';
 
 // Track current view mode
 let currentViewMode: 'result' | 'compare' = 'result';
-// Track JSON display mode (raw vs smart)
-let jsonDisplayMode: 'smart' | 'raw' = 'smart';
-// Track text display mode (formatted vs raw)
-let textDisplayMode: 'formatted' | 'raw' = 'formatted';
+// Track JSON display mode per stage (raw vs smart)
+const jsonDisplayModes: Record<StageName, 'smart' | 'raw'> = {
+    score: 'smart',
+    rewrite: 'smart',
+    analyze: 'smart',
+};
+// Track text display mode per stage (formatted vs raw)
+const textDisplayModes: Record<StageName, 'formatted' | 'raw'> = {
+    score: 'formatted',
+    rewrite: 'formatted',
+    analyze: 'formatted',
+};
 // Track compare view cleanup separately to prevent listener accumulation
 let compareViewCleanup: (() => void) | null = null;
 
@@ -120,9 +134,10 @@ function renderResultContent(
             schema = preset?.schema ?? null;
         }
 
-        // Render based on display mode
+        // Render based on display mode (per-stage)
+        const jsonMode = jsonDisplayModes[stage];
         let contentHtml: string;
-        if (jsonDisplayMode === 'smart') {
+        if (jsonMode === 'smart') {
             contentHtml = formatStructuredResponse(result.output, schema);
         } else {
             // Raw JSON with syntax highlighting
@@ -138,21 +153,21 @@ function renderResultContent(
         }
 
         return /* html */ `
-            <div class="cr-result">
+            <div class="cr-result" data-stage="${stage}">
                 <div class="cr-result__header">
                     <span class="cr-result__type">
                         <i class="fa-solid fa-brackets-curly"></i>
                         Structured Output
                     </span>
                     <div class="cr-result__actions">
-                        <div class="cr-json-toggle">
-                            <button class="cr-json-toggle__btn ${jsonDisplayMode === 'smart' ? 'cr-json-toggle__btn--active' : ''}"
+                        <div class="cr-json-toggle" data-stage="${stage}">
+                            <button class="cr-json-toggle__btn ${jsonMode === 'smart' ? 'cr-json-toggle__btn--active' : ''}"
                                     data-mode="smart"
                                     type="button"
                                     title="Smart formatted view">
                                 <i class="fa-solid fa-wand-magic-sparkles"></i>
                             </button>
-                            <button class="cr-json-toggle__btn ${jsonDisplayMode === 'raw' ? 'cr-json-toggle__btn--active' : ''}"
+                            <button class="cr-json-toggle__btn ${jsonMode === 'raw' ? 'cr-json-toggle__btn--active' : ''}"
                                     data-mode="raw"
                                     type="button"
                                     title="Raw JSON view">
@@ -160,9 +175,12 @@ function renderResultContent(
                             </button>
                         </div>
                         <button class="cr-result-copy menu_button menu_button--icon menu_button--sm menu_button--ghost"
-                                data-content="${encodeURIComponent(result.output)}"
+                                data-type="json"
+                                data-stage="${stage}"
+                                data-raw="${encodeURIComponent(result.output)}"
+                                data-formatted="${encodeURIComponent(formattedJson)}"
                                 type="button"
-                                title="Copy raw output to clipboard">
+                                title="Copy to clipboard">
                             <i class="fa-solid fa-copy"></i>
                         </button>
                     </div>
@@ -174,9 +192,10 @@ function renderResultContent(
         `;
     }
 
-    // Text/Markdown output - use hybrid formatter with raw toggle
+    // Text/Markdown output - use hybrid formatter with raw toggle (per-stage)
+    const textMode = textDisplayModes[stage];
     let contentHtml: string;
-    if (textDisplayMode === 'formatted') {
+    if (textMode === 'formatted') {
         contentHtml = formatResponse(result.output);
     } else {
         // Raw text output - preserve whitespace and escape HTML
@@ -184,21 +203,21 @@ function renderResultContent(
     }
 
     return /* html */ `
-        <div class="cr-result">
+        <div class="cr-result" data-stage="${stage}">
             <div class="cr-result__header">
                 <span class="cr-result__type">
                     <i class="fa-solid ${STAGE_ICONS[stage]}"></i>
                     ${STAGE_LABELS[stage]}
                 </span>
                 <div class="cr-result__actions">
-                    <div class="cr-text-toggle">
-                        <button class="cr-text-toggle__btn ${textDisplayMode === 'formatted' ? 'cr-text-toggle__btn--active' : ''}"
+                    <div class="cr-text-toggle" data-stage="${stage}">
+                        <button class="cr-text-toggle__btn ${textMode === 'formatted' ? 'cr-text-toggle__btn--active' : ''}"
                                 data-mode="formatted"
                                 type="button"
                                 title="Formatted view">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </button>
-                        <button class="cr-text-toggle__btn ${textDisplayMode === 'raw' ? 'cr-text-toggle__btn--active' : ''}"
+                        <button class="cr-text-toggle__btn ${textMode === 'raw' ? 'cr-text-toggle__btn--active' : ''}"
                                 data-mode="raw"
                                 type="button"
                                 title="Raw text (easy to copy)">
@@ -206,7 +225,9 @@ function renderResultContent(
                         </button>
                     </div>
                     <button class="cr-result-copy menu_button menu_button--icon menu_button--sm menu_button--ghost"
-                            data-content="${encodeURIComponent(result.output)}"
+                            data-type="text"
+                            data-stage="${stage}"
+                            data-raw="${encodeURIComponent(result.output)}"
                             type="button"
                             title="Copy to clipboard">
                         <i class="fa-solid fa-copy"></i>
@@ -638,7 +659,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
         }),
     );
 
-    // JSON display mode toggle (smart/raw)
+    // JSON display mode toggle (smart/raw) - per-stage
     cleanups.push(
         on(container, 'click', (e) => {
             const btn = (e.target as HTMLElement).closest(
@@ -646,15 +667,19 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
             );
             if (!btn) return;
 
+            const toggle = btn.closest('.cr-json-toggle') as HTMLElement;
+            const stage = toggle?.dataset.stage as StageName | undefined;
+            if (!stage) return;
+
             const mode = (btn as HTMLElement).dataset.mode as 'smart' | 'raw';
-            if (mode && mode !== jsonDisplayMode) {
-                jsonDisplayMode = mode;
+            if (mode && mode !== jsonDisplayModes[stage]) {
+                jsonDisplayModes[stage] = mode;
                 updateResults();
             }
         }),
     );
 
-    // Text display mode toggle (formatted/raw)
+    // Text display mode toggle (formatted/raw) - per-stage
     cleanups.push(
         on(container, 'click', (e) => {
             const btn = (e.target as HTMLElement).closest(
@@ -662,11 +687,15 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
             );
             if (!btn) return;
 
+            const toggle = btn.closest('.cr-text-toggle') as HTMLElement;
+            const stage = toggle?.dataset.stage as StageName | undefined;
+            if (!stage) return;
+
             const mode = (btn as HTMLElement).dataset.mode as
                 | 'formatted'
                 | 'raw';
-            if (mode && mode !== textDisplayMode) {
-                textDisplayMode = mode;
+            if (mode && mode !== textDisplayModes[stage]) {
+                textDisplayModes[stage] = mode;
                 updateResults();
             }
         }),
@@ -682,7 +711,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
         }),
     );
 
-    // Copy buttons (event delegation)
+    // Copy buttons (event delegation) - mode-aware copying per-stage
     const resultsContent = $(`#${MODULE_NAME}_results_content`, container);
     if (resultsContent) {
         cleanups.push(
@@ -692,9 +721,24 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
                 );
                 if (!copyBtn) return;
 
-                const content = decodeURIComponent(
-                    (copyBtn as HTMLElement).dataset.content || '',
-                );
+                const btnElement = copyBtn as HTMLElement;
+                const contentType = btnElement.dataset.type;
+                const stage = btnElement.dataset.stage as StageName | undefined;
+                let content: string;
+
+                // Select content based on current view mode (per-stage)
+                if (contentType === 'json' && stage) {
+                    // For JSON: smart mode = formatted, raw mode = raw
+                    content =
+                        jsonDisplayModes[stage] === 'smart'
+                            ? decodeURIComponent(
+                                  btnElement.dataset.formatted || '',
+                              )
+                            : decodeURIComponent(btnElement.dataset.raw || '');
+                } else {
+                    // For text: always use raw (markdown source)
+                    content = decodeURIComponent(btnElement.dataset.raw || '');
+                }
 
                 const success = await copyToClipboard(content);
                 const icon = copyBtn.querySelector('i');
@@ -715,7 +759,7 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
                             icon.className = 'fa-solid fa-copy';
                         }, 1500);
                     }
-                    console.error('Failed to copy to clipboard');
+                    log.error('Failed to copy to clipboard');
                 }
             }),
         );

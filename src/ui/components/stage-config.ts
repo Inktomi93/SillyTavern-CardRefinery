@@ -9,6 +9,7 @@ import {
     STAGE_ICONS,
     getTokenCount,
     getTokenCountsKeyed,
+    getApiStatus,
     popup,
     toast,
 } from '../../shared';
@@ -25,8 +26,12 @@ import {
     getSchemaPresetsForStage,
     getPromptPreset,
     getSchemaPreset,
+    presetRegistry,
     savePromptPreset,
     saveSchemaPreset,
+    updatePromptPreset,
+    updateSchemaPreset,
+    getSettings,
 } from '../../data';
 import {
     getPopulatedFields,
@@ -66,6 +71,33 @@ export function clearPendingInputs(): void {
 }
 
 // =============================================================================
+// NAME COLLISION HELPERS
+// =============================================================================
+
+/**
+ * Generate a unique preset name by appending a number if the name already exists.
+ * E.g., "Score Custom" -> "Score Custom (2)" -> "Score Custom (3)"
+ */
+function generateUniquePresetName(
+    baseName: string,
+    existingNames: string[],
+): string {
+    const nameSet = new Set(existingNames.map((n) => n.toLowerCase()));
+
+    if (!nameSet.has(baseName.toLowerCase())) {
+        return baseName;
+    }
+
+    let counter = 2;
+    let uniqueName = `${baseName} (${counter})`;
+    while (nameSet.has(uniqueName.toLowerCase())) {
+        counter++;
+        uniqueName = `${baseName} (${counter})`;
+    }
+    return uniqueName;
+}
+
+// =============================================================================
 // HTML TEMPLATES
 // =============================================================================
 
@@ -74,10 +106,9 @@ function renderFieldSelector(): string {
 
     if (!state.character) {
         return /* html */ `
-            <div class="cr-empty">
+            <div class="cr-empty cr-empty--compact cr-empty--inline">
                 <i class="fa-solid fa-user-slash cr-empty__icon"></i>
-                <div class="cr-empty__title">No character selected</div>
-                <div class="cr-empty__text">Select a character to see available fields</div>
+                <span class="cr-empty__text">Select a character to see fields</span>
             </div>
         `;
     }
@@ -86,10 +117,9 @@ function renderFieldSelector(): string {
 
     if (fields.length === 0) {
         return /* html */ `
-            <div class="cr-empty">
+            <div class="cr-empty cr-empty--compact cr-empty--inline">
                 <i class="fa-solid fa-file-circle-question cr-empty__icon"></i>
-                <div class="cr-empty__title">No fields</div>
-                <div class="cr-empty__text">This character has no populated fields</div>
+                <span class="cr-empty__text">No populated fields found</span>
             </div>
         `;
     }
@@ -101,8 +131,19 @@ function renderFieldSelector(): string {
         <div class="cr-field-list cr-scrollable">
             ${fields.map((field) => renderFieldItem(field)).join('')}
         </div>
+        <div class="cr-field-total">
+            <span class="cr-field-total__label">Selected:</span>
+            <span id="${MODULE_NAME}_field_total" class="cr-field-total__value">calculating...</span>
+        </div>
+        <div id="${MODULE_NAME}_token_warning" class="cr-token-warning cr-hidden">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span class="cr-token-warning__text"></span>
+        </div>
     `;
 }
+
+// Store token counts for total calculation
+const fieldTokenCounts: Map<string, number> = new Map();
 
 /**
  * Load token counts for fields and update the display.
@@ -116,12 +157,113 @@ async function loadFieldTokens(fields: PopulatedField[]): Promise<void> {
 
     const results = await getTokenCountsKeyed(items);
 
-    // Update each token display element
+    // Update each token display element and store counts
     for (const { key, tokens } of results) {
+        if (tokens !== null) {
+            fieldTokenCounts.set(key, tokens);
+        }
         const el = $(`.cr-field-tokens[data-field="${key}"]`);
         if (el) {
             el.textContent = formatTokenCount(tokens);
         }
+    }
+
+    // Update total
+    updateFieldTotal();
+}
+
+/**
+ * Get the total token count for selected fields.
+ */
+export function getSelectedFieldsTokenCount(): number {
+    const selection = getCurrentFieldSelection();
+    let total = 0;
+
+    for (const [key, tokens] of fieldTokenCounts) {
+        const isSelected = key in selection && selection[key] !== false;
+        if (isSelected) {
+            total += tokens;
+        }
+    }
+
+    return total;
+}
+
+/**
+ * Update the total token count for selected fields.
+ * Also shows a warning in rewrite stage if max output < character tokens.
+ */
+function updateFieldTotal(): void {
+    const totalEl = $(`#${MODULE_NAME}_field_total`);
+    if (!totalEl) return;
+
+    const selection = getCurrentFieldSelection();
+    let total = 0;
+    let selectedCount = 0;
+
+    for (const [key, tokens] of fieldTokenCounts) {
+        const isSelected = key in selection && selection[key] !== false;
+        if (isSelected) {
+            total += tokens;
+            selectedCount++;
+        }
+    }
+
+    if (selectedCount === 0) {
+        totalEl.textContent = 'none';
+    } else {
+        totalEl.textContent = `${selectedCount} fields, ~${total.toLocaleString()}t`;
+    }
+
+    // Check for token warning in rewrite stage
+    updateTokenWarning(total);
+}
+
+/**
+ * Show/hide token warning based on max output vs character tokens.
+ * Only applies to rewrite stage.
+ */
+function updateTokenWarning(characterTokens: number): void {
+    const warningEl = $(`#${MODULE_NAME}_token_warning`);
+    if (!warningEl) return;
+
+    const state = getState();
+    const textEl = warningEl.querySelector('.cr-token-warning__text');
+
+    // Only show warning for rewrite stage
+    if (state.activeStage !== 'rewrite' || characterTokens === 0) {
+        warningEl.classList.add('cr-hidden');
+        return;
+    }
+
+    // Get max output tokens - override takes precedence
+    const settings = getSettings();
+    const status = getApiStatus(settings.profileId);
+    const maxOutput =
+        settings.maxTokensOverride !== null
+            ? settings.maxTokensOverride
+            : status.maxOutput;
+
+    // Thresholds: warning if under 80% headroom, critical if under character tokens
+    const criticalThreshold = characterTokens;
+    const warningThreshold = Math.ceil(characterTokens * 1.2); // Need ~20% headroom
+
+    if (maxOutput < criticalThreshold) {
+        warningEl.classList.remove('cr-hidden');
+        warningEl.classList.add('cr-token-warning--critical');
+        warningEl.classList.remove('cr-token-warning--warning');
+        if (textEl) {
+            textEl.textContent = `Max output (${maxOutput.toLocaleString()}t) is less than character tokens (~${characterTokens.toLocaleString()}t). Rewrite will likely be truncated.`;
+        }
+    } else if (maxOutput < warningThreshold) {
+        warningEl.classList.remove('cr-hidden');
+        warningEl.classList.remove('cr-token-warning--critical');
+        warningEl.classList.add('cr-token-warning--warning');
+        if (textEl) {
+            textEl.textContent = `Max output (${maxOutput.toLocaleString()}t) is close to character tokens (~${characterTokens.toLocaleString()}t). Consider increasing output limit.`;
+        }
+    } else {
+        warningEl.classList.add('cr-hidden');
     }
 }
 
@@ -784,10 +926,34 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                     return;
                 }
 
+                const stageConfig = state.stageConfigs[state.activeStage];
+                const currentPreset = stageConfig?.promptPresetId
+                    ? getPromptPreset(stageConfig.promptPresetId)
+                    : null;
+
+                // If we have a custom (non-builtin) preset selected, update it
+                if (currentPreset && !currentPreset.isBuiltin) {
+                    updatePromptPreset(currentPreset.id, {
+                        prompt: promptText,
+                    });
+                    toast.success(`Updated preset "${currentPreset.name}"`);
+                    updateStageConfig();
+                    return;
+                }
+
+                // Otherwise create a new preset
+                const existingNames = presetRegistry
+                    .getPromptPresets()
+                    .map((p) => p.name);
+                const defaultName = generateUniquePresetName(
+                    `${STAGE_LABELS[state.activeStage]} Custom`,
+                    existingNames,
+                );
+
                 const name = await popup.input(
                     'Save Prompt Preset',
                     'Enter a name for this preset:',
-                    `${STAGE_LABELS[state.activeStage]} Custom`,
+                    defaultName,
                 );
 
                 if (!name) return;
@@ -798,9 +964,15 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                     prompt: promptText,
                 });
 
+                // Switch to the new preset
+                updateStateConfig(state.activeStage, {
+                    promptPresetId: preset.id,
+                    customPrompt: '', // Clear custom since we're using the preset
+                });
+
                 toast.success(`Saved preset "${preset.name}"`);
 
-                // Refresh dropdown
+                // Refresh to show the new preset selected
                 updateStageConfig();
             }),
         );
@@ -1014,10 +1186,32 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                     return;
                 }
 
+                const stageConfig = state.stageConfigs[state.activeStage];
+                const currentPreset = stageConfig?.schemaPresetId
+                    ? getSchemaPreset(stageConfig.schemaPresetId)
+                    : null;
+
+                // If we have a custom (non-builtin) preset selected, update it
+                if (currentPreset && !currentPreset.isBuiltin) {
+                    updateSchemaPreset(currentPreset.id, { schema: parsed });
+                    toast.success(`Updated preset "${currentPreset.name}"`);
+                    updateStageConfig();
+                    return;
+                }
+
+                // Otherwise create a new preset
+                const existingNames = presetRegistry
+                    .getSchemaPresets()
+                    .map((p) => p.name);
+                const defaultName = generateUniquePresetName(
+                    `${STAGE_LABELS[state.activeStage]} Schema`,
+                    existingNames,
+                );
+
                 const name = await popup.input(
                     'Save Schema Preset',
                     'Enter a name for this schema preset:',
-                    `${STAGE_LABELS[state.activeStage]} Schema`,
+                    defaultName,
                 );
 
                 if (!name) return;
@@ -1028,9 +1222,15 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                     schema: parsed,
                 });
 
+                // Switch to the new preset
+                updateStateConfig(state.activeStage, {
+                    schemaPresetId: preset.id,
+                    customSchema: '', // Clear custom since we're using the preset
+                });
+
                 toast.success(`Saved preset "${preset.name}"`);
 
-                // Refresh dropdown
+                // Refresh to show the new preset selected
                 updateStageConfig();
             }),
         );
@@ -1144,4 +1344,7 @@ function updateFieldCheckboxes(): void {
             parentCheckbox.indeterminate = true;
         }
     }
+
+    // Update token total
+    updateFieldTotal();
 }
