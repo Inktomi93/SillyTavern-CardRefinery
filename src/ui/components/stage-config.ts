@@ -26,8 +26,13 @@ import {
     getPromptPreset,
     getSchemaPreset,
     savePromptPreset,
+    saveSchemaPreset,
 } from '../../data';
-import { getPopulatedFields, buildCharacterSummary } from '../../domain';
+import {
+    getPopulatedFields,
+    buildCharacterSummary,
+    generateSchemaFromDescription,
+} from '../../domain';
 import { $, $$, on, formatTokenCount, cx } from './base';
 import { openDrawerWithList } from './preset-drawer';
 import type { StageName, PopulatedField } from '../../types';
@@ -342,13 +347,29 @@ export function renderStageConfig(): string {
                             <i class="fa-solid fa-code cr-text-accent"></i>
                             <span class="cr-font-medium cr-text-sm">JSON Schema</span>
                         </div>
-                        ${renderPresetDropdown('schema', stage, config.schemaPresetId)}
+                        <div class="cr-row cr-gap-1">
+                            <button id="${MODULE_NAME}_save_schema"
+                                    class="menu_button menu_button--icon menu_button--sm menu_button--ghost"
+                                    type="button"
+                                    title="Save as schema preset"
+                                    aria-label="Save as schema preset">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </button>
+                            ${renderPresetDropdown('schema', stage, config.schemaPresetId)}
+                        </div>
                     </div>
                     <textarea id="${MODULE_NAME}_schema"
                               class="cr-textarea--code"
                               placeholder='{"name": "MySchema", "strict": true, "value": {...}}'
                               rows="8">${DOMPurify.sanitize(schemaText)}</textarea>
                     <div class="cr-button-group">
+                        <button id="${MODULE_NAME}_generate_schema"
+                                class="menu_button menu_button--sm"
+                                type="button"
+                                title="Generate schema from description using AI">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            Generate
+                        </button>
                         <button id="${MODULE_NAME}_validate_schema"
                                 class="menu_button menu_button--sm"
                                 type="button">
@@ -872,6 +893,74 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         );
     }
 
+    // Generate schema button
+    const generateBtn = $(`#${MODULE_NAME}_generate_schema`, container);
+    if (generateBtn && schemaTextarea) {
+        cleanups.push(
+            on(generateBtn, 'click', async () => {
+                const description = await popup.input(
+                    'Generate JSON Schema',
+                    'Describe the structure you want (e.g., "rating 1-10, list of issues, summary"):',
+                    '',
+                );
+
+                if (!description) return;
+
+                // Show loading state
+                const originalText = generateBtn.innerHTML;
+                generateBtn.innerHTML =
+                    '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+                (generateBtn as HTMLButtonElement).disabled = true;
+
+                try {
+                    const result =
+                        await generateSchemaFromDescription(description);
+
+                    if (result.success && result.schema) {
+                        // Put generated schema into textarea as custom
+                        schemaTextarea.value = result.schema;
+
+                        // Update state to use custom schema (clear any preset selection)
+                        const state = getState();
+                        updateStateConfig(state.activeStage, {
+                            customSchema: result.schema,
+                            schemaPresetId: null,
+                        });
+
+                        // Clear the preset dropdown selection
+                        const schemaSelect = $(
+                            `#${MODULE_NAME}_schema_select`,
+                            container,
+                        ) as HTMLSelectElement | null;
+                        if (schemaSelect) {
+                            schemaSelect.value = '';
+                        }
+
+                        toast.success(
+                            'Schema generated! Review and save as preset if desired.',
+                        );
+                    } else {
+                        toast.error(
+                            result.error || 'Failed to generate schema',
+                        );
+                        // Still show partial result if available
+                        if (result.schema) {
+                            schemaTextarea.value = result.schema;
+                        }
+                    }
+                } catch (error) {
+                    toast.error(
+                        `Generation failed: ${(error as Error).message}`,
+                    );
+                } finally {
+                    // Restore button state
+                    generateBtn.innerHTML = originalText;
+                    (generateBtn as HTMLButtonElement).disabled = false;
+                }
+            }),
+        );
+    }
+
     // Validate schema button
     const validateBtn = $(`#${MODULE_NAME}_validate_schema`, container);
     if (validateBtn && schemaTextarea) {
@@ -899,6 +988,50 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                 } catch (error) {
                     toast.error(`Invalid JSON: ${(error as Error).message}`);
                 }
+            }),
+        );
+    }
+
+    // Save schema as preset
+    const saveSchemaBtn = $(`#${MODULE_NAME}_save_schema`, container);
+    if (saveSchemaBtn && schemaTextarea) {
+        cleanups.push(
+            on(saveSchemaBtn, 'click', async () => {
+                const state = getState();
+                const schemaText = schemaTextarea.value || '';
+
+                if (!schemaText.trim()) {
+                    toast.warning('Enter a schema first');
+                    return;
+                }
+
+                // Validate JSON first
+                let parsed;
+                try {
+                    parsed = JSON.parse(schemaText);
+                } catch (error) {
+                    toast.error(`Invalid JSON: ${(error as Error).message}`);
+                    return;
+                }
+
+                const name = await popup.input(
+                    'Save Schema Preset',
+                    'Enter a name for this schema preset:',
+                    `${STAGE_LABELS[state.activeStage]} Schema`,
+                );
+
+                if (!name) return;
+
+                const preset = saveSchemaPreset({
+                    name: name.trim(),
+                    stages: [state.activeStage],
+                    schema: parsed,
+                });
+
+                toast.success(`Saved preset "${preset.name}"`);
+
+                // Refresh dropdown
+                updateStageConfig();
             }),
         );
     }
