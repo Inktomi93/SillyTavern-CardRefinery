@@ -41,6 +41,10 @@ export {
     // Storage helpers (error handling around localforage)
     storeLargeData,
     loadLargeData,
+
+    // Character API
+    editCharacterAttribute,
+    getCharacterJson,
 } from './st';
 
 // Types from st.ts
