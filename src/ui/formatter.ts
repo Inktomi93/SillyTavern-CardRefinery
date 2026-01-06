@@ -452,7 +452,7 @@ function renderHeroSection(section: ParsedSection): string {
                 <span class="cr-hero__max">/${score.max}</span>
             </div>
             <div class="cr-hero__bar">
-                <div class="cr-hero__fill" style="width: ${(score.value / score.max) * 100}%; background: ${color}"></div>
+                <div class="cr-hero__fill" style="width: ${(score.value / score.max) * 100}%; --score-color: ${color}"></div>
             </div>
         </div>
     `;

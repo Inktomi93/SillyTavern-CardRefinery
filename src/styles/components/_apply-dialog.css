@@ -91,7 +91,7 @@
             box-sizing: border-box;
             padding: var(--cr-space-3);
             margin: 0;
-            font-family: var(--monoFontFamily, 'Consolas', 'Monaco', monospace);
+            font-family: var(--cr-font-mono);
             font-size: var(--cr-text-sm);
             line-height: 1.5;
             resize: none;
@@ -253,7 +253,7 @@
     max-height: 220px;
     box-sizing: border-box;
     padding: var(--cr-space-2);
-    font-family: var(--mainFontFamily);
+    font-family: var(--cr-font);
     font-size: var(--cr-text-sm);
     line-height: 1.5;
     border: 1px solid var(--cr-border);
