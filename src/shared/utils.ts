@@ -61,17 +61,6 @@ export function hasContent(str: string | null | undefined): boolean {
     return typeof str === 'string' && str.trim().length > 0;
 }
 
-/**
- * Count words in a string.
- */
-export function countWords(str: string): number {
-    if (!str) return 0;
-    return str
-        .trim()
-        .split(/\s+/)
-        .filter((w) => w.length > 0).length;
-}
-
 // =============================================================================
 // ASYNC UTILITIES (useful patterns not in lodash)
 // =============================================================================
@@ -114,96 +103,6 @@ export async function retry<T>(
     }
 
     throw lastError;
-}
-
-// =============================================================================
-// VALIDATION (useful assertions)
-// =============================================================================
-
-/**
- * Assert a condition, throwing if false.
- */
-export function assert(condition: boolean, message: string): asserts condition {
-    if (!condition) {
-        throw new Error(`Assertion failed: ${message}`);
-    }
-}
-
-/**
- * Assert a value is defined (not null or undefined).
- */
-export function assertDefined<T>(
-    value: T | null | undefined,
-    name: string,
-): asserts value is T {
-    if (value === null || value === undefined) {
-        throw new Error(`Expected ${name} to be defined`);
-    }
-}
-
-// =============================================================================
-// TIMING
-// =============================================================================
-
-/**
- * Create a simple timer for measuring execution time.
- *
- * @example
- * ```ts
- * const timer = createTimer();
- * await doSomething();
- * console.log(`Took ${timer.elapsed()}ms`);
- * ```
- */
-export function createTimer(): { elapsed: () => number; reset: () => void } {
-    let start = Date.now();
-
-    return {
-        elapsed(): number {
-            return Date.now() - start;
-        },
-        reset(): void {
-            start = Date.now();
-        },
-    };
-}
-
-/**
- * Format milliseconds as human-readable duration.
- */
-export function formatDuration(ms: number): string {
-    if (ms < 1000) return `${ms}ms`;
-    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-    if (ms < 3600000)
-        return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
-    return `${Math.floor(ms / 3600000)}h ${Math.floor((ms % 3600000) / 60000)}m`;
-}
-
-// =============================================================================
-// JSON UTILITIES
-// =============================================================================
-
-/**
- * Safe JSON parse with fallback.
- */
-export function parseJSON<T>(json: string, fallback: T): T {
-    try {
-        return JSON.parse(json) as T;
-    } catch {
-        return fallback;
-    }
-}
-
-/**
- * Check if a string is valid JSON.
- */
-export function isValidJSON(str: string): boolean {
-    try {
-        JSON.parse(str);
-        return true;
-    } catch {
-        return false;
-    }
 }
 
 // =============================================================================

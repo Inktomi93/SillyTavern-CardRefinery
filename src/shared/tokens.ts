@@ -133,16 +133,6 @@ export function cancelTokenCount(text: string): void {
 }
 
 /**
- * Cancel all pending token counts.
- */
-export function cancelAllTokenCounts(): void {
-    for (const request of pending.values()) {
-        clearTimeout(request.timeoutId);
-    }
-    pending.clear();
-}
-
-/**
  * Clear token cache.
  * Call this when API/tokenizer changes.
  */
@@ -267,36 +257,6 @@ export function getCachedTokenCount(text: string): number | null {
     if (!trimmed) return 0;
     const key = getCacheKey(trimmed);
     return cache.get(key) ?? null;
-}
-
-/**
- * Check if a count is pending for this text.
- */
-export function isTokenCountPending(text: string): boolean {
-    const key = getCacheKey(text.trim());
-    return pending.has(key);
-}
-
-/**
- * Manually set a cache value.
- */
-export function setCachedTokenCount(text: string, count: number): void {
-    const key = getCacheKey(text.trim());
-    setCacheValue(key, count);
-}
-
-/**
- * Get current cache size.
- */
-export function getTokenCacheSize(): number {
-    return cache.size;
-}
-
-/**
- * Get pending request count.
- */
-export function getTokenPendingCount(): number {
-    return pending.size;
 }
 
 // =============================================================================

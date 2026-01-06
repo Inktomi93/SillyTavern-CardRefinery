@@ -1072,56 +1072,6 @@ export function estimateSchemaComplexity(schema: StructuredOutputSchema): {
 }
 
 // =============================================================================
-// SCHEMA BUILDERS (Convenience functions)
-// =============================================================================
-
-/**
- * Create a basic schema wrapper.
- */
-export function createSchema(
-    name: string,
-    value: JsonSchemaValue,
-    strict = true,
-): StructuredOutputSchema {
-    return { name, strict, value };
-}
-
-/**
- * Create an object schema with required fields.
- */
-export function objectSchema(
-    properties: Record<string, JsonSchemaValue>,
-    required?: string[],
-): JsonSchemaValue {
-    return {
-        type: 'object',
-        additionalProperties: false,
-        properties,
-        required: required ?? Object.keys(properties),
-    };
-}
-
-/**
- * Create an array schema.
- */
-export function arraySchema(items: JsonSchemaValue): JsonSchemaValue {
-    return {
-        type: 'array',
-        items,
-    };
-}
-
-/**
- * Create a string enum schema.
- */
-export function enumSchema(values: string[]): JsonSchemaValue {
-    return {
-        type: 'string',
-        enum: values,
-    };
-}
-
-// =============================================================================
 // SCHEMA GENERATION FROM DESCRIPTION
 // =============================================================================
 

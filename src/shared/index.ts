@@ -43,12 +43,10 @@ export {
     // Factory functions (return managed objects)
     createSettingsManager,
     createEventManager,
-    createChatMetadataManager,
 
     // Storage helpers (error handling around localforage)
     storeLargeData,
     loadLargeData,
-    removeLargeData,
 } from './st';
 
 // Types from st.ts
@@ -59,7 +57,6 @@ export type {
     STEventTypes,
     SettingsManager,
     EventManager,
-    ChatMetadataManager,
     StructuredOutputSchema,
     JsonSchemaValue,
 } from './st';
@@ -78,8 +75,6 @@ export {
 
     // Log access
     getLogEntries,
-    getLogEntriesByLevel,
-    clearLogEntries,
 
     // Diagnostics
     collectDiagnostics,
@@ -103,21 +98,9 @@ export {
     // API status (SINGLE SOURCE OF TRUTH)
     getApiStatus,
     isApiReady,
-
-    // Sampler settings
-    getSamplerSettings,
-
-    // Token estimation
-    estimateTokens,
-    promptFitsContext,
 } from './profiles';
 
-export type {
-    ProfileInfo,
-    ApiStatus,
-    SamplerSettings,
-    TokenEstimate,
-} from './profiles';
+export type { ProfileInfo, ApiStatus } from './profiles';
 
 // =============================================================================
 // TOKEN COUNTING (Advanced - with caching & debouncing)
@@ -127,7 +110,6 @@ export {
     // Callback API (for UI with debounce)
     countTokensDebounced,
     cancelTokenCount,
-    cancelAllTokenCounts,
 
     // Promise API
     getTokenCount,
@@ -137,12 +119,6 @@ export {
     // Cache management
     clearTokenCache,
     getCachedTokenCount,
-    setCachedTokenCount,
-
-    // Debug
-    isTokenCountPending,
-    getTokenCacheSize,
-    getTokenPendingCount,
 } from './tokens';
 
 export type { KeyedTokenResult } from './tokens';
@@ -177,22 +153,9 @@ export {
 
     // String utilities
     hasContent,
-    countWords,
 
     // Async utilities
     retry,
-
-    // Validation
-    assert,
-    assertDefined,
-
-    // Timing
-    createTimer,
-    formatDuration,
-
-    // JSON utilities
-    parseJSON,
-    isValidJSON,
 
     // Template literal helpers
     html,
