@@ -333,7 +333,8 @@
    ============================================================================= */
 
 .cr-apply-footer {
-    padding-top: var(--cr-space-2);
+    padding: var(--cr-space-2) 0 0 0;
+    background: var(--cr-bg-secondary);
     border-top: 1px solid var(--cr-border-muted);
     flex-shrink: 0;
 }
