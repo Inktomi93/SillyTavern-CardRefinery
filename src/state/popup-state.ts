@@ -289,7 +289,24 @@ export function toggleField(key: string, value: boolean | number[]): void {
     if (value === false || (Array.isArray(value) && value.length === 0)) {
         delete selection[key];
     } else {
-        selection[key] = value;
+        // Validate alternate_greetings indices against actual character data
+        if (
+            key === 'alternate_greetings' &&
+            Array.isArray(value) &&
+            s.character
+        ) {
+            const greetings = s.character.data?.alternate_greetings || [];
+            const validIndices = value.filter(
+                (idx) => idx >= 0 && idx < greetings.length,
+            );
+            if (validIndices.length === 0) {
+                delete selection[key];
+            } else {
+                selection[key] = validIndices;
+            }
+        } else {
+            selection[key] = value;
+        }
     }
 
     // Keep legacy field in sync

@@ -58,6 +58,9 @@ export function resetFuse(): void {
 let isOpen = false;
 let searchQuery = '';
 let highlightedIndex = -1;
+// Track search debounce at module level to prevent race conditions on rapid re-bind
+let searchDebounce: ReturnType<typeof SillyTavern.libs.lodash.debounce> | null =
+    null;
 
 function setDropdownOpen(open: boolean): void {
     isOpen = open;
@@ -302,13 +305,22 @@ export function bindCharacterSelectorEvents(
 
     // Search input
     if (searchInput) {
-        const doSearch = SillyTavern.libs.lodash.debounce(() => {
+        // Cancel any existing search debounce before creating new one
+        // This prevents race conditions if component is rapidly re-bound
+        if (searchDebounce) {
+            searchDebounce.cancel();
+            searchDebounce = null;
+        }
+
+        searchDebounce = SillyTavern.libs.lodash.debounce(() => {
             searchQuery = searchInput.value;
             highlightedIndex = -1;
             if (list) {
                 list.innerHTML = renderDropdownList();
             }
         }, DEBOUNCE.SEARCH);
+
+        const doSearch = searchDebounce;
 
         cleanups.push(
             on(searchInput, 'input', () => {
@@ -353,7 +365,10 @@ export function bindCharacterSelectorEvents(
             }),
         );
 
-        cleanups.push(() => doSearch.cancel());
+        cleanups.push(() => {
+            doSearch.cancel();
+            searchDebounce = null;
+        });
     }
 
     // Clear search button

@@ -122,6 +122,11 @@
         &--list {
             justify-content: space-between;
         }
+
+        &--spaced {
+            justify-content: space-between;
+            gap: var(--cr-space-4);
+        }
     }
 
     /* Tabs (for list view) */
@@ -197,6 +202,13 @@
         gap: var(--cr-space-1);
         flex-shrink: 0;
     }
+}
+
+.cr-preset-label {
+    font-size: var(--cr-text-xs);
+    color: var(--cr-text-muted);
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 /* Chip/tag selector */

@@ -11,7 +11,7 @@ export * from './results-panel';
 export * from './compare-view';
 export * from './apply-suggestions';
 export * from './session-dropdown';
-export * from './settings-modal';
+export * from './settings-drawer';
 export * from './preset-drawer';
 export * from './api-status';
 

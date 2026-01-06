@@ -6,7 +6,7 @@
  */
 
 /* Base menu_button normalization for ALL CT contexts */
-:is(.cr-popup, .cr-settings-modal, .cr-drawer) .menu_button {
+:is(.cr-popup, .cr-drawer) .menu_button {
     display: inline-flex;
     align-items: center;
     justify-content: center;

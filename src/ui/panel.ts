@@ -72,6 +72,12 @@ export async function initPanel(): Promise<void> {
         return;
     }
 
+    // Guard against double initialization (e.g., settings refresh)
+    if (document.getElementById(`${MODULE_NAME}_panel`)) {
+        log.debug('Panel already initialized, skipping');
+        return;
+    }
+
     container.insertAdjacentHTML('beforeend', getPanelHTML());
 
     // Bind launch button

@@ -57,7 +57,7 @@ function getCacheKey(text: string): string {
     for (let i = 0; i < text.length; i++) {
         const char = text.charCodeAt(i);
         hash = (hash << 5) - hash + char;
-        hash = hash & hash;
+        hash = hash | 0; // Convert to 32-bit integer
     }
     const prefix = text.slice(0, 16);
     const suffix = text.slice(-16);
@@ -304,8 +304,9 @@ export function getTokenPendingCount(): number {
 // =============================================================================
 
 function setCacheValue(key: string, tokens: number): void {
-    // LRU-style eviction
-    if (cache.size >= CACHE_MAX_SIZE) {
+    // Only evict if we're adding a NEW key and cache is full
+    // Don't evict when updating an existing key
+    if (!cache.has(key) && cache.size >= CACHE_MAX_SIZE) {
         const firstKey = cache.keys().next().value;
         if (firstKey) cache.delete(firstKey);
     }

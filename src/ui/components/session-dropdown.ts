@@ -298,11 +298,16 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(newBtn, 'click', async (e) => {
                 e.stopPropagation();
-                const session = await createNewSession();
-                if (session) {
-                    toast.success('New session created');
-                    setDropdownOpen(false);
-                    refreshAfterSessionChange();
+                try {
+                    const session = await createNewSession();
+                    if (session) {
+                        toast.success('New session created');
+                        setDropdownOpen(false);
+                        refreshAfterSessionChange();
+                    }
+                } catch (error) {
+                    toast.error('Failed to create session');
+                    console.error('Create session error:', error);
                 }
             }),
         );
@@ -346,8 +351,13 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                         `.cr-session-option__name-input[data-session-id="${sessionId}"]`,
                     ) as HTMLInputElement;
                     if (input) {
-                        await renameSession(sessionId, input.value);
-                        toast.success('Session renamed');
+                        try {
+                            await renameSession(sessionId, input.value);
+                            toast.success('Session renamed');
+                        } catch (error) {
+                            toast.error('Failed to rename session');
+                            console.error('Rename session error:', error);
+                        }
                     }
                     editingSessionId = null;
                     updateSessionDropdown();
@@ -370,10 +380,15 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                         'Are you sure you want to delete this session? This cannot be undone.',
                     );
                     if (confirmed) {
-                        await deleteSession(sessionId);
-                        toast.success('Session deleted');
-                        updateSessionDropdown();
-                        refreshAfterSessionChange();
+                        try {
+                            await deleteSession(sessionId);
+                            toast.success('Session deleted');
+                            updateSessionDropdown();
+                            refreshAfterSessionChange();
+                        } catch (error) {
+                            toast.error('Failed to delete session');
+                            console.error('Delete session error:', error);
+                        }
                     }
                     return;
                 }
@@ -385,13 +400,18 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                     ) &&
                     !editingSessionId
                 ) {
-                    const success = await loadSession(sessionId);
-                    if (success) {
-                        toast.success('Session loaded');
-                        setDropdownOpen(false);
-                        refreshAfterSessionChange();
-                    } else {
+                    try {
+                        const success = await loadSession(sessionId);
+                        if (success) {
+                            toast.success('Session loaded');
+                            setDropdownOpen(false);
+                            refreshAfterSessionChange();
+                        } else {
+                            toast.error('Failed to load session');
+                        }
+                    } catch (error) {
                         toast.error('Failed to load session');
+                        console.error('Load session error:', error);
                     }
                 }
             }),
@@ -410,11 +430,16 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
 
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    await renameSession(
-                        sessionId,
-                        (target as HTMLInputElement).value,
-                    );
-                    toast.success('Session renamed');
+                    try {
+                        await renameSession(
+                            sessionId,
+                            (target as HTMLInputElement).value,
+                        );
+                        toast.success('Session renamed');
+                    } catch (error) {
+                        toast.error('Failed to rename session');
+                        console.error('Rename session error:', error);
+                    }
                     editingSessionId = null;
                     updateSessionDropdown();
                 } else if (e.key === 'Escape') {

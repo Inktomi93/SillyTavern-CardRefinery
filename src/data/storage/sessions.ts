@@ -256,6 +256,12 @@ export async function createSession(
 export async function updateSession(session: Session): Promise<void> {
     const sessions = await loadSessions();
 
+    // Validate that session exists before updating
+    // This prevents bypassing the creation flow (which handles limits, indexing, etc.)
+    if (!sessions.has(session.id)) {
+        throw new Error(`Cannot update non-existent session: ${session.id}`);
+    }
+
     session.updatedAt = Date.now();
     sessions.set(session.id, session);
 

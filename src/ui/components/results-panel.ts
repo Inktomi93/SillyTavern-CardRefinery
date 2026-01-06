@@ -30,6 +30,8 @@ let currentViewMode: 'result' | 'compare' = 'result';
 let jsonDisplayMode: 'smart' | 'raw' = 'smart';
 // Track text display mode (formatted vs raw)
 let textDisplayMode: 'formatted' | 'raw' = 'formatted';
+// Track compare view cleanup separately to prevent listener accumulation
+let compareViewCleanup: (() => void) | null = null;
 
 // =============================================================================
 // CLIPBOARD UTILITIES
@@ -158,9 +160,9 @@ function renderResultContent(
                             </button>
                         </div>
                         <button class="cr-result-copy menu_button menu_button--icon menu_button--sm menu_button--ghost"
-                                data-content="${encodeURIComponent(formattedJson)}"
+                                data-content="${encodeURIComponent(result.output)}"
                                 type="button"
-                                title="Copy to clipboard">
+                                title="Copy raw output to clipboard">
                             <i class="fa-solid fa-copy"></i>
                         </button>
                     </div>
@@ -349,8 +351,8 @@ export function renderResultsPanel(): string {
                     ? /* html */ `
                 <button class="menu_button menu_button--primary menu_button--sm cr-apply-btn"
                         type="button"
-                        title="Apply rewritten content to character card">
-                    <i class="fa-solid fa-check"></i> Apply
+                        title="Apply or export rewritten content">
+                    <i class="fa-solid fa-file-export"></i> Apply / Export
                 </button>
             `
                     : ''
@@ -510,8 +512,8 @@ export function updateResults(): void {
                     ? /* html */ `
                 <button class="menu_button menu_button--primary menu_button--sm cr-apply-btn"
                         type="button"
-                        title="Apply rewritten content to character card">
-                    <i class="fa-solid fa-check"></i> Apply
+                        title="Apply or export rewritten content">
+                    <i class="fa-solid fa-file-export"></i> Apply / Export
                 </button>
             `
                     : ''
@@ -615,6 +617,12 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
                 | 'result'
                 | 'compare';
             if (view && view !== currentViewMode) {
+                // Clean up previous compare view listeners before switching
+                if (compareViewCleanup) {
+                    compareViewCleanup();
+                    compareViewCleanup = null;
+                }
+
                 currentViewMode = view;
                 updateResults();
 
@@ -622,7 +630,8 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
                 if (view === 'compare') {
                     const compareContent = $(`#${MODULE_NAME}_compare_content`);
                     if (compareContent) {
-                        cleanups.push(bindCompareViewEvents(compareContent));
+                        compareViewCleanup =
+                            bindCompareViewEvents(compareContent);
                     }
                 }
             }
@@ -807,6 +816,11 @@ export function bindResultsPanelEvents(container: HTMLElement): () => void {
     );
 
     return () => {
+        // Clean up compare view listeners if any
+        if (compareViewCleanup) {
+            compareViewCleanup();
+            compareViewCleanup = null;
+        }
         cleanups.forEach((fn) => fn());
     };
 }

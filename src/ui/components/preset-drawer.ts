@@ -1247,67 +1247,68 @@ function bindListEvents(drawer: HTMLElement): void {
         );
     }
 
-    // Preset list actions (event delegation)
-    const listContainer = $('.cr-preset-list', drawer);
-    if (listContainer) {
-        cleanupFns.push(
-            on(listContainer, 'click', async (e) => {
-                const target = e.target as HTMLElement;
-                const item = target.closest(
-                    '.cr-preset-list__item',
-                ) as HTMLElement;
-                if (!item) return;
+    // Preset list actions (event delegation from drawer to survive body re-renders)
+    // Note: We bind to drawer instead of listContainer because the list body
+    // gets replaced via outerHTML when switching tabs, which would orphan listeners
+    cleanupFns.push(
+        on(drawer, 'click', async (e) => {
+            const target = e.target as HTMLElement;
 
-                const id = item.dataset.id;
-                const type = item.dataset.type as PresetType;
-                if (!id || !type) return;
+            // Only handle clicks within the preset list
+            if (!target.closest('.cr-preset-list')) return;
 
-                const preset =
-                    type === 'prompt'
-                        ? presetRegistry.getPromptPreset(id)
-                        : presetRegistry.getSchemaPreset(id);
-                if (!preset) return;
+            const item = target.closest('.cr-preset-list__item') as HTMLElement;
+            if (!item) return;
 
-                // Select preset (clicking main button)
-                if (target.closest('.cr-preset-list__select')) {
-                    drawerCallbacks.onSelect?.(preset);
-                    closeDrawer();
-                    return;
+            const id = item.dataset.id;
+            const type = item.dataset.type as PresetType;
+            if (!id || !type) return;
+
+            const preset =
+                type === 'prompt'
+                    ? presetRegistry.getPromptPreset(id)
+                    : presetRegistry.getSchemaPreset(id);
+            if (!preset) return;
+
+            // Select preset (clicking main button)
+            if (target.closest('.cr-preset-list__select')) {
+                drawerCallbacks.onSelect?.(preset);
+                closeDrawer();
+                return;
+            }
+
+            // Edit
+            if (target.closest('.cr-preset-list__action--edit')) {
+                switchToEditMode(type, id);
+                return;
+            }
+
+            // Duplicate
+            if (target.closest('.cr-preset-list__action--duplicate')) {
+                switchToDuplicateMode(type, id);
+                return;
+            }
+
+            // Delete
+            if (target.closest('.cr-preset-list__action--delete')) {
+                const confirmed = await popup.confirm(
+                    'Delete Preset',
+                    `Are you sure you want to delete "${preset.name}"?`,
+                );
+                if (!confirmed) return;
+
+                if (type === 'prompt') {
+                    presetRegistry.deletePromptPreset(id);
+                } else {
+                    presetRegistry.deleteSchemaPreset(id);
                 }
 
-                // Edit
-                if (target.closest('.cr-preset-list__action--edit')) {
-                    switchToEditMode(type, id);
-                    return;
-                }
-
-                // Duplicate
-                if (target.closest('.cr-preset-list__action--duplicate')) {
-                    switchToDuplicateMode(type, id);
-                    return;
-                }
-
-                // Delete
-                if (target.closest('.cr-preset-list__action--delete')) {
-                    const confirmed = await popup.confirm(
-                        'Delete Preset',
-                        `Are you sure you want to delete "${preset.name}"?`,
-                    );
-                    if (!confirmed) return;
-
-                    if (type === 'prompt') {
-                        presetRegistry.deletePromptPreset(id);
-                    } else {
-                        presetRegistry.deleteSchemaPreset(id);
-                    }
-
-                    toast.success('Preset deleted');
-                    drawerCallbacks.onUpdate?.();
-                    refreshListView(drawer);
-                }
-            }),
-        );
-    }
+                toast.success('Preset deleted');
+                drawerCallbacks.onUpdate?.();
+                refreshListView(drawer);
+            }
+        }),
+    );
 
     // Create button
     const createBtn = $(`#${MODULE_NAME}_drawer_list_create`, drawer);

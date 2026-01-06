@@ -63,6 +63,9 @@ function init(): void {
 // EVENT LISTENERS
 // =============================================================================
 
+// Store handler references for cleanup
+const eventHandlers: Array<{ type: string; handler: () => void }> = [];
+
 /**
  * Register ST event listeners for reactive updates.
  *
@@ -79,8 +82,14 @@ function init(): void {
 function registerEventListeners(): void {
     const { eventSource, eventTypes } = SillyTavern.getContext();
 
+    // Helper to register and track handlers
+    const register = (type: string, handler: () => void) => {
+        eventSource.on(type, handler);
+        eventHandlers.push({ type, handler });
+    };
+
     // Reset Fuse index and refresh popup character when characters change
-    eventSource.on(eventTypes.CHARACTER_EDITED, () => {
+    register(eventTypes.CHARACTER_EDITED, () => {
         log.debug(
             'Character edited, resetting Fuse index and refreshing popup',
         );
@@ -89,21 +98,35 @@ function registerEventListeners(): void {
         refreshAfterCharacterChange(); // Trigger UI updates if popup is open
     });
 
-    eventSource.on(eventTypes.CHARACTER_DELETED, () => {
+    register(eventTypes.CHARACTER_DELETED, () => {
         log.debug('Character deleted, resetting Fuse index');
         resetFuse();
     });
 
     // React to API changes
-    eventSource.on(eventTypes.CHATCOMPLETION_SOURCE_CHANGED, () => {
+    register(eventTypes.CHATCOMPLETION_SOURCE_CHANGED, () => {
         log.debug('Chat completion source changed');
     });
 
-    eventSource.on(eventTypes.CHATCOMPLETION_MODEL_CHANGED, () => {
+    register(eventTypes.CHATCOMPLETION_MODEL_CHANGED, () => {
         log.debug('Chat completion model changed');
     });
 
     log.debug('Event listeners registered');
+}
+
+/**
+ * Unregister all ST event listeners.
+ */
+function unregisterEventListeners(): void {
+    const { eventSource } = SillyTavern.getContext();
+
+    for (const { type, handler } of eventHandlers) {
+        eventSource.off(type, handler);
+    }
+    eventHandlers.length = 0;
+
+    log.debug('Event listeners unregistered');
 }
 
 // =============================================================================
@@ -114,6 +137,7 @@ function registerEventListeners(): void {
  * Cleanup on extension unload (if ST ever supports it).
  */
 export function cleanup(): void {
+    unregisterEventListeners();
     clearCache();
     log.info('Extension cleaned up');
 }

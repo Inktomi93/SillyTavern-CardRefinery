@@ -1,45 +1,14 @@
 /**
- * Settings Modal Component
+ * Settings Components
  *
- * Two-column layout for extension settings.
+ * Styles for extension settings UI components.
+ * Used inside the settings drawer.
  * Includes API status, generation mode, profiles, and presets.
  */
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   POPUP OVERRIDE
+   SETTINGS HEADER (used in drawer)
    ═══════════════════════════════════════════════════════════════════════════════ */
-
-.popup:has(.cr-settings-modal) {
-    width: 90dvw;
-    max-width: 900px;
-    min-width: 320px;
-    padding: 0;
-
-    @media (--mobile) {
-        width: 100dvw;
-        max-width: none;
-        min-width: auto;
-        border-radius: 0;
-    }
-
-    @media (--desktop) {
-        max-width: 1000px;
-    }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════════
-   MODAL CONTAINER
-   ═══════════════════════════════════════════════════════════════════════════════ */
-
-.cr-settings-modal {
-    display: flex;
-    flex-direction: column;
-    height: 85vh;
-    max-height: 85vh;
-    color: var(--cr-text);
-    font-family: var(--cr-font);
-    font-size: var(--cr-font-size);
-}
 
 /* Header */
 .cr-settings-header {
@@ -573,4 +542,31 @@
     flex-wrap: wrap;
     gap: var(--cr-space-2);
     margin-top: var(--cr-space-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   WARNING BANNER
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cr-warning-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--cr-space-2);
+    padding: var(--cr-space-2) var(--cr-space-3);
+    margin-bottom: var(--cr-space-2);
+    font-size: var(--cr-text-xs);
+    line-height: 1.4;
+    color: var(--cr-warning);
+    background: color-mix(
+        in srgb,
+        var(--cr-warning) 10%,
+        var(--cr-bg-secondary)
+    );
+    border: 1px solid color-mix(in srgb, var(--cr-warning) 30%, transparent);
+    border-radius: var(--cr-radius-sm);
+
+    & i {
+        flex-shrink: 0;
+        margin-top: 0.1em;
+    }
 }

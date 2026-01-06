@@ -8,7 +8,13 @@
 //
 // =============================================================================
 
-import { MODULE_NAME, STAGES, STAGE_LABELS, STAGE_ICONS } from '../../shared';
+import {
+    MODULE_NAME,
+    STAGES,
+    STAGE_LABELS,
+    STAGE_ICONS,
+    log,
+} from '../../shared';
 import {
     getState,
     setActiveStage,
@@ -400,7 +406,9 @@ function bindPipelineControlEvents(container: HTMLElement): void {
         pipelineControlCleanups.push(
             on(runStageBtn, 'click', () => {
                 const state = getState();
-                executeStage(state.activeStage);
+                executeStage(state.activeStage).catch((e) => {
+                    log.error('Stage execution failed', e);
+                });
             }),
         );
     }
@@ -410,7 +418,9 @@ function bindPipelineControlEvents(container: HTMLElement): void {
     if (runAllBtn) {
         pipelineControlCleanups.push(
             on(runAllBtn, 'click', () => {
-                executeAllStages();
+                executeAllStages().catch((e) => {
+                    log.error('All stages execution failed', e);
+                });
             }),
         );
     }
@@ -420,7 +430,9 @@ function bindPipelineControlEvents(container: HTMLElement): void {
     if (iterateBtn) {
         pipelineControlCleanups.push(
             on(iterateBtn, 'click', () => {
-                executeQuickIterate();
+                executeQuickIterate().catch((e) => {
+                    log.error('Quick iterate failed', e);
+                });
             }),
         );
     }

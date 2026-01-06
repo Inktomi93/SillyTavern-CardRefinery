@@ -89,6 +89,21 @@ function setGeneratingInState(
         : null;
 }
 
+/**
+ * Conditionally clear generating state only if this controller is still active.
+ * Prevents race condition where old pipeline clears state for new pipeline.
+ */
+function clearGeneratingIfOwned(
+    state: PopupState,
+    controller: AbortController,
+): void {
+    // Only clear if this controller is still the active one
+    if (state.abortController === controller) {
+        state.isGenerating = false;
+        state.abortController = null;
+    }
+}
+
 function recordResultInState(state: PopupState, result: StageResult): void {
     state.stageResults[result.stage] = result;
     state.stageStatus[result.stage] = result.error ? 'error' : 'complete';
@@ -197,7 +212,7 @@ export async function executeStageAction(
 
         return null;
     } finally {
-        setGeneratingInState(state, false);
+        clearGeneratingIfOwned(state, controller);
     }
 }
 
@@ -293,7 +308,7 @@ export async function executeAllStagesAction(
         log.error('Pipeline execution failed:', error);
         callbacks?.onError?.(state.activeStage, errorMsg);
     } finally {
-        setGeneratingInState(state, false);
+        clearGeneratingIfOwned(state, controller);
     }
 
     return results;
@@ -384,7 +399,7 @@ export async function executeRefinementAction(
 
         return null;
     } finally {
-        setGeneratingInState(state, false);
+        clearGeneratingIfOwned(state, controller);
     }
 }
 
@@ -518,7 +533,7 @@ export async function executeQuickIterateAction(
         callbacks?.onError?.(state.activeStage, errorMsg);
         return results;
     } finally {
-        setGeneratingInState(state, false);
+        clearGeneratingIfOwned(state, controller);
     }
 }
 

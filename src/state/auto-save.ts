@@ -21,10 +21,21 @@ export function createAutoSave(
 ) {
     const _ = SillyTavern.libs.lodash;
 
+    // Mutex to prevent concurrent saves
+    let inFlightSave: Promise<void> | null = null;
+
     // The actual save logic - extracted so it can be called directly
     const saveImpl = async (): Promise<void> => {
+        // Wait for any in-flight save to complete first
+        if (inFlightSave) {
+            await inFlightSave;
+        }
+
         const s = getState();
         if (!s?.activeSessionId || !s.character) return;
+
+        // Check for loading flag to avoid saving partial state
+        if ((s as unknown as { _isLoading?: boolean })._isLoading) return;
 
         const session = await getSession(s.activeSessionId);
         if (!session) return;
@@ -41,19 +52,37 @@ export function createAutoSave(
         setUnsavedChanges(false);
     };
 
+    // Wrapped save that tracks in-flight operations
+    const trackedSave = async (): Promise<void> => {
+        const savePromise = saveImpl();
+        inFlightSave = savePromise;
+        try {
+            await savePromise;
+        } finally {
+            // Only clear if this is still the tracked promise
+            if (inFlightSave === savePromise) {
+                inFlightSave = null;
+            }
+        }
+    };
+
     // Debounced version for automatic saves
     const debouncedSave = _.debounce(() => {
-        saveImpl(); // Fire and forget for debounced calls
+        trackedSave(); // Fire and forget for debounced calls
     }, 1000);
 
     // Return an object with both the debounced trigger and direct save
     return {
         trigger: debouncedSave,
-        save: saveImpl,
+        save: trackedSave,
         cancel: () => debouncedSave.cancel(),
         flush: async () => {
             debouncedSave.cancel(); // Cancel pending debounce
-            await saveImpl(); // Execute save directly and await
+            // Wait for any in-flight save, then do final save
+            if (inFlightSave) {
+                await inFlightSave;
+            }
+            await trackedSave(); // Execute save directly and await
         },
     };
 }

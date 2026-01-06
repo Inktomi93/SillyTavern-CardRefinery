@@ -219,9 +219,11 @@ function renderPresetDropdown(
             : getSchemaPresetsForStage(stage);
 
     const customId = `${MODULE_NAME}_${type}_select`;
+    const label = type === 'prompt' ? 'Preset:' : 'Schema:';
 
     return /* html */ `
         <div class="cr-preset-row">
+            <span class="cr-preset-label">${label}</span>
             <select id="${customId}" class="cr-select text_pole" aria-label="${type} preset">
                 <option value="">Custom</option>
                 ${presets
@@ -703,6 +705,13 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
             }),
         );
 
+        // Clean up this specific debounce when component is unbound
+        cleanups.push(() => {
+            updatePrompt.cancel();
+            const idx = pendingInputDebounces.indexOf(updatePrompt);
+            if (idx !== -1) pendingInputDebounces.splice(idx, 1);
+        });
+
         // Initial token count
         updateTokenCount(promptTextarea.value);
     }
@@ -723,12 +732,18 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                     customPrompt: '', // Clear custom when selecting preset
                 });
 
-                // Update textarea with preset content
-                if (presetId) {
-                    const preset = getPromptPreset(presetId);
-                    if (preset && promptTextarea) {
-                        promptTextarea.value = preset.prompt;
-                        updateTokenCount(preset.prompt);
+                // Update textarea with preset content or clear it
+                if (promptTextarea) {
+                    if (presetId) {
+                        const preset = getPromptPreset(presetId);
+                        if (preset) {
+                            promptTextarea.value = preset.prompt;
+                            updateTokenCount(preset.prompt);
+                        }
+                    } else {
+                        // "Custom" selected - clear textarea for fresh start
+                        promptTextarea.value = '';
+                        updateTokenCount('');
                     }
                 }
             }),
@@ -812,6 +827,47 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
         cleanups.push(
             on(schemaTextarea, 'input', () => {
                 updateSchema(schemaTextarea.value);
+            }),
+        );
+
+        // Clean up this specific debounce when component is unbound
+        cleanups.push(() => {
+            updateSchema.cancel();
+            const idx = pendingInputDebounces.indexOf(updateSchema);
+            if (idx !== -1) pendingInputDebounces.splice(idx, 1);
+        });
+    }
+
+    // Schema preset dropdown
+    const schemaSelect = $(
+        `#${MODULE_NAME}_schema_select`,
+        container,
+    ) as HTMLSelectElement;
+    if (schemaSelect && schemaTextarea) {
+        cleanups.push(
+            on(schemaSelect, 'change', () => {
+                const state = getState();
+                const presetId = schemaSelect.value || null;
+
+                updateStateConfig(state.activeStage, {
+                    schemaPresetId: presetId,
+                    customSchema: '', // Clear custom when selecting preset
+                });
+
+                // Update textarea with preset content or clear it
+                if (presetId) {
+                    const preset = getSchemaPreset(presetId);
+                    if (preset) {
+                        schemaTextarea.value = JSON.stringify(
+                            preset.schema,
+                            null,
+                            2,
+                        );
+                    }
+                } else {
+                    // "Custom" selected - clear textarea for fresh start
+                    schemaTextarea.value = '';
+                }
             }),
         );
     }

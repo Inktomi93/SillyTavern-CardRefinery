@@ -117,7 +117,7 @@ export const STORAGE_KEYS = {
  * To change the prefix:
  * 1. Update this constant
  * 2. Run find-replace in src/styles/ and src/ui/: old prefix → new prefix
- * 3. Update _variables.css root selectors (.cr-popup, .cr-settings-modal, .cr-drawer)
+ * 3. Update _variables.css root selectors (.cr-popup, .cr-drawer, .cr-apply-dialog)
  */
 export const CSS_PREFIX = 'cr' as const;
 

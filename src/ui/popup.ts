@@ -33,7 +33,9 @@ import {
     updateResults,
     renderApiStatusCompact,
     bindApiStatusEvents,
-    openSettingsModal,
+    openSettingsDrawer,
+    initSettingsDrawer,
+    destroySettingsDrawer,
     cleanupPipelineControls,
     initDrawer,
     destroyDrawer,
@@ -166,8 +168,9 @@ export async function openPopup(): Promise<void> {
         return;
     }
 
-    // Initialize the preset drawer (appends to popup)
+    // Initialize drawers (appends to popup)
     initDrawer(popupElement);
+    initSettingsDrawer(popupElement);
 
     // Bind all component events
     bindAllEvents(popupElement);
@@ -252,12 +255,12 @@ function bindAllEvents(container: HTMLElement): void {
         eventCleanups.push(bindApiStatusEvents(apiStatusContainer));
     }
 
-    // Settings button
+    // Settings button - opens drawer instead of modal
     const settingsBtn = $(`#${MODULE_NAME}_settings_btn`, container);
     if (settingsBtn) {
         eventCleanups.push(
             on(settingsBtn, 'click', () => {
-                openSettingsModal();
+                openSettingsDrawer(container);
             }),
         );
     }
@@ -328,8 +331,9 @@ async function onPopupClose(): Promise<void> {
     // Cleanup pipeline controls separately (has its own state)
     cleanupPipelineControls();
 
-    // Remove drawer from DOM
+    // Remove drawers from DOM
     destroyDrawer();
+    destroySettingsDrawer();
 
     // Clear update coordinator registrations
     clearRegistrations();

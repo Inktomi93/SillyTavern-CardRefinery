@@ -534,7 +534,10 @@ function renderCodeBlock(section: ParsedSection): string {
 
     let highlighted: string;
     try {
-        if (language && hljs.getLanguage(language)) {
+        // Fallback to escaped HTML if hljs is not available
+        if (!hljs) {
+            highlighted = escapeHtml(content);
+        } else if (language && hljs.getLanguage(language)) {
             highlighted = hljs.highlight(content, { language }).value;
         } else {
             highlighted = hljs.highlightAuto(content).value;
@@ -957,7 +960,10 @@ function renderSimpleValue(data: unknown): string {
 function renderJson(data: unknown): string {
     const { hljs } = SillyTavern.libs;
     const json = JSON.stringify(data, null, 2);
-    const highlighted = hljs.highlight(json, { language: 'json' }).value;
+    // Fallback to escaped HTML if hljs is not available
+    const highlighted = hljs
+        ? hljs.highlight(json, { language: 'json' }).value
+        : escapeHtml(json);
     return /* html */ `<pre class="cr-code__pre"><code class="hljs">${highlighted}</code></pre>`;
 }
 

@@ -35,7 +35,7 @@ src/styles/
     ├── _preview.css       # Preview content
     ├── _api-status.css    # API status badge
     ├── _drawer.css        # Slideout drawer
-    ├── _settings-modal.css
+    ├── _settings-modal.css  # Settings components (used in drawer)
     ├── _form-shared.css   # Shared form elements
     └── _panel.css         # Extension panel
 ```
@@ -101,7 +101,7 @@ Use nested selectors for BEM:
 Button modifiers extend ST's `.menu_button` using `:is()` for consolidated selectors:
 
 ```css
-:is(.cr-popup, .cr-settings-modal, .cr-drawer) .menu_button {
+:is(.cr-popup, .cr-drawer) .menu_button {
     /* Base normalization */
 }
 ```

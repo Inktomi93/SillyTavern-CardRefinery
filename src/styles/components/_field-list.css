@@ -216,13 +216,35 @@
 /* Popup preview styles */
 .cr-popup-preview {
     margin: 0;
-    padding: var(--cr-space-3);
-    max-height: 60vh;
+    padding: var(--cr-space-4);
+    max-height: 70vh;
+    min-height: 200px;
     overflow-y: auto;
     font-family: var(--cr-font-mono);
     font-size: var(--cr-text-sm);
+    line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-word;
     background: var(--cr-bg-secondary);
+    border: 1px solid var(--cr-border-muted);
     border-radius: var(--cr-radius);
+}
+
+/* Preview content in popup - ensure proper scrolling */
+.cr-preview-content {
+    max-height: 70vh;
+    overflow-y: auto;
+
+    & pre {
+        margin: 0;
+        padding: var(--cr-space-4);
+        font-family: var(--cr-font-mono);
+        font-size: var(--cr-text-sm);
+        line-height: 1.6;
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: var(--cr-bg-secondary);
+        border: 1px solid var(--cr-border-muted);
+        border-radius: var(--cr-radius);
+    }
 }

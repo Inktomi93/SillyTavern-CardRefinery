@@ -196,7 +196,10 @@ export async function downloadCharacterPng(
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+
+        // Delay revocation to give browser time to start the download
+        // Immediate revocation can cause failed downloads in some browsers
+        setTimeout(() => URL.revokeObjectURL(url), 100);
 
         return true;
     } catch {

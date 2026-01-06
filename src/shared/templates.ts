@@ -111,8 +111,12 @@ export function processConditionalBlocks(
     return template.replace(conditionalRegex, (_match, variable, content) => {
         const varName = variable.toLowerCase();
         const value = context[varName];
+        // Ensure value is a string before calling .trim()
         const hasValue =
-            value !== undefined && value !== null && value.trim() !== '';
+            value !== undefined &&
+            value !== null &&
+            typeof value === 'string' &&
+            value.trim() !== '';
         return hasValue ? content : '';
     });
 }

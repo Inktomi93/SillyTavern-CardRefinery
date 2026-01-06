@@ -505,7 +505,11 @@ export async function showApplyDialog(): Promise<void> {
     document.addEventListener('click', handleClick);
 
     // Load token counts after popup renders (small delay ensures DOM is ready)
-    setTimeout(() => loadApplyDialogTokens(fieldMap), 50);
+    // Store timeout ID so we can cancel it if popup closes quickly
+    const tokenLoadTimeout = setTimeout(
+        () => loadApplyDialogTokens(fieldMap),
+        50,
+    );
 
     // Show popup with action buttons
     const result = await ctx.callGenericPopup(
@@ -520,6 +524,9 @@ export async function showApplyDialog(): Promise<void> {
             large: true,
         },
     );
+
+    // Clean up: cancel pending token load if popup closed before it fired
+    clearTimeout(tokenLoadTimeout);
 
     // Clean up delegated listeners
     document.removeEventListener('input', handleInput);

@@ -176,6 +176,12 @@ export function morphUpdate(
     const morphdom = SillyTavern.libs.morphdom;
     const DOMPurify = SillyTavern.libs.DOMPurify;
 
+    // Fallback to innerHTML if morphdom is not available
+    if (!morphdom) {
+        container.innerHTML = DOMPurify.sanitize(newHtml);
+        return;
+    }
+
     // Create a temporary wrapper with sanitized new content
     const wrapper = document.createElement('div');
     wrapper.innerHTML = DOMPurify.sanitize(newHtml);
@@ -230,6 +236,11 @@ export function morphElement(element: HTMLElement, newHtml: string): void {
     const newElement = template.content.firstChild as HTMLElement;
 
     if (newElement) {
+        // Fallback to replaceWith if morphdom is not available
+        if (!morphdom) {
+            element.replaceWith(newElement);
+            return;
+        }
         morphdom(element, newElement);
     }
 }

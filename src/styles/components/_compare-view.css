@@ -8,27 +8,10 @@
 .cr-compare-view {
     display: flex;
     flex-direction: column;
+    flex: 1;
     height: 100%;
     min-height: 0;
     overflow: hidden;
-}
-
-.cr-compare-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--cr-space-2) var(--cr-space-3);
-    background: var(--cr-bg-secondary);
-    border-bottom: 1px solid var(--cr-border-muted);
-    flex-shrink: 0;
-    flex-wrap: wrap;
-    gap: var(--cr-space-2);
-}
-
-.cr-compare-stats {
-    display: flex;
-    gap: var(--cr-space-2);
-    flex-wrap: wrap;
 }
 
 .cr-compare-list {

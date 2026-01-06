@@ -36,12 +36,17 @@ function parseRewriteOutput(output: string): Record<string, string> {
     const sectionRegex = /^#{2,3}\s*(.+?)[\s:]*$/gm;
     const sections: { name: string; start: number }[] = [];
 
+    // Safeguard: limit number of sections to prevent UI hang on malformed LLM output
+    const MAX_SECTIONS = 50;
     let match;
     while ((match = sectionRegex.exec(output)) !== null) {
         sections.push({
             name: match[1].trim().toLowerCase(),
             start: match.index + match[0].length,
         });
+
+        // Stop parsing if we hit the limit (unusual for valid output)
+        if (sections.length >= MAX_SECTIONS) break;
     }
 
     // Extract content between sections
@@ -220,16 +225,9 @@ export function renderCompareView(): string {
     }
 
     const comparisons = buildComparisons();
-    const changedCount = comparisons.filter((c) => c.hasChanges).length;
 
     return /* html */ `
         <div class="cr-compare-view">
-            <div class="cr-compare-header">
-                <div class="cr-compare-stats">
-                    <span class="cr-badge cr-badge--accent">${changedCount} field${changedCount !== 1 ? 's' : ''} modified</span>
-                    <span class="cr-badge cr-badge--muted">${comparisons.length - changedCount} unchanged</span>
-                </div>
-            </div>
             <div class="cr-compare-list cr-scrollable">
                 ${comparisons.map(renderComparisonRow).join('')}
             </div>

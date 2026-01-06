@@ -23,6 +23,7 @@
     justify-content: space-between;
     gap: var(--cr-space-2);
     padding: var(--cr-space-2) var(--cr-space-3);
+    min-height: 40px; /* Match section header height */
     background: var(--cr-bg-secondary);
     border-bottom: 1px solid var(--cr-border-muted);
     flex-shrink: 0;

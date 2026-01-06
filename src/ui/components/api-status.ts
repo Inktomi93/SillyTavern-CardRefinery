@@ -158,11 +158,9 @@ export function bindApiStatusEvents(container: HTMLElement): () => void {
                 const newProfile = profileSelect.value || null;
                 setSelectedProfile(newProfile);
 
-                // Save to settings if you want persistence
+                // Persist the selected profile to settings
                 const settings = getSettings();
-                (
-                    settings as unknown as Record<string, unknown>
-                ).selectedProfile = newProfile;
+                settings.profileId = newProfile;
                 save();
 
                 // Update display

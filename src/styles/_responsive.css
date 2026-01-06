@@ -106,7 +106,7 @@
    Using :focus-visible to show focus only during keyboard navigation
    ═══════════════════════════════════════════════════════════════════════════════ */
 
-:is(.cr-popup, .cr-settings-modal, .cr-drawer) {
+:is(.cr-popup, .cr-drawer) {
     /* Remove default focus outline for mouse users */
     & button:focus:not(:focus-visible),
     & input:focus:not(:focus-visible),
