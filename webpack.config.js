@@ -21,6 +21,9 @@ export default (env, argv) => ({
     devtool: argv.mode === 'development' ? 'source-map' : false,
     resolve: {
         extensions: ['.ts', '.js'],
+        fallback: {
+            buffer: 'buffer/',
+        },
     },
     module: {
         rules: [
