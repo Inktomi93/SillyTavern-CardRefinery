@@ -6,15 +6,11 @@
 // Core state management
 export {
     // Initialization
-    createInitialState,
     initState,
     getState,
-    getStateOrNull,
     clearState,
     // Auto-save
-    autoSave,
     forceSave,
-    cancelAutoSave,
     // Character & Session
     setCharacter,
     createNewSession,
@@ -24,7 +20,6 @@ export {
     renameSession,
     ensureActiveSession,
     // Field selection
-    setFieldSelection,
     toggleField,
     getFieldSelectionForStage,
     getCurrentFieldSelection,
@@ -33,22 +28,14 @@ export {
     // Stage management
     setActiveStage,
     updateStageConfig,
-    setStageStatus,
-    recordStageResult,
-    incrementIteration,
-    resetPipeline,
     // User guidance
     getUserGuidance,
     setUserGuidance,
-    // Generation (legacy - prefer pipeline actions)
-    setGenerating,
+    // Generation
     abortGeneration,
-    // Search
-    setSearchState,
     // Character refresh
     refreshCharacter,
     // UI
-    toggleSessionList,
     toggleHistory,
     // History navigation
     viewHistoryItem,
@@ -62,11 +49,7 @@ export {
 export {
     executeStageAction,
     executeAllStagesAction,
-    executeRefinementAction,
     executeQuickIterateAction,
     abortPipelineAction,
     resetPipelineAction,
-    type PipelineCallbacks,
-    type ExecuteStageOptions,
-    type ExecuteAllOptions,
 } from './pipeline-actions';

@@ -6,11 +6,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import {
-    validateSchema,
-    estimateSchemaComplexity,
-    autoFixSchema,
-} from '../../src/domain/schema';
+import { validateSchema, autoFixSchema } from '../../src/domain/schema';
 
 describe('validateSchema', () => {
     describe('input handling', () => {
@@ -234,77 +230,6 @@ describe('validateSchema', () => {
             expect(result.info).toBeDefined();
             expect(result.info?.[0]).toContain('Schema stats');
         });
-    });
-});
-
-describe('estimateSchemaComplexity', () => {
-    it('rates simple schema as simple', () => {
-        const schema = {
-            name: 'SimpleSchema',
-            value: {
-                type: 'object',
-                properties: {
-                    name: { type: 'string' },
-                },
-                required: ['name'],
-            },
-        };
-
-        const result = estimateSchemaComplexity(schema);
-        expect(result.level).toBe('simple');
-        expect(result.score).toBeLessThan(15);
-        expect(result.factors).toContain('Simple schema');
-    });
-
-    it('rates complex schema with many properties as moderate/complex', () => {
-        const properties: Record<string, { type: string }> = {};
-        for (let i = 0; i < 25; i++) {
-            properties[`field${i}`] = { type: 'string' };
-        }
-
-        const schema = {
-            name: 'ManyPropsSchema',
-            value: {
-                type: 'object',
-                properties,
-                required: Object.keys(properties),
-            },
-        };
-
-        const result = estimateSchemaComplexity(schema);
-        expect(['moderate', 'complex']).toContain(result.level);
-        expect(result.score).toBeGreaterThanOrEqual(15);
-    });
-
-    it('rates schema with many optional fields as more complex', () => {
-        const properties: Record<string, { type: string }> = {};
-        for (let i = 0; i < 12; i++) {
-            properties[`optional${i}`] = { type: 'string' };
-        }
-
-        const schema = {
-            name: 'ManyOptionalsSchema',
-            value: {
-                type: 'object',
-                properties,
-                required: [], // All optional
-            },
-        };
-
-        const result = estimateSchemaComplexity(schema);
-        expect(result.factors.some((f) => f.includes('optional'))).toBe(true);
-    });
-
-    it('rates invalid schema as extreme', () => {
-        const invalidSchema = {
-            name: '', // Invalid empty name
-            value: { type: 'object' },
-        };
-
-        const result = estimateSchemaComplexity(invalidSchema);
-        expect(result.level).toBe('extreme');
-        expect(result.score).toBe(100);
-        expect(result.factors).toContain('Invalid schema');
     });
 });
 

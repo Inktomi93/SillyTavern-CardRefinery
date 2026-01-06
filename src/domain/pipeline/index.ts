@@ -10,7 +10,6 @@
 // Prompt building
 export {
     buildUserPrompt,
-    getInstructions,
     getSchema,
     getStageSystemPrompt,
     type PromptContext,
@@ -20,8 +19,6 @@ export {
 // Execution
 export {
     runStage,
-    runPipeline,
-    runRefinement,
     type StageContext,
     type RunOptions,
     type ExecutionDependencies,

@@ -106,7 +106,7 @@ function encodePng(chunks: PngChunk[]): Uint8Array {
  * @param characterData - Character JSON object to embed
  * @returns New PNG as Blob with embedded character data
  */
-export function writeCharacterPng(
+function writeCharacterPng(
     imageBuffer: ArrayBuffer,
     characterData: Record<string, unknown>,
 ): Blob {
@@ -151,7 +151,7 @@ export function writeCharacterPng(
  * @param avatarUrl - The avatar filename (e.g., "character.png")
  * @returns PNG as ArrayBuffer, or null on error
  */
-export async function fetchCharacterAvatar(
+async function fetchCharacterAvatar(
     avatarUrl: string,
 ): Promise<ArrayBuffer | null> {
     try {

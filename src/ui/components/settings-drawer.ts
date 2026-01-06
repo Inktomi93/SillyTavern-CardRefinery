@@ -920,13 +920,6 @@ export function destroySettingsDrawer(): void {
     drawerState.isOpen = false;
 }
 
-/**
- * Check if the drawer is currently open.
- */
-export function isSettingsDrawerOpen(): boolean {
-    return drawerState.isOpen;
-}
-
 // =============================================================================
 // CONVENIENCE EXPORT (replaces openSettingsModal)
 // =============================================================================

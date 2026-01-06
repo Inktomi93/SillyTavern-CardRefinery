@@ -11,7 +11,7 @@
 //
 // =============================================================================
 
-import { PRESET_VERSION, log } from '../../shared';
+import { PRESET_VERSION, log, generateUniqueName } from '../../shared';
 import type {
     PresetId,
     PromptPreset,
@@ -345,16 +345,12 @@ class PresetRegistry {
     /**
      * Generate a unique name for a preset.
      */
-    generateUniqueName = (type: PresetType, baseName: string): string => {
-        let name = baseName;
-        let counter = 1;
-
-        while (!this.isNameUnique(type, name)) {
-            name = `${baseName} (${counter})`;
-            counter++;
-        }
-
-        return name;
+    generateUniquePresetName = (type: PresetType, baseName: string): string => {
+        const existingNames =
+            type === 'prompt'
+                ? this.getPromptPresets().map((p) => p.name)
+                : this.getSchemaPresets().map((p) => p.name);
+        return generateUniqueName(baseName, existingNames);
     };
 
     /**
@@ -434,7 +430,7 @@ export const {
     duplicatePromptPreset,
     duplicateSchemaPreset,
     isNameUnique,
-    generateUniqueName,
+    generateUniquePresetName,
     getDisplayName,
     subscribe,
 } = presetRegistry;

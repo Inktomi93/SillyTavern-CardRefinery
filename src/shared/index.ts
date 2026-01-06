@@ -27,8 +27,6 @@ export {
     STORAGE_KEYS,
     DEBOUNCE,
     MAX_SESSIONS_PER_CHARACTER,
-    MAX_HISTORY_ENTRIES,
-    CSS_PREFIX,
 } from './constants';
 
 // =============================================================================
@@ -39,10 +37,6 @@ export {
     // Namespaced utilities (avoid window shadowing)
     popup,
     toast,
-
-    // Factory functions (return managed objects)
-    createSettingsManager,
-    createEventManager,
 
     // Storage helpers (error handling around localforage)
     storeLargeData,
@@ -70,16 +64,7 @@ export {
     log,
 
     // Debug mode control
-    isDebugMode,
     setDebugMode,
-
-    // Log access
-    getLogEntries,
-
-    // Diagnostics
-    collectDiagnostics,
-    exportDiagnostics,
-    generateDebugReport,
 } from './debug';
 
 export type { LogLevel, LogEntry, DiagnosticInfo } from './debug';
@@ -92,8 +77,6 @@ export {
     // Profile discovery
     hasCMRS,
     getAvailableProfiles,
-    getProfile,
-    isProfileValid,
 
     // API status (SINGLE SOURCE OF TRUTH)
     getApiStatus,
@@ -107,18 +90,9 @@ export type { ProfileInfo, ApiStatus } from './profiles';
 // =============================================================================
 
 export {
-    // Callback API (for UI with debounce)
-    countTokensDebounced,
-    cancelTokenCount,
-
     // Promise API
     getTokenCount,
-    getTokenCountBatch,
     getTokenCountsKeyed,
-
-    // Cache management
-    clearTokenCache,
-    getCachedTokenCount,
 } from './tokens';
 
 export type { KeyedTokenResult } from './tokens';
@@ -127,19 +101,6 @@ export type { KeyedTokenResult } from './tokens';
 // TEMPLATE PROCESSING
 // =============================================================================
 
-export {
-    processTemplate,
-    processConditionalBlocks,
-    detectPlaceholders,
-    detectConditionals,
-    hasTemplateMarkers,
-    escapeSTMacros,
-    unescapeSTMacros,
-    replaceCharMacro,
-    getUnfilledPlaceholders,
-    buildContext,
-} from './templates';
-
 export type { TemplateContext, TemplateConfig } from './templates';
 
 // =============================================================================
@@ -147,16 +108,6 @@ export type { TemplateContext, TemplateConfig } from './templates';
 // =============================================================================
 
 export {
-    // Hashing
-    hashString,
-    getCharacterKey,
-
     // String utilities
-    hasContent,
-
-    // Async utilities
-    retry,
-
-    // Template literal helpers
-    html,
+    generateUniqueName,
 } from './utils';

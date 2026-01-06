@@ -47,7 +47,7 @@ import {
     duplicatePromptPreset,
     duplicateSchemaPreset,
     isNameUnique,
-    generateUniqueName,
+    generateUniquePresetName,
     getDisplayName,
     subscribe,
 } from '../../src/data/settings/registry';
@@ -561,19 +561,19 @@ describe('Utility Functions', () => {
         });
     });
 
-    describe('generateUniqueName', () => {
+    describe('generateUniquePresetName', () => {
         it('returns base name if unique', () => {
-            const name = generateUniqueName('prompt', 'My Preset');
+            const name = generateUniquePresetName('prompt', 'My Preset');
             expect(name).toBe('My Preset');
         });
 
         it('appends counter for duplicates', () => {
             registerPromptPreset({ name: 'Test', stages: [], prompt: 'A' });
-            registerPromptPreset({ name: 'Test (1)', stages: [], prompt: 'B' });
+            registerPromptPreset({ name: 'Test (2)', stages: [], prompt: 'B' });
 
-            const name = generateUniqueName('prompt', 'Test');
+            const name = generateUniquePresetName('prompt', 'Test');
 
-            expect(name).toBe('Test (2)');
+            expect(name).toBe('Test (3)');
         });
     });
 

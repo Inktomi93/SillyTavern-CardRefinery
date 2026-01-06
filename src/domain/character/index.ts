@@ -3,18 +3,8 @@
 // CHARACTER DOMAIN EXPORTS
 // =============================================================================
 
-// Field extraction & validation
-export {
-    getPopulatedFields,
-    getPopulatedFieldsAsync,
-    ensureUnshallowed,
-    isShallow,
-    formatValue,
-    hasPopulatedFields,
-    getTotalCharCount,
-    validateCharacter,
-    getFieldPreview,
-} from './fields';
+// Field extraction
+export { getPopulatedFields, ensureUnshallowed } from './fields';
 
 // Summary building
 export { buildCharacterSummary, buildOriginalData } from './summary';

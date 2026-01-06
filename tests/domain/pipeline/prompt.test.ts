@@ -22,7 +22,6 @@ vi.mock('../../../src/shared', async () => {
 
 import {
     buildUserPrompt,
-    getInstructions,
     getSchema,
     getStageSystemPrompt,
 } from '../../../src/domain/pipeline/prompt';
@@ -111,67 +110,6 @@ function createMockDeps() {
         getRefinementPrompt: vi.fn(() => 'Refinement prompt'),
     };
 }
-
-// =============================================================================
-// TESTS: getInstructions
-// =============================================================================
-
-describe('getInstructions', () => {
-    it('returns custom prompt when provided', () => {
-        const config = createMockConfig({
-            customPrompt: 'My custom instructions.',
-        });
-        const deps = createMockDeps();
-
-        const result = getInstructions(config, deps);
-
-        expect(result).toBe('My custom instructions.');
-        expect(deps.getPromptPreset).not.toHaveBeenCalled();
-    });
-
-    it('trims whitespace from custom prompt', () => {
-        const config = createMockConfig({
-            customPrompt: '  Trimmed instructions.  ',
-        });
-        const deps = createMockDeps();
-
-        const result = getInstructions(config, deps);
-
-        expect(result).toBe('Trimmed instructions.');
-    });
-
-    it('falls back to preset when no custom prompt', () => {
-        const config = createMockConfig({ promptPresetId: 'preset-1' });
-        const deps = createMockDeps();
-
-        const result = getInstructions(config, deps);
-
-        expect(result).toBe('Preset instructions here.');
-        expect(deps.getPromptPreset).toHaveBeenCalledWith('preset-1');
-    });
-
-    it('returns empty string when no custom prompt and no valid preset', () => {
-        const config = createMockConfig({ promptPresetId: 'nonexistent' });
-        const deps = createMockDeps();
-
-        const result = getInstructions(config, deps);
-
-        expect(result).toBe('');
-    });
-
-    it('prefers custom prompt over preset', () => {
-        const config = createMockConfig({
-            customPrompt: 'Custom wins.',
-            promptPresetId: 'preset-1',
-        });
-        const deps = createMockDeps();
-
-        const result = getInstructions(config, deps);
-
-        expect(result).toBe('Custom wins.');
-        expect(deps.getPromptPreset).not.toHaveBeenCalled();
-    });
-});
 
 // =============================================================================
 // TESTS: getSchema

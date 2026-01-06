@@ -22,13 +22,6 @@ import type { ProfileInfo } from '../../shared/profiles';
 let selectedProfileId: string | null = null;
 
 /**
- * Get currently selected profile ID.
- */
-export function getSelectedProfile(): string | null {
-    return selectedProfileId;
-}
-
-/**
  * Set selected profile ID.
  */
 export function setSelectedProfile(profileId: string | null): void {

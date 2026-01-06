@@ -61,6 +61,45 @@ export function hasContent(str: string | null | undefined): boolean {
     return typeof str === 'string' && str.trim().length > 0;
 }
 
+/**
+ * Generate a unique name by appending a counter suffix if the name already exists.
+ * Uses case-insensitive comparison for user-friendliness.
+ *
+ * @param baseName - The desired name
+ * @param existingNames - Array of names that already exist
+ * @returns A unique name (baseName if available, or "baseName (N)" where N >= 2)
+ *
+ * @example
+ * ```ts
+ * generateUniqueName('Score', ['Score', 'Rewrite'])
+ * // => 'Score (2)'
+ *
+ * generateUniqueName('Score', ['Score', 'Score (2)'])
+ * // => 'Score (3)'
+ *
+ * generateUniqueName('New Preset', ['Score', 'Rewrite'])
+ * // => 'New Preset'
+ * ```
+ */
+export function generateUniqueName(
+    baseName: string,
+    existingNames: string[],
+): string {
+    const nameSet = new Set(existingNames.map((n) => n.toLowerCase()));
+
+    if (!nameSet.has(baseName.toLowerCase())) {
+        return baseName;
+    }
+
+    let counter = 2;
+    let uniqueName = `${baseName} (${counter})`;
+    while (nameSet.has(uniqueName.toLowerCase())) {
+        counter++;
+        uniqueName = `${baseName} (${counter})`;
+    }
+    return uniqueName;
+}
+
 // =============================================================================
 // ASYNC UTILITIES (useful patterns not in lodash)
 // =============================================================================

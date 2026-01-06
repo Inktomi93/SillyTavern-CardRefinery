@@ -348,10 +348,3 @@ async function onPopupClose(): Promise<void> {
 
     log.debug('Popup closed');
 }
-
-/**
- * Get popup element (for event handlers).
- */
-export function getPopupElement(): HTMLElement | null {
-    return popupElement;
-}

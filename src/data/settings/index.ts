@@ -15,14 +15,7 @@ export {
 } from './settings';
 
 // Preset Registry (new centralized API)
-export {
-    presetRegistry,
-    type PresetType,
-    type AnyPreset,
-    type RegistryEvent,
-    type RegistryListener,
-    type PresetFilter,
-} from './registry';
+export { presetRegistry } from './registry';
 
 // Preset CRUD & Validation (legacy + validation)
 export {
@@ -40,11 +33,6 @@ export {
     // Validation
     validatePromptPreset,
     validateSchemaPreset,
-    // Utilities
-    isPresetNameUnique,
-    generateUniquePresetName,
-    getPresetDisplayName,
-    type PresetValidationResult,
 } from './presets';
 
 // Defaults

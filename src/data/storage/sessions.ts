@@ -387,27 +387,3 @@ export async function purgeAllSessions(): Promise<{
     log.info(`Deleted ALL ${count} sessions`);
     return { success: true, count };
 }
-
-/**
- * Rename a session.
- */
-export async function renameSession(
-    sessionId: SessionId,
-    name: string,
-): Promise<void> {
-    const session = await getSession(sessionId);
-    if (!session) return;
-
-    session.name = name.trim() || undefined;
-    await updateSession(session);
-}
-
-/**
- * Get session count for a character.
- */
-export async function getSessionCount(
-    characterId: CharacterId,
-): Promise<number> {
-    const index = await loadIndex();
-    return index[characterId]?.length ?? 0;
-}

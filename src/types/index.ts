@@ -10,7 +10,6 @@ export type {
     CharacterId,
     CharacterField,
     PopulatedField,
-    CharacterData,
     Character,
 } from './character';
 

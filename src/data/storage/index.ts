@@ -15,7 +15,5 @@ export {
     deleteSession,
     deleteAllSessionsForCharacter,
     purgeAllSessions,
-    renameSession,
-    getSessionCount,
     type CreateSessionParams,
 } from './sessions';

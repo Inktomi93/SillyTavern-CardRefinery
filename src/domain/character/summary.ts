@@ -3,7 +3,7 @@
 // CHARACTER SUMMARY BUILDING
 // =============================================================================
 
-import { escapeSTMacros, replaceCharMacro } from '../../shared';
+import { escapeSTMacros, replaceCharMacro } from '../../shared/templates';
 import type { Character, FieldSelection } from '../../types';
 import { getPopulatedFields } from './fields';
 

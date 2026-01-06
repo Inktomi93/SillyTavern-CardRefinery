@@ -668,13 +668,6 @@ export function closeDrawer(): void {
 }
 
 /**
- * Check if drawer is open.
- */
-export function isDrawerOpen(): boolean {
-    return drawerState.isOpen;
-}
-
-/**
  * Remove drawer from DOM (call when popup closes).
  */
 export function destroyDrawer(): void {

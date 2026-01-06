@@ -7,7 +7,6 @@ import { getStageDefaults, setStageDefaults } from '../data';
 import type {
     PopupState,
     StageName,
-    StageStatus,
     StageConfig,
     StageResult,
     Character,
@@ -280,24 +279,6 @@ export function toggleStageFieldLinking(): void {
 }
 
 /**
- * Update field selection (respects linking).
- * @deprecated Use toggleField instead
- */
-export function setFieldSelection(selection: FieldSelection): void {
-    const s = getState();
-
-    if (s.stageFields.linked) {
-        s.stageFields.base = selection;
-    } else {
-        s.stageFields.overrides[s.activeStage] = selection;
-    }
-
-    // Keep legacy field in sync for compatibility
-    s.selectedFields = selection;
-    autoSave();
-}
-
-/**
  * Toggle a single field.
  */
 export function toggleField(key: string, value: boolean | number[]): void {
@@ -362,54 +343,6 @@ export function updateStageConfig(
     setStageDefaults(stage, s.stageConfigs[stage]);
 }
 
-/**
- * Set stage status.
- */
-export function setStageStatus(stage: StageName, status: StageStatus): void {
-    getState().stageStatus[stage] = status;
-}
-
-/**
- * Record stage result.
- */
-export function recordStageResult(result: StageResult): void {
-    const s = getState();
-
-    s.stageResults[result.stage] = result;
-    s.stageStatus[result.stage] = result.error ? 'error' : 'complete';
-    s.iterationHistory.push(result);
-
-    autoSave();
-}
-
-/**
- * Increment iteration count.
- */
-export function incrementIteration(): void {
-    const s = getState();
-    s.iterationCount++;
-    autoSave();
-}
-
-/**
- * Reset pipeline state (keep character & session).
- */
-export function resetPipeline(): void {
-    const s = getState();
-
-    s.stageStatus = {
-        score: 'pending',
-        rewrite: 'pending',
-        analyze: 'pending',
-    };
-    s.stageResults = { score: null, rewrite: null, analyze: null };
-    s.iterationCount = 0;
-    s.userGuidance = '';
-    // Keep history for reference
-
-    autoSave();
-}
-
 // =============================================================================
 // USER GUIDANCE
 // =============================================================================
@@ -435,20 +368,6 @@ export function setUserGuidance(guidance: string): void {
 // =============================================================================
 
 /**
- * Set generation state.
- */
-export function setGenerating(
-    generating: boolean,
-    controller?: AbortController,
-): void {
-    const s = getState();
-    s.isGenerating = generating;
-    s.abortController = generating
-        ? (controller ?? new AbortController())
-        : null;
-}
-
-/**
  * Abort current generation.
  */
 export function abortGeneration(): void {
@@ -458,29 +377,6 @@ export function abortGeneration(): void {
         s.abortController = null;
         s.isGenerating = false;
     }
-}
-
-// =============================================================================
-// SEARCH STATE
-// =============================================================================
-
-/**
- * Update search state.
- */
-export function setSearchState(updates: {
-    query?: string;
-    results?: Character[];
-    selectedIndex?: number;
-    dropdownOpen?: boolean;
-}): void {
-    const s = getState();
-
-    if (updates.query !== undefined) s.searchQuery = updates.query;
-    if (updates.results !== undefined) s.searchResults = updates.results;
-    if (updates.selectedIndex !== undefined)
-        s.searchSelectedIndex = updates.selectedIndex;
-    if (updates.dropdownOpen !== undefined)
-        s.dropdownOpen = updates.dropdownOpen;
 }
 
 // =============================================================================
@@ -511,14 +407,6 @@ export function refreshCharacter(): void {
 // =============================================================================
 // UI STATE
 // =============================================================================
-
-/**
- * Toggle session list expanded.
- */
-export function toggleSessionList(): void {
-    const s = getState();
-    s.sessionListExpanded = !s.sessionListExpanded;
-}
 
 /**
  * Toggle history expanded.
