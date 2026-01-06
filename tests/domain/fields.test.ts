@@ -21,13 +21,7 @@ vi.mock('../../src/shared', async () => {
     };
 });
 
-import {
-    getPopulatedFields,
-    getTotalCharCount,
-    hasPopulatedFields,
-    validateCharacter,
-    getFieldPreview,
-} from '../../src/domain/character/fields';
+import { getPopulatedFields } from '../../src/domain/character/fields';
 import type { Character } from '../../src/types';
 
 // =============================================================================
@@ -76,18 +70,6 @@ function createV1Character(overrides: Partial<Character> = {}): Character {
         post_history_instructions: '',
         creator_notes: 'V1 notes.',
         ...overrides,
-    } as Character;
-}
-
-function createMinimalCharacter(): Character {
-    return {
-        name: 'Minimal',
-        avatar: 'min.png',
-        description: '',
-        personality: '',
-        first_mes: '',
-        scenario: '',
-        mes_example: '',
     } as Character;
 }
 
@@ -247,85 +229,5 @@ describe('getPopulatedFields', () => {
             const desc = fields.find((f) => f.key === 'description');
             expect(desc?.label).toBe('Description');
         });
-    });
-});
-
-describe('getTotalCharCount', () => {
-    it('sums character counts across fields', () => {
-        const char = createV2Character();
-        const fields = getPopulatedFields(char);
-        const total = getTotalCharCount(char);
-
-        // Should be sum of all field charCounts
-        const expectedTotal = fields.reduce((sum, f) => sum + f.charCount, 0);
-        expect(total).toBe(expectedTotal);
-        expect(total).toBeGreaterThan(0);
-    });
-
-    it('returns 0 for minimal character', () => {
-        const char = createMinimalCharacter();
-        const total = getTotalCharCount(char);
-        expect(total).toBe(0);
-    });
-});
-
-describe('hasPopulatedFields', () => {
-    it('returns true for character with content', () => {
-        const char = createV2Character();
-        expect(hasPopulatedFields(char)).toBe(true);
-    });
-
-    it('returns false for minimal character', () => {
-        const char = createMinimalCharacter();
-        expect(hasPopulatedFields(char)).toBe(false);
-    });
-
-    it('returns false for null character', () => {
-        expect(hasPopulatedFields(null as unknown as Character)).toBe(false);
-    });
-});
-
-describe('validateCharacter', () => {
-    it('returns empty array for valid character', () => {
-        const char = createV2Character();
-        const issues = validateCharacter(char);
-
-        expect(issues).toHaveLength(0);
-    });
-
-    it('returns issues for null character', () => {
-        const issues = validateCharacter(null as unknown as Character);
-
-        expect(issues.length).toBeGreaterThan(0);
-        expect(issues.some((e) => e.includes('No character'))).toBe(true);
-    });
-
-    it('returns issues for missing name', () => {
-        const char = createV2Character({ name: '' });
-        const issues = validateCharacter(char);
-
-        expect(issues.some((e) => e.includes('name'))).toBe(true);
-    });
-});
-
-describe('getFieldPreview', () => {
-    it('truncates long content', () => {
-        const longText = 'A'.repeat(500);
-        const preview = getFieldPreview(longText, 100);
-
-        expect(preview.length).toBeLessThanOrEqual(103); // 100 + '...'
-        expect(preview).toContain('...');
-    });
-
-    it('preserves short content', () => {
-        const shortText = 'Hello world';
-        const preview = getFieldPreview(shortText, 100);
-
-        expect(preview).toBe(shortText);
-    });
-
-    it('handles empty string', () => {
-        const preview = getFieldPreview('', 100);
-        expect(preview).toBe('');
     });
 });

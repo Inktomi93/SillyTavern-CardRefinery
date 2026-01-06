@@ -167,24 +167,6 @@ async function getCharacterJson(
 }
 
 // =============================================================================
-// LEGACY EXPORTS (for backwards compatibility with buildFieldUpdates)
-// =============================================================================
-
-/**
- * Build field updates from state (legacy - used by results panel).
- * @deprecated Use showApplyDialog instead
- */
-export function buildFieldUpdates(): Array<{ key: string; value: string }> {
-    const state = getState();
-    if (!state.character || !state.stageResults.rewrite) {
-        return [];
-    }
-    // Return empty - the new dialog handles everything
-    // This prevents the old "X fields modified" logic
-    return [];
-}
-
-// =============================================================================
 // DIALOG
 // =============================================================================
 

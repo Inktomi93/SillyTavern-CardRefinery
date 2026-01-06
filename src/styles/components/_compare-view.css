@@ -63,12 +63,6 @@
         font-size: var(--cr-text-sm);
     }
 
-    &__badges {
-        display: flex;
-        align-items: center;
-        gap: var(--cr-space-2);
-    }
-
     &__content {
         display: grid;
         grid-template-columns: 1fr 1fr;

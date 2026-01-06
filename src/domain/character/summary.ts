@@ -3,7 +3,7 @@
 // CHARACTER SUMMARY BUILDING
 // =============================================================================
 
-import { escapeSTMacros, replaceCharMacro } from '../../shared';
+import { escapeSTMacros, replaceCharMacro } from '../../shared/templates';
 import type { Character, FieldSelection } from '../../types';
 import { getPopulatedFields } from './fields';
 
@@ -70,28 +70,4 @@ export function buildOriginalData(
     }
 
     return data;
-}
-
-/**
- * Get default field selection (all populated fields selected).
- */
-export function getDefaultSelection(char: Character): FieldSelection {
-    const fields = getPopulatedFields(char);
-    const selection: FieldSelection = {};
-
-    for (const field of fields) {
-        if (
-            field.key === 'alternate_greetings' &&
-            Array.isArray(field.rawValue)
-        ) {
-            // Select all greetings by default
-            selection[field.key] = (field.rawValue as string[]).map(
-                (_, i) => i,
-            );
-        } else {
-            selection[field.key] = true;
-        }
-    }
-
-    return selection;
 }

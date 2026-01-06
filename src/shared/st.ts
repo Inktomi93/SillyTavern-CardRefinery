@@ -247,92 +247,6 @@ export function createEventManager(): {
 }
 
 // =============================================================================
-// CHAT METADATA MANAGER
-// =============================================================================
-
-/**
- * Create a manager for per-chat metadata.
- *
- * ST's chatMetadata is stored per-chat. This wrapper provides a typed
- * interface with defaults handling.
- *
- * @example
- * ```ts
- * interface ChatState {
- *     lastScore: number;
- *     notes: string[];
- * }
- *
- * const meta = createChatMetadataManager<ChatState>('myext_state', {
- *     lastScore: 0,
- *     notes: [],
- * });
- *
- * meta.update(current => {
- *     current.notes.push('New note');
- * });
- * await meta.save();
- * ```
- */
-export function createChatMetadataManager<T>(
-    key: string,
-    defaultValue: T,
-): {
-    get: () => T;
-    set: (value: T) => void;
-    update: (updater: (current: T) => void) => void;
-    getOrCreate: (creator: () => T) => T;
-    save: () => Promise<void>;
-    exists: () => boolean;
-    clear: () => void;
-} {
-    const { lodash } = SillyTavern.libs;
-    const getDefault = () => lodash.cloneDeep(defaultValue);
-
-    return {
-        get(): T {
-            const metadata = SillyTavern.getContext().chatMetadata;
-            if (metadata[key] === undefined) {
-                metadata[key] = getDefault();
-            }
-            return metadata[key] as T;
-        },
-
-        set(value: T): void {
-            SillyTavern.getContext().chatMetadata[key] = value;
-        },
-
-        update(updater: (current: T) => void): void {
-            const metadata = SillyTavern.getContext().chatMetadata;
-            if (metadata[key] === undefined) {
-                metadata[key] = getDefault();
-            }
-            updater(metadata[key] as T);
-        },
-
-        getOrCreate(creator: () => T): T {
-            const metadata = SillyTavern.getContext().chatMetadata;
-            if (metadata[key] === undefined) {
-                metadata[key] = creator();
-            }
-            return metadata[key] as T;
-        },
-
-        async save(): Promise<void> {
-            await SillyTavern.getContext().saveMetadata();
-        },
-
-        exists(): boolean {
-            return SillyTavern.getContext().chatMetadata[key] !== undefined;
-        },
-
-        clear(): void {
-            delete SillyTavern.getContext().chatMetadata[key];
-        },
-    };
-}
-
-// =============================================================================
 // LOADER UTILITIES
 // =============================================================================
 
@@ -415,19 +329,6 @@ export async function loadLargeData<T = unknown>(
     }
 }
 
-/**
- * Remove large data from IndexedDB.
- */
-export async function removeLargeData(key: string): Promise<boolean> {
-    try {
-        await SillyTavern.libs.localforage.removeItem(key);
-        return true;
-    } catch (e) {
-        log.error(`removeLargeData: Failed to remove ${key}:`, e);
-        return false;
-    }
-}
-
 // =============================================================================
 // TYPE EXPORTS
 // =============================================================================
@@ -443,9 +344,6 @@ export type SettingsManager<T extends Record<string, unknown>> = ReturnType<
     typeof createSettingsManager<string, T>
 >;
 export type EventManager = ReturnType<typeof createEventManager>;
-export type ChatMetadataManager<T> = ReturnType<
-    typeof createChatMetadataManager<T>
->;
 
 // =============================================================================
 // STRUCTURED OUTPUT TYPES

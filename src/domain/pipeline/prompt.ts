@@ -36,7 +36,7 @@ export interface PromptDependencies {
 /**
  * Get instruction text from config.
  */
-export function getInstructions(
+function getInstructions(
     config: StageConfig,
     deps: Pick<PromptDependencies, 'getPromptPreset'>,
 ): string {

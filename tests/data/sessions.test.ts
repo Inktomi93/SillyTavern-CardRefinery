@@ -89,8 +89,6 @@ import {
     updateSession,
     deleteSession,
     deleteAllSessionsForCharacter,
-    renameSession,
-    getSessionCount,
 } from '../../src/data/storage/sessions';
 import type { StageConfig } from '../../src/types';
 
@@ -357,34 +355,6 @@ describe('Session Retrieval', () => {
             expect(char2Sessions[0].characterName).toBe('Villain');
         });
     });
-
-    describe('getSessionCount', () => {
-        it('returns count for character', async () => {
-            await createSession({
-                characterId: 'char-1',
-                characterName: 'Hero',
-                stageFields: { base: {}, linked: true, overrides: {} },
-                originalData: {},
-                configs: createMockConfigs(),
-            });
-            await createSession({
-                characterId: 'char-1',
-                characterName: 'Hero',
-                stageFields: { base: {}, linked: true, overrides: {} },
-                originalData: {},
-                configs: createMockConfigs(),
-            });
-
-            const count = await getSessionCount('char-1');
-
-            expect(count).toBe(2);
-        });
-
-        it('returns 0 for character with no sessions', async () => {
-            const count = await getSessionCount('no-sessions');
-            expect(count).toBe(0);
-        });
-    });
 });
 
 // =============================================================================
@@ -453,63 +423,6 @@ describe('Session Updates', () => {
                 'cr_sessions',
                 expect.any(Object),
             );
-        });
-    });
-
-    describe('renameSession', () => {
-        it('renames session', async () => {
-            const session = await createSession({
-                characterId: 'char-1',
-                characterName: 'Hero',
-                stageFields: { base: {}, linked: true, overrides: {} },
-                originalData: {},
-                configs: createMockConfigs(),
-            });
-
-            await renameSession(session.id, 'My Custom Name');
-
-            const updated = await getSession(session.id);
-            expect(updated?.name).toBe('My Custom Name');
-        });
-
-        it('trims whitespace from name', async () => {
-            const session = await createSession({
-                characterId: 'char-1',
-                characterName: 'Hero',
-                stageFields: { base: {}, linked: true, overrides: {} },
-                originalData: {},
-                configs: createMockConfigs(),
-            });
-
-            await renameSession(session.id, '  Spaces  ');
-
-            const updated = await getSession(session.id);
-            expect(updated?.name).toBe('Spaces');
-        });
-
-        it('sets name to undefined for empty string', async () => {
-            const session = await createSession({
-                characterId: 'char-1',
-                characterName: 'Hero',
-                stageFields: { base: {}, linked: true, overrides: {} },
-                originalData: {},
-                configs: createMockConfigs(),
-            });
-
-            session.name = 'Has Name';
-            await updateSession(session);
-
-            await renameSession(session.id, '');
-
-            const updated = await getSession(session.id);
-            expect(updated?.name).toBeUndefined();
-        });
-
-        it('handles non-existent session gracefully', async () => {
-            // Should not throw
-            await expect(
-                renameSession('non-existent', 'New Name'),
-            ).resolves.not.toThrow();
         });
     });
 });

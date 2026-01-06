@@ -7,7 +7,7 @@ import { log } from '../../shared';
 import type { StructuredOutputSchema } from '../../shared';
 import { generate } from '../generation';
 import { getSettings } from '../../data/settings';
-import type { StageName, StageResult } from '../../types';
+import type { StageResult } from '../../types';
 import {
     buildUserPrompt,
     getStageSystemPrompt,
@@ -99,56 +99,4 @@ export async function runStage(
         output: result.response ?? '',
         guidance: ctx.guidance,
     };
-}
-
-/**
- * Run multiple stages in sequence.
- */
-export async function runPipeline(
-    stages: StageName[],
-    ctx: Omit<StageContext, 'stage'>,
-    deps: ExecutionDependencies,
-    options: RunOptions = {},
-): Promise<Record<StageName, StageResult | null>> {
-    const { signal, onProgress } = options;
-
-    const results: Record<StageName, StageResult | null> = {
-        score: ctx.previousResults.score,
-        rewrite: ctx.previousResults.rewrite,
-        analyze: ctx.previousResults.analyze,
-    };
-
-    for (const stage of stages) {
-        if (signal?.aborted) break;
-
-        onProgress?.(`Running ${stage}...`);
-
-        const result = await runStage(
-            { ...ctx, stage, previousResults: results },
-            deps,
-            options,
-        );
-
-        results[stage] = result;
-
-        // Stop on error
-        if (result.error) break;
-    }
-
-    return results;
-}
-
-/**
- * Run refinement (rewrite with analysis feedback).
- */
-export async function runRefinement(
-    ctx: Omit<StageContext, 'stage' | 'isRefinement'>,
-    deps: ExecutionDependencies,
-    options: RunOptions = {},
-): Promise<StageResult> {
-    return runStage(
-        { ...ctx, stage: 'rewrite', isRefinement: true },
-        deps,
-        options,
-    );
 }

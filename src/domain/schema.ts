@@ -16,7 +16,7 @@ import type { JsonSchemaValue, StructuredOutputSchema } from '../shared';
  * Anthropic API limits for structured output schemas.
  * Design schemas within these constraints for maximum compatibility.
  */
-export const ANTHROPIC_LIMITS = {
+const ANTHROPIC_LIMITS = {
     /** Maximum variants in an anyOf block */
     MAX_ANYOF_VARIANTS: 8,
     /** Maximum number of $defs/definitions */
@@ -47,7 +47,7 @@ export const ANTHROPIC_LIMITS = {
 /**
  * Constraints that are silently ignored (won't error, but won't work).
  */
-export const IGNORED_CONSTRAINTS = {
+const IGNORED_CONSTRAINTS = {
     numeric: [
         'minimum',
         'maximum',
@@ -74,7 +74,7 @@ export const IGNORED_CONSTRAINTS = {
 /**
  * Completely unsupported features that will cause errors.
  */
-export const UNSUPPORTED_FEATURES = [
+const UNSUPPORTED_FEATURES = [
     'if',
     'then',
     'else', // Conditional schemas
@@ -931,194 +931,6 @@ export function parseStructuredResponse(
     }
 
     return { data: parsed, warnings };
-}
-
-/**
- * Count optional fields in a schema.
- * Useful for estimating complexity (each optional spawns implicit anyOf).
- */
-export function countOptionalFields(schema: JsonSchemaValue): number {
-    let count = 0;
-
-    function walk(node: JsonSchemaValue): void {
-        if (node.type === 'object' && node.properties) {
-            const required = (node.required as string[]) || [];
-            const props = node.properties as Record<string, JsonSchemaValue>;
-
-            for (const [key, prop] of Object.entries(props)) {
-                if (!required.includes(key)) {
-                    count++;
-                }
-                if (prop && typeof prop === 'object') {
-                    walk(prop);
-                }
-            }
-        }
-
-        if (
-            node.type === 'array' &&
-            node.items &&
-            typeof node.items === 'object'
-        ) {
-            if (!Array.isArray(node.items)) {
-                walk(node.items as JsonSchemaValue);
-            }
-        }
-
-        if (node.anyOf && Array.isArray(node.anyOf)) {
-            node.anyOf.forEach((v) => {
-                if (v && typeof v === 'object') walk(v as JsonSchemaValue);
-            });
-        }
-
-        if (node.allOf && Array.isArray(node.allOf)) {
-            node.allOf.forEach((v) => {
-                if (v && typeof v === 'object') walk(v as JsonSchemaValue);
-            });
-        }
-    }
-
-    walk(schema);
-    return count;
-}
-
-/**
- * Estimate schema complexity for UI feedback.
- */
-export function estimateSchemaComplexity(schema: StructuredOutputSchema): {
-    level: 'simple' | 'moderate' | 'complex' | 'extreme';
-    score: number;
-    factors: string[];
-} {
-    const factors: string[] = [];
-    let score = 0;
-
-    const result = validateSchema(schema);
-    if (!result.valid) {
-        return { level: 'extreme', score: 100, factors: ['Invalid schema'] };
-    }
-
-    const value = schema.value;
-
-    function countNodes(node: JsonSchemaValue): number {
-        let count = 1;
-        if (node.properties) {
-            count += Object.keys(node.properties).length;
-            for (const prop of Object.values(node.properties)) {
-                if (prop && typeof prop === 'object') {
-                    count += countNodes(prop as JsonSchemaValue);
-                }
-            }
-        }
-        if (
-            node.items &&
-            typeof node.items === 'object' &&
-            !Array.isArray(node.items)
-        ) {
-            count += countNodes(node.items as JsonSchemaValue);
-        }
-        if (node.anyOf && Array.isArray(node.anyOf))
-            count += node.anyOf.length * 2;
-        if (node.allOf && Array.isArray(node.allOf))
-            count += node.allOf.length * 2;
-        return count;
-    }
-
-    const nodeCount = countNodes(value);
-    const optionalCount = countOptionalFields(value);
-    const defCount = Object.keys(value.$defs || value.definitions || {}).length;
-
-    if (nodeCount > 50) {
-        score += 30;
-        factors.push(`${nodeCount} schema nodes`);
-    } else if (nodeCount > 20) {
-        score += 15;
-        factors.push(`${nodeCount} schema nodes`);
-    }
-
-    if (optionalCount > 10) {
-        score += 25;
-        factors.push(`${optionalCount} optional fields (implicit anyOf)`);
-    } else if (optionalCount > 5) {
-        score += 10;
-        factors.push(`${optionalCount} optional fields`);
-    }
-
-    if (defCount > 10) {
-        score += 20;
-        factors.push(`${defCount} definitions`);
-    } else if (defCount > 5) {
-        score += 10;
-        factors.push(`${defCount} definitions`);
-    }
-
-    // Determine level
-    let level: 'simple' | 'moderate' | 'complex' | 'extreme';
-    if (score >= 60) {
-        level = 'extreme';
-    } else if (score >= 35) {
-        level = 'complex';
-    } else if (score >= 15) {
-        level = 'moderate';
-    } else {
-        level = 'simple';
-    }
-
-    if (factors.length === 0) {
-        factors.push('Simple schema');
-    }
-
-    return { level, score, factors };
-}
-
-// =============================================================================
-// SCHEMA BUILDERS (Convenience functions)
-// =============================================================================
-
-/**
- * Create a basic schema wrapper.
- */
-export function createSchema(
-    name: string,
-    value: JsonSchemaValue,
-    strict = true,
-): StructuredOutputSchema {
-    return { name, strict, value };
-}
-
-/**
- * Create an object schema with required fields.
- */
-export function objectSchema(
-    properties: Record<string, JsonSchemaValue>,
-    required?: string[],
-): JsonSchemaValue {
-    return {
-        type: 'object',
-        additionalProperties: false,
-        properties,
-        required: required ?? Object.keys(properties),
-    };
-}
-
-/**
- * Create an array schema.
- */
-export function arraySchema(items: JsonSchemaValue): JsonSchemaValue {
-    return {
-        type: 'array',
-        items,
-    };
-}
-
-/**
- * Create a string enum schema.
- */
-export function enumSchema(values: string[]): JsonSchemaValue {
-    return {
-        type: 'string',
-        enum: values,
-    };
 }
 
 // =============================================================================

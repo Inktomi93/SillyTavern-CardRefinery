@@ -12,6 +12,7 @@ import {
     getApiStatus,
     popup,
     toast,
+    generateUniqueName,
 } from '../../shared';
 import {
     getState,
@@ -68,33 +69,6 @@ export function clearPendingInputs(): void {
         fn.cancel();
     }
     pendingInputDebounces = [];
-}
-
-// =============================================================================
-// NAME COLLISION HELPERS
-// =============================================================================
-
-/**
- * Generate a unique preset name by appending a number if the name already exists.
- * E.g., "Score Custom" -> "Score Custom (2)" -> "Score Custom (3)"
- */
-function generateUniquePresetName(
-    baseName: string,
-    existingNames: string[],
-): string {
-    const nameSet = new Set(existingNames.map((n) => n.toLowerCase()));
-
-    if (!nameSet.has(baseName.toLowerCase())) {
-        return baseName;
-    }
-
-    let counter = 2;
-    let uniqueName = `${baseName} (${counter})`;
-    while (nameSet.has(uniqueName.toLowerCase())) {
-        counter++;
-        uniqueName = `${baseName} (${counter})`;
-    }
-    return uniqueName;
 }
 
 // =============================================================================
@@ -170,23 +144,6 @@ async function loadFieldTokens(fields: PopulatedField[]): Promise<void> {
 
     // Update total
     updateFieldTotal();
-}
-
-/**
- * Get the total token count for selected fields.
- */
-export function getSelectedFieldsTokenCount(): number {
-    const selection = getCurrentFieldSelection();
-    let total = 0;
-
-    for (const [key, tokens] of fieldTokenCounts) {
-        const isSelected = key in selection && selection[key] !== false;
-        if (isSelected) {
-            total += tokens;
-        }
-    }
-
-    return total;
 }
 
 /**
@@ -945,7 +902,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                 const existingNames = presetRegistry
                     .getPromptPresets()
                     .map((p) => p.name);
-                const defaultName = generateUniquePresetName(
+                const defaultName = generateUniqueName(
                     `${STAGE_LABELS[state.activeStage]} Custom`,
                     existingNames,
                 );
@@ -1203,7 +1160,7 @@ export function bindStageConfigEvents(container: HTMLElement): () => void {
                 const existingNames = presetRegistry
                     .getSchemaPresets()
                     .map((p) => p.name);
-                const defaultName = generateUniquePresetName(
+                const defaultName = generateUniqueName(
                     `${STAGE_LABELS[state.activeStage]} Schema`,
                     existingNames,
                 );

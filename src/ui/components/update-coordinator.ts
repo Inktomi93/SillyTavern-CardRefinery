@@ -178,10 +178,3 @@ export function refreshAfterSessionChange(): void {
 export function refreshAfterStageChange(): void {
     triggerUpdate('stage', 'config', 'results');
 }
-
-/**
- * Trigger updates after pipeline state change.
- */
-export function refreshAfterPipelineChange(): void {
-    triggerUpdate('pipeline', 'stage', 'results');
-}

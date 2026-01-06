@@ -62,14 +62,42 @@ export function hasContent(str: string | null | undefined): boolean {
 }
 
 /**
- * Count words in a string.
+ * Generate a unique name by appending a counter suffix if the name already exists.
+ * Uses case-insensitive comparison for user-friendliness.
+ *
+ * @param baseName - The desired name
+ * @param existingNames - Array of names that already exist
+ * @returns A unique name (baseName if available, or "baseName (N)" where N >= 2)
+ *
+ * @example
+ * ```ts
+ * generateUniqueName('Score', ['Score', 'Rewrite'])
+ * // => 'Score (2)'
+ *
+ * generateUniqueName('Score', ['Score', 'Score (2)'])
+ * // => 'Score (3)'
+ *
+ * generateUniqueName('New Preset', ['Score', 'Rewrite'])
+ * // => 'New Preset'
+ * ```
  */
-export function countWords(str: string): number {
-    if (!str) return 0;
-    return str
-        .trim()
-        .split(/\s+/)
-        .filter((w) => w.length > 0).length;
+export function generateUniqueName(
+    baseName: string,
+    existingNames: string[],
+): string {
+    const nameSet = new Set(existingNames.map((n) => n.toLowerCase()));
+
+    if (!nameSet.has(baseName.toLowerCase())) {
+        return baseName;
+    }
+
+    let counter = 2;
+    let uniqueName = `${baseName} (${counter})`;
+    while (nameSet.has(uniqueName.toLowerCase())) {
+        counter++;
+        uniqueName = `${baseName} (${counter})`;
+    }
+    return uniqueName;
 }
 
 // =============================================================================
@@ -114,96 +142,6 @@ export async function retry<T>(
     }
 
     throw lastError;
-}
-
-// =============================================================================
-// VALIDATION (useful assertions)
-// =============================================================================
-
-/**
- * Assert a condition, throwing if false.
- */
-export function assert(condition: boolean, message: string): asserts condition {
-    if (!condition) {
-        throw new Error(`Assertion failed: ${message}`);
-    }
-}
-
-/**
- * Assert a value is defined (not null or undefined).
- */
-export function assertDefined<T>(
-    value: T | null | undefined,
-    name: string,
-): asserts value is T {
-    if (value === null || value === undefined) {
-        throw new Error(`Expected ${name} to be defined`);
-    }
-}
-
-// =============================================================================
-// TIMING
-// =============================================================================
-
-/**
- * Create a simple timer for measuring execution time.
- *
- * @example
- * ```ts
- * const timer = createTimer();
- * await doSomething();
- * console.log(`Took ${timer.elapsed()}ms`);
- * ```
- */
-export function createTimer(): { elapsed: () => number; reset: () => void } {
-    let start = Date.now();
-
-    return {
-        elapsed(): number {
-            return Date.now() - start;
-        },
-        reset(): void {
-            start = Date.now();
-        },
-    };
-}
-
-/**
- * Format milliseconds as human-readable duration.
- */
-export function formatDuration(ms: number): string {
-    if (ms < 1000) return `${ms}ms`;
-    if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
-    if (ms < 3600000)
-        return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
-    return `${Math.floor(ms / 3600000)}h ${Math.floor((ms % 3600000) / 60000)}m`;
-}
-
-// =============================================================================
-// JSON UTILITIES
-// =============================================================================
-
-/**
- * Safe JSON parse with fallback.
- */
-export function parseJSON<T>(json: string, fallback: T): T {
-    try {
-        return JSON.parse(json) as T;
-    } catch {
-        return fallback;
-    }
-}
-
-/**
- * Check if a string is valid JSON.
- */
-export function isValidJSON(str: string): boolean {
-    try {
-        JSON.parse(str);
-        return true;
-    } catch {
-        return false;
-    }
 }
 
 // =============================================================================

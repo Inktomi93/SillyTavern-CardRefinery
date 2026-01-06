@@ -46,13 +46,6 @@ export async function ensureUnshallowed(char: Character): Promise<Character> {
     return stChar as Character;
 }
 
-/**
- * Synchronous check if character needs unshallowing.
- */
-export function isShallow(char: Character): boolean {
-    return !!char.shallow;
-}
-
 // =============================================================================
 // PATH RESOLUTION WITH FALLBACK
 // =============================================================================
@@ -138,7 +131,7 @@ function isPopulated(value: unknown, type?: string): boolean {
 /**
  * Format field value as string.
  */
-export function formatValue(value: unknown, field: CharacterField): string {
+function formatValue(value: unknown, field: CharacterField): string {
     switch (field.type) {
         case 'array':
             if (!Array.isArray(value)) return '';
@@ -236,61 +229,4 @@ export function getPopulatedFields(char: Character): PopulatedField[] {
     }
 
     return result;
-}
-
-/**
- * Get populated fields asynchronously, ensuring character is unshallowed first.
- */
-export async function getPopulatedFieldsAsync(
-    char: Character,
-): Promise<PopulatedField[]> {
-    const fullChar = await ensureUnshallowed(char);
-    return getPopulatedFields(fullChar);
-}
-
-/**
- * Check if character has any populated fields.
- */
-export function hasPopulatedFields(char: Character): boolean {
-    return getPopulatedFields(char).length > 0;
-}
-
-/**
- * Get total character count across all fields.
- */
-export function getTotalCharCount(char: Character): number {
-    return getPopulatedFields(char).reduce((sum, f) => sum + f.charCount, 0);
-}
-
-/**
- * Validate character data and return issues.
- */
-export function validateCharacter(char: Character): string[] {
-    const issues: string[] = [];
-
-    if (!char) {
-        issues.push('No character provided');
-        return issues;
-    }
-
-    if (!char.name?.trim()) {
-        issues.push('Character has no name');
-    }
-
-    // Don't require data object - V1 cards may not have it
-    const fields = getPopulatedFields(char);
-    if (fields.length === 0) {
-        issues.push('Character has no populated fields');
-    }
-
-    return issues;
-}
-
-/**
- * Get preview of field value (truncated).
- */
-export function getFieldPreview(value: string, maxLength = 100): string {
-    return value.length <= maxLength
-        ? value
-        : value.substring(0, maxLength - 3) + '...';
 }

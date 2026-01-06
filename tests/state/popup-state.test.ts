@@ -73,20 +73,12 @@ import {
     getStateOrNull,
     setActiveStage,
     toggleField,
-    setFieldSelection,
-    setStageStatus,
-    recordStageResult,
-    incrementIteration,
-    resetPipeline,
-    setGenerating,
     abortGeneration,
-    setSearchState,
-    toggleSessionList,
     toggleHistory,
     getUserGuidance,
     setUserGuidance,
 } from '../../src/state/popup-state';
-import type { StageName, StageResult } from '../../src/types';
+import type { StageName } from '../../src/types';
 
 // =============================================================================
 // TESTS
@@ -215,78 +207,6 @@ describe('Stage Management', () => {
             }
         });
     });
-
-    describe('setStageStatus', () => {
-        it('updates stage status', () => {
-            setStageStatus('score', 'running');
-            expect(getState().stageStatus.score).toBe('running');
-        });
-
-        it('can set complete status', () => {
-            setStageStatus('rewrite', 'complete');
-            expect(getState().stageStatus.rewrite).toBe('complete');
-        });
-
-        it('can set error status', () => {
-            setStageStatus('analyze', 'error');
-            expect(getState().stageStatus.analyze).toBe('error');
-        });
-    });
-
-    describe('recordStageResult', () => {
-        it('stores stage result', () => {
-            const result: StageResult = {
-                stage: 'score',
-                timestamp: Date.now(),
-                input: 'test input',
-                output: 'Score: 8/10',
-            };
-
-            recordStageResult(result);
-
-            expect(getState().stageResults.score).toEqual(result);
-        });
-
-        it('adds result to iteration history', () => {
-            const result: StageResult = {
-                stage: 'score',
-                timestamp: Date.now(),
-                input: 'test input',
-                output: 'Score: 8/10',
-            };
-
-            recordStageResult(result);
-
-            expect(getState().iterationHistory).toContain(result);
-        });
-
-        it('marks stage as complete for successful result', () => {
-            const result: StageResult = {
-                stage: 'score',
-                timestamp: Date.now(),
-                input: 'test',
-                output: 'Success',
-            };
-
-            recordStageResult(result);
-
-            expect(getState().stageStatus.score).toBe('complete');
-        });
-
-        it('marks stage as error for failed result', () => {
-            const result: StageResult = {
-                stage: 'score',
-                timestamp: Date.now(),
-                input: 'test',
-                output: '',
-                error: 'Generation failed',
-            };
-
-            recordStageResult(result);
-
-            expect(getState().stageStatus.score).toBe('error');
-        });
-    });
 });
 
 describe('Field Selection', () => {
@@ -337,83 +257,6 @@ describe('Field Selection', () => {
             expect(state.selectedFields.personality).toBe(true);
         });
     });
-
-    describe('setFieldSelection', () => {
-        it('replaces entire field selection', () => {
-            // Set initial fields
-            toggleField('description', true);
-
-            // Replace with new selection
-            setFieldSelection({ personality: true, scenario: true });
-
-            const state = getState();
-            expect(state.stageFields.base).toEqual({
-                personality: true,
-                scenario: true,
-            });
-            expect(state.stageFields.base.description).toBeUndefined();
-        });
-    });
-});
-
-describe('Iteration Management', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        initState();
-    });
-
-    describe('incrementIteration', () => {
-        it('increments iteration count', () => {
-            expect(getState().iterationCount).toBe(0);
-
-            incrementIteration();
-            expect(getState().iterationCount).toBe(1);
-
-            incrementIteration();
-            expect(getState().iterationCount).toBe(2);
-        });
-    });
-
-    describe('resetPipeline', () => {
-        it('resets stage statuses to pending', () => {
-            setStageStatus('score', 'complete');
-            setStageStatus('rewrite', 'running');
-
-            resetPipeline();
-
-            const state = getState();
-            expect(state.stageStatus.score).toBe('pending');
-            expect(state.stageStatus.rewrite).toBe('pending');
-            expect(state.stageStatus.analyze).toBe('pending');
-        });
-
-        it('clears stage results', () => {
-            recordStageResult({
-                stage: 'score',
-                timestamp: Date.now(),
-                input: 'test',
-                output: 'result',
-            });
-
-            resetPipeline();
-
-            const state = getState();
-            expect(state.stageResults.score).toBeNull();
-            expect(state.stageResults.rewrite).toBeNull();
-            expect(state.stageResults.analyze).toBeNull();
-        });
-
-        it('resets iteration count and guidance', () => {
-            incrementIteration();
-            incrementIteration();
-            setUserGuidance('Some guidance');
-
-            resetPipeline();
-
-            expect(getState().iterationCount).toBe(0);
-            expect(getState().userGuidance).toBe('');
-        });
-    });
 });
 
 describe('Generation Control', () => {
@@ -422,35 +265,19 @@ describe('Generation Control', () => {
         initState();
     });
 
-    describe('setGenerating', () => {
-        it('sets generating state and creates abort controller', () => {
-            setGenerating(true);
-
-            const state = getState();
-            expect(state.isGenerating).toBe(true);
-            expect(state.abortController).not.toBeNull();
-        });
-
-        it('clears abort controller when stopping', () => {
-            setGenerating(true);
-            setGenerating(false);
-
-            const state = getState();
-            expect(state.isGenerating).toBe(false);
-            expect(state.abortController).toBeNull();
-        });
-    });
-
     describe('abortGeneration', () => {
         it('aborts and clears generating state', () => {
-            setGenerating(true);
-            const controller = getState().abortController;
+            // Manually set up generating state for this test
+            const state = getState();
+            const controller = new AbortController();
+            state.isGenerating = true;
+            state.abortController = controller;
 
             abortGeneration();
 
             expect(getState().isGenerating).toBe(false);
             expect(getState().abortController).toBeNull();
-            expect(controller?.signal.aborted).toBe(true);
+            expect(controller.signal.aborted).toBe(true);
         });
 
         it('handles abort when not generating', () => {
@@ -460,72 +287,10 @@ describe('Generation Control', () => {
     });
 });
 
-describe('Search State', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-        initState();
-    });
-
-    describe('setSearchState', () => {
-        it('updates search query', () => {
-            setSearchState({ query: 'test search' });
-
-            expect(getState().searchQuery).toBe('test search');
-        });
-
-        it('updates search results', () => {
-            const mockResults = [
-                { name: 'Char 1', avatar: 'char1.png' },
-                { name: 'Char 2', avatar: 'char2.png' },
-            ];
-            setSearchState({ results: mockResults });
-
-            expect(getState().searchResults).toEqual(mockResults);
-        });
-
-        it('updates selected index', () => {
-            setSearchState({ selectedIndex: 2 });
-
-            expect(getState().searchSelectedIndex).toBe(2);
-        });
-
-        it('updates dropdown open state', () => {
-            setSearchState({ dropdownOpen: true });
-
-            expect(getState().dropdownOpen).toBe(true);
-        });
-
-        it('can update multiple properties at once', () => {
-            setSearchState({
-                query: 'multi',
-                selectedIndex: 1,
-                dropdownOpen: true,
-            });
-
-            const state = getState();
-            expect(state.searchQuery).toBe('multi');
-            expect(state.searchSelectedIndex).toBe(1);
-            expect(state.dropdownOpen).toBe(true);
-        });
-    });
-});
-
 describe('UI Toggle States', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         initState();
-    });
-
-    describe('toggleSessionList', () => {
-        it('toggles session list expanded state', () => {
-            expect(getState().sessionListExpanded).toBe(false);
-
-            toggleSessionList();
-            expect(getState().sessionListExpanded).toBe(true);
-
-            toggleSessionList();
-            expect(getState().sessionListExpanded).toBe(false);
-        });
     });
 
     describe('toggleHistory', () => {

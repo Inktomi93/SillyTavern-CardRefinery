@@ -183,20 +183,6 @@ export function getLogEntries(): LogEntry[] {
     return [...logEntries];
 }
 
-/**
- * Get log entries filtered by level.
- */
-export function getLogEntriesByLevel(level: LogLevel): LogEntry[] {
-    return logEntries.filter((e) => e.level === level);
-}
-
-/**
- * Clear all stored log entries.
- */
-export function clearLogEntries(): void {
-    logEntries.length = 0;
-}
-
 // =============================================================================
 // DIAGNOSTICS
 // =============================================================================

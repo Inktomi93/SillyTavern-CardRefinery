@@ -12,15 +12,6 @@
 // =============================================================================
 
 /**
- * Create an element from HTML string.
- */
-export function createElement<T extends HTMLElement>(html: string): T {
-    const template = document.createElement('template');
-    template.innerHTML = SillyTavern.libs.DOMPurify.sanitize(html.trim());
-    return template.content.firstChild as T;
-}
-
-/**
  * Query element with type safety.
  */
 export function $(
@@ -58,49 +49,7 @@ export function on<K extends keyof HTMLElementEventMap>(
     };
 }
 
-/**
- * Simple reactive state helper.
- * Returns [get, set, subscribe] tuple.
- */
-export function createSignal<T>(
-    initial: T,
-): [
-    () => T,
-    (value: T | ((prev: T) => T)) => void,
-    (fn: (v: T) => void) => () => void,
-] {
-    let value = initial;
-    const listeners = new Set<(v: T) => void>();
-
-    const get = () => value;
-
-    const set = (newValue: T | ((prev: T) => T)) => {
-        value =
-            typeof newValue === 'function'
-                ? (newValue as (prev: T) => T)(value)
-                : newValue;
-        listeners.forEach((fn) => fn(value));
-    };
-
-    const subscribe = (fn: (v: T) => void) => {
-        listeners.add(fn);
-        return () => listeners.delete(fn);
-    };
-
-    return [get, set, subscribe];
-}
-
 // NOTE: debounce/throttle removed - use import { debounce, throttle } from '../../shared'
-
-/**
- * Format character count for display.
- */
-export function formatCharCount(count: number): string {
-    if (count >= 1000) {
-        return `${(count / 1000).toFixed(1)}k`;
-    }
-    return count.toString();
-}
 
 /**
  * Format token count for display.

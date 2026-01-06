@@ -14,7 +14,6 @@ import type {
     PromptPreset,
     SchemaPreset,
     Session,
-    StorageMeta,
 } from '../../types';
 
 // =============================================================================
@@ -410,15 +409,6 @@ export const DEFAULT_SETTINGS: Settings = {
     profileId: null,
     maxTokensOverride: null,
     debugMode: false,
-};
-
-// =============================================================================
-// DEFAULT STORAGE META
-// =============================================================================
-
-export const DEFAULT_STORAGE_META: StorageMeta = {
-    version: STORAGE_VERSION,
-    lastMigration: Date.now(),
 };
 
 // =============================================================================

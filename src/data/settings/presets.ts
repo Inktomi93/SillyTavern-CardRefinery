@@ -11,7 +11,6 @@
 import { validateSchema } from '../../domain/schema';
 import type { PromptPreset, SchemaPreset, StageName } from '../../types';
 import {
-    presetRegistry,
     getPromptPresets as registryGetPromptPresets,
     getSchemaPresets as registryGetSchemaPresets,
     getPromptPreset as registryGetPromptPreset,
@@ -22,21 +21,7 @@ import {
     updateSchemaPreset as registryUpdateSchemaPreset,
     deletePromptPreset as registryDeletePromptPreset,
     deleteSchemaPreset as registryDeleteSchemaPreset,
-    isNameUnique,
-    generateUniqueName,
-    getDisplayName,
 } from './registry';
-
-// =============================================================================
-// RE-EXPORTS FROM REGISTRY
-// =============================================================================
-
-export {
-    presetRegistry,
-    isNameUnique as isPresetNameUnique,
-    generateUniqueName as generateUniquePresetName,
-    getDisplayName as getPresetDisplayName,
-};
 
 // =============================================================================
 // VALIDATION TYPES

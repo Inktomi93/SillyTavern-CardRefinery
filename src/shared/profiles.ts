@@ -59,29 +59,6 @@ export interface ApiStatus {
     error: string | null;
 }
 
-/**
- * Sampler/generation settings.
- */
-export interface SamplerSettings {
-    temperature: number;
-    top_p: number;
-    top_k: number;
-    min_p: number;
-    frequency_penalty: number;
-    presence_penalty: number;
-}
-
-/**
- * Token estimate for a prompt.
- */
-export interface TokenEstimate {
-    promptTokens: number;
-    contextSize: number;
-    maxOutput: number;
-    percentage: number;
-    fits: boolean;
-}
-
 // =============================================================================
 // PROFILE DISCOVERY
 // =============================================================================
@@ -364,81 +341,4 @@ function formatModelName(model: string): string {
     }
 
     return cleaned;
-}
-
-// =============================================================================
-// SAMPLER SETTINGS
-// =============================================================================
-
-/**
- * Get current sampler/generation settings.
- */
-export function getSamplerSettings(): SamplerSettings {
-    const ctx = SillyTavern.getContext();
-    const ccs = ctx.chatCompletionSettings;
-    const tcs = ctx.textCompletionSettings;
-
-    return {
-        temperature: ccs?.temperature ?? tcs?.temperature ?? 1.0,
-        top_p: ccs?.top_p ?? tcs?.top_p ?? 1.0,
-        top_k: ccs?.top_k ?? tcs?.top_k ?? 0,
-        min_p: ccs?.min_p ?? tcs?.min_p ?? 0,
-        frequency_penalty: ccs?.frequency_penalty ?? tcs?.freq_pen ?? 0,
-        presence_penalty: ccs?.presence_penalty ?? tcs?.presence_pen ?? 0,
-    };
-}
-
-// =============================================================================
-// TOKEN ESTIMATION
-// =============================================================================
-
-/**
- * Estimate tokens for a prompt and check if it fits in context.
- *
- * This is the canonical function for token estimation.
- */
-export async function estimateTokens(
-    prompt: string,
-    systemPrompt?: string,
-): Promise<TokenEstimate> {
-    const ctx = SillyTavern.getContext();
-    const fullPrompt = systemPrompt ? `${systemPrompt}\n\n${prompt}` : prompt;
-
-    let promptTokens = 0;
-    if (typeof ctx.getTokenCountAsync === 'function') {
-        try {
-            promptTokens = await ctx.getTokenCountAsync(fullPrompt);
-        } catch {
-            // Fallback: rough estimate
-            promptTokens = Math.ceil(fullPrompt.length / 4);
-        }
-    } else {
-        promptTokens = Math.ceil(fullPrompt.length / 4);
-    }
-
-    const status = getApiStatus();
-    const { contextSize, maxOutput } = status;
-
-    const availableContext = contextSize - maxOutput - 100;
-    const percentage = Math.round((promptTokens / contextSize) * 100);
-    const fits = promptTokens < availableContext;
-
-    return {
-        promptTokens,
-        contextSize,
-        maxOutput,
-        percentage,
-        fits,
-    };
-}
-
-/**
- * Quick check if a prompt fits in the current context.
- */
-export async function promptFitsContext(
-    prompt: string,
-    systemPrompt?: string,
-): Promise<boolean> {
-    const estimate = await estimateTokens(prompt, systemPrompt);
-    return estimate.fits;
 }

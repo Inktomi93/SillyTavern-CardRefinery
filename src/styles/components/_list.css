@@ -147,15 +147,6 @@
         }
     }
 
-    /* Bordered variant for emphasis */
-    &--bordered {
-        margin: var(--cr-space-4);
-        padding: var(--cr-space-6);
-        background: var(--cr-bg-secondary);
-        border: 1px dashed var(--cr-border-muted);
-        border-radius: var(--cr-radius);
-    }
-
     &__icon {
         font-size: 3rem;
         opacity: 0.3;
