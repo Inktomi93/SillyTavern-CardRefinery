@@ -3,12 +3,13 @@
 // SESSION DROPDOWN - Compact session selector with inline actions
 // =============================================================================
 
-import { MODULE_NAME, popup, toast } from '../../shared';
+import { MODULE_NAME, popup, toast, log } from '../../shared';
 import {
     getState,
     createNewSession,
     loadSession,
     deleteSession,
+    deleteAllSessions,
     renameSession,
 } from '../../state';
 import { $, on, cx } from './base';
@@ -169,7 +170,7 @@ export function renderSessionDropdown(): string {
     const hasCharacter = !!state.character;
 
     // Determine display text
-    let displayText = 'No session';
+    let displayText = 'New Session';
     if (!hasCharacter) {
         displayText = 'Select character...';
     } else if (activeSession) {
@@ -203,6 +204,19 @@ export function renderSessionDropdown(): string {
                         <i class="fa-solid fa-plus"></i>
                         New Session
                     </button>
+                    ${
+                        sessionCount > 0
+                            ? `
+                    <button id="${MODULE_NAME}_delete_all_sessions_btn"
+                            class="menu_button menu_button--sm menu_button--ghost cr-dropdown__delete-all-btn"
+                            type="button"
+                            title="Delete all sessions for this character">
+                        <i class="fa-solid fa-trash"></i>
+                        Delete All
+                    </button>
+                    `
+                            : ''
+                    }
                 </div>
             </div>
         </div>
@@ -230,7 +244,7 @@ export function updateSessionDropdown(): void {
     if (trigger) {
         trigger.disabled = !hasCharacter;
 
-        let displayText = 'No session';
+        let displayText = 'New Session';
         if (!hasCharacter) {
             displayText = 'Select character...';
         } else if (activeSession) {
@@ -256,6 +270,61 @@ export function updateSessionDropdown(): void {
     const list = $(`#${MODULE_NAME}_session_list`);
     if (list) {
         list.innerHTML = renderDropdownList();
+    }
+
+    // Update footer - show/hide delete all button based on session count
+    const sessionCount = state.sessions.length;
+    const footer = $(`.cr-dropdown__footer`, dropdown);
+    if (footer) {
+        const existingDeleteAllBtn = $(
+            `#${MODULE_NAME}_delete_all_sessions_btn`,
+            footer,
+        );
+
+        if (sessionCount > 0 && !existingDeleteAllBtn) {
+            // Add delete all button
+            const deleteAllBtn = document.createElement('button');
+            deleteAllBtn.id = `${MODULE_NAME}_delete_all_sessions_btn`;
+            deleteAllBtn.className =
+                'menu_button menu_button--sm menu_button--ghost cr-dropdown__delete-all-btn';
+            deleteAllBtn.type = 'button';
+            deleteAllBtn.title = 'Delete all sessions for this character';
+            deleteAllBtn.innerHTML =
+                '<i class="fa-solid fa-trash"></i> Delete All';
+            footer.appendChild(deleteAllBtn);
+
+            // Bind event handler
+            deleteAllBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const currentState = getState();
+                const count = currentState.sessions.length;
+                const confirmed = await popup.confirm(
+                    'Delete All Sessions',
+                    `Are you sure you want to delete all ${count} session${count !== 1 ? 's' : ''} for this character? This cannot be undone.`,
+                );
+                if (confirmed) {
+                    try {
+                        const result = await deleteAllSessions();
+                        if (result.success) {
+                            toast.success(
+                                `Deleted ${result.count} session${result.count !== 1 ? 's' : ''}`,
+                            );
+                            setDropdownOpen(false);
+                            updateSessionDropdown();
+                            refreshAfterSessionChange();
+                        } else {
+                            toast.error('Failed to delete sessions');
+                        }
+                    } catch (error) {
+                        toast.error('Failed to delete sessions');
+                        log.error('Delete all sessions error:', error);
+                    }
+                }
+            });
+        } else if (sessionCount === 0 && existingDeleteAllBtn) {
+            // Remove delete all button
+            existingDeleteAllBtn.remove();
+        }
     }
 }
 
@@ -307,7 +376,44 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                     }
                 } catch (error) {
                     toast.error('Failed to create session');
-                    console.error('Create session error:', error);
+                    log.error('Create session error:', error);
+                }
+            }),
+        );
+    }
+
+    // Delete all sessions button
+    const deleteAllBtn = $(
+        `#${MODULE_NAME}_delete_all_sessions_btn`,
+        container,
+    );
+    if (deleteAllBtn) {
+        cleanups.push(
+            on(deleteAllBtn, 'click', async (e) => {
+                e.stopPropagation();
+                const state = getState();
+                const count = state.sessions.length;
+                const confirmed = await popup.confirm(
+                    'Delete All Sessions',
+                    `Are you sure you want to delete all ${count} session${count !== 1 ? 's' : ''} for this character? This cannot be undone.`,
+                );
+                if (confirmed) {
+                    try {
+                        const result = await deleteAllSessions();
+                        if (result.success) {
+                            toast.success(
+                                `Deleted ${result.count} session${result.count !== 1 ? 's' : ''}`,
+                            );
+                            setDropdownOpen(false);
+                            updateSessionDropdown();
+                            refreshAfterSessionChange();
+                        } else {
+                            toast.error('Failed to delete sessions');
+                        }
+                    } catch (error) {
+                        toast.error('Failed to delete sessions');
+                        log.error('Delete all sessions error:', error);
+                    }
                 }
             }),
         );
@@ -356,7 +462,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                             toast.success('Session renamed');
                         } catch (error) {
                             toast.error('Failed to rename session');
-                            console.error('Rename session error:', error);
+                            log.error('Rename session error:', error);
                         }
                     }
                     editingSessionId = null;
@@ -381,13 +487,17 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                     );
                     if (confirmed) {
                         try {
-                            await deleteSession(sessionId);
-                            toast.success('Session deleted');
-                            updateSessionDropdown();
-                            refreshAfterSessionChange();
+                            const success = await deleteSession(sessionId);
+                            if (success) {
+                                toast.success('Session deleted');
+                                updateSessionDropdown();
+                                refreshAfterSessionChange();
+                            } else {
+                                toast.error('Failed to delete session');
+                            }
                         } catch (error) {
                             toast.error('Failed to delete session');
-                            console.error('Delete session error:', error);
+                            log.error('Delete session error:', error);
                         }
                     }
                     return;
@@ -411,7 +521,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                         }
                     } catch (error) {
                         toast.error('Failed to load session');
-                        console.error('Load session error:', error);
+                        log.error('Load session error:', error);
                     }
                 }
             }),
@@ -438,7 +548,7 @@ export function bindSessionDropdownEvents(container: HTMLElement): () => void {
                         toast.success('Session renamed');
                     } catch (error) {
                         toast.error('Failed to rename session');
-                        console.error('Rename session error:', error);
+                        log.error('Rename session error:', error);
                     }
                     editingSessionId = null;
                     updateSessionDropdown();

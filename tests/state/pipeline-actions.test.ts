@@ -76,6 +76,25 @@ vi.mock('../../src/data', () => ({
     })),
     save: vi.fn(),
     saveSession: vi.fn(),
+    createSession: vi.fn(() =>
+        Promise.resolve({
+            id: 'test-session-id',
+            characterId: 'test-char',
+            characterName: 'Test Character',
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            originalData: {},
+            stageFields: { base: [], score: [], rewrite: [], analyze: [] },
+            stageConfigs: {},
+            stageResults: {},
+            iterationHistory: [],
+            activeIteration: 0,
+        }),
+    ),
+    getSessionsForCharacter: vi.fn(() => Promise.resolve([])),
+    getSession: vi.fn(() => Promise.resolve(null)),
+    deleteSession: vi.fn(() => Promise.resolve()),
+    deleteAllSessionsForCharacter: vi.fn(() => Promise.resolve()),
 }));
 
 // Hoisted mock for runStage
@@ -84,6 +103,12 @@ const mockRunStage = vi.hoisted(() => vi.fn());
 // Mock the domain module
 vi.mock('../../src/domain', () => ({
     runStage: mockRunStage,
+    buildOriginalData: vi.fn(() => ({
+        description: 'test description',
+        personality: 'test personality',
+    })),
+    ensureUnshallowed: vi.fn((char) => char),
+    getPopulatedFields: vi.fn(() => []),
 }));
 
 // Mock popup-state - we need partial mocks

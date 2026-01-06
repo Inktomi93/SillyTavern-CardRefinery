@@ -4,7 +4,13 @@
 // =============================================================================
 
 // Direct ST libs access - debounce and cloneDeep
-import { getSession, updateSession as storageUpdateSession } from '../data';
+import {
+    getSession,
+    updateSession as storageUpdateSession,
+    createSession as storageCreateSession,
+} from '../data';
+import { buildOriginalData } from '../domain';
+import { log } from '../shared';
 import type { PopupState } from '../types';
 
 // =============================================================================
@@ -32,13 +38,35 @@ export function createAutoSave(
         }
 
         const s = getState();
-        if (!s?.activeSessionId || !s.character) return;
+        if (!s?.character) return;
 
         // Check for loading flag to avoid saving partial state
         if ((s as unknown as { _isLoading?: boolean })._isLoading) return;
 
-        const session = await getSession(s.activeSessionId);
-        if (!session) return;
+        let session;
+
+        // Lazy session creation: if no active session, create one
+        if (!s.activeSessionId) {
+            const originalData = buildOriginalData(
+                s.character,
+                s.stageFields.base,
+            );
+
+            session = await storageCreateSession({
+                characterId: s.character.avatar,
+                characterName: s.character.name,
+                stageFields: s.stageFields,
+                originalData,
+                configs: s.stageConfigs,
+            });
+
+            s.sessions.unshift(session);
+            s.activeSessionId = session.id;
+            log.debug(`Lazy-created session on auto-save: ${session.id}`);
+        } else {
+            session = await getSession(s.activeSessionId);
+            if (!session) return;
+        }
 
         // Update session from state
         session.stageFields = _.cloneDeep(s.stageFields);

@@ -127,6 +127,26 @@
         }
     }
 
+    /* Inline variant - horizontal, minimal height */
+    &--inline {
+        flex-direction: row;
+        flex: 0;
+        gap: var(--cr-space-2);
+        padding: var(--cr-space-3);
+        text-align: left;
+
+        & .cr-empty__icon {
+            font-size: 1rem;
+            margin: 0;
+            opacity: 0.5;
+        }
+
+        & .cr-empty__text {
+            font-size: var(--cr-text-xs);
+            max-width: none;
+        }
+    }
+
     /* Bordered variant for emphasis */
     &--bordered {
         margin: var(--cr-space-4);

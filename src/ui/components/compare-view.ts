@@ -4,9 +4,9 @@
 // Side-by-side diff showing Original vs Rewritten for each field
 // =============================================================================
 
-import { MODULE_NAME, popup } from '../../shared';
+import { MODULE_NAME } from '../../shared';
 import { getState } from '../../state';
-import { $, on } from './base';
+import { $ } from './base';
 import { getPopulatedFields } from '../../domain/character/fields';
 
 // =============================================================================
@@ -175,10 +175,9 @@ function renderComparisonRow(comparison: FieldComparison): string {
     );
 
     return /* html */ `
-        <div class="cr-compare-row ${comparison.hasChanges ? 'cr-compare-row--changed' : ''}">
+        <div class="cr-compare-row">
             <div class="cr-compare-row__header">
                 <span class="cr-compare-row__label">${comparison.label}</span>
-                ${comparison.hasChanges ? '<span class="cr-badge cr-badge--small cr-badge--accent">Modified</span>' : ''}
             </div>
             <div class="cr-compare-row__content">
                 <div class="cr-compare-col cr-compare-col--original">
@@ -248,53 +247,7 @@ export function updateCompareView(): void {
 /**
  * Bind compare view events.
  */
-export function bindCompareViewEvents(container: HTMLElement): () => void {
-    const cleanups: Array<() => void> = [];
-
-    // Click on a row to expand in popup
-    const compareList = $('.cr-compare-list', container);
-    if (compareList) {
-        cleanups.push(
-            on(compareList, 'click', (e) => {
-                const row = (e.target as HTMLElement).closest(
-                    '.cr-compare-row',
-                );
-                if (!row) return;
-
-                // Get the label from the row
-                const labelEl = row.querySelector('.cr-compare-row__label');
-                const label = labelEl?.textContent || 'Field';
-
-                // Get content
-                const originalPre = row.querySelector(
-                    '.cr-compare-col--original pre',
-                );
-                const rewrittenPre = row.querySelector(
-                    '.cr-compare-col--rewritten pre',
-                );
-
-                if (originalPre && rewrittenPre) {
-                    popup.alert(
-                        `Compare: ${label}`,
-                        /* html */ `
-                        <div class="cr-compare-popup">
-                            <div class="cr-compare-popup__side">
-                                <h4>Original</h4>
-                                <pre>${originalPre.innerHTML}</pre>
-                            </div>
-                            <div class="cr-compare-popup__side">
-                                <h4>Rewritten</h4>
-                                <pre>${rewrittenPre.innerHTML}</pre>
-                            </div>
-                        </div>
-                        `,
-                    );
-                }
-            }),
-        );
-    }
-
-    return () => {
-        cleanups.forEach((fn) => fn());
-    };
+export function bindCompareViewEvents(_container: HTMLElement): () => void {
+    // No click events - compare view is read-only display
+    return () => {};
 }

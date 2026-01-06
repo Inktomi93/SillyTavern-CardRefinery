@@ -29,28 +29,20 @@ function getPanelHTML(): string {
             <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
         </div>
         <div class="inline-drawer-content">
-            <div class="flex-container flexFlowColumn">
-                <small class="cr-panel-version">Version ${VERSION}</small>
+            <div class="cr-panel-content">
                 <p class="cr-panel-desc">
-                    AI-powered character card analysis, scoring, and enhancement.
-                    Run the pipeline to evaluate and improve your character cards.
+                    AI-powered character card scoring, rewriting, and analysis.
                 </p>
-                <div class="cr-panel-actions">
-                    <button id="${MODULE_NAME}_open_btn" class="menu_button menu_button_icon" type="button">
-                        <i class="fa-solid fa-play"></i>
-                        <span>Open Character Tools</span>
-                    </button>
-                </div>
-                <hr class="cr-panel-divider"/>
-                <div class="cr-panel-debug">
+                <button id="${MODULE_NAME}_open_btn" class="menu_button cr-panel-launch" type="button">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Open Card Refinery</span>
+                </button>
+                <div class="cr-panel-footer">
                     <label class="cr-panel-checkbox">
                         <input type="checkbox" id="${MODULE_NAME}_debug_mode" ${settings.debugMode ? 'checked' : ''}/>
-                        <span>Enable debug logging</span>
+                        <span>Debug mode</span>
                     </label>
-                    <button id="${MODULE_NAME}_view_logs" class="menu_button menu_button--sm" type="button">
-                        <i class="fa-solid fa-terminal"></i>
-                        <span>View Logs</span>
-                    </button>
+                    <span class="cr-panel-version">v${VERSION}</span>
                 </div>
             </div>
         </div>
@@ -98,12 +90,6 @@ export async function initPanel(): Promise<void> {
                 ? 'Debug logging enabled'
                 : 'Debug logging disabled',
         );
-    });
-
-    // Bind view logs button
-    const viewLogsBtn = document.getElementById(`${MODULE_NAME}_view_logs`);
-    viewLogsBtn?.addEventListener('click', () => {
-        toast.info('Check browser console (F12) for logs');
     });
 
     log.debug('Panel initialized');

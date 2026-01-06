@@ -10,6 +10,7 @@
     padding: var(--cr-space-3);
     background: var(--cr-bg-secondary);
     border-radius: var(--cr-radius);
+    text-align: left;
 
     & pre {
         margin: 0;
@@ -19,6 +20,7 @@
         line-height: 1.5;
         white-space: pre-wrap;
         word-break: break-word;
+        text-align: left;
     }
 }
 

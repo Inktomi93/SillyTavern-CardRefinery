@@ -94,8 +94,37 @@ export function resetSettings(): Settings {
 type MigrationFn = (settings: Partial<Settings>) => void;
 
 const migrations: Record<number, MigrationFn> = {
-    // Example: v1 -> v2 migration
-    // 2: (settings) => { ... },
+    // v1 -> v2: Set default prompt presets for stages
+    2: (settings) => {
+        if (!settings.stageDefaults) {
+            settings.stageDefaults = {} as Settings['stageDefaults'];
+        }
+        const defaults = settings.stageDefaults;
+
+        // Set default prompt presets if not already set
+        if (!defaults.score?.promptPresetId) {
+            defaults.score = {
+                ...(defaults.score || {}),
+                promptPresetId: 'builtin_score_default',
+            } as StageConfig;
+        }
+        if (!defaults.rewrite?.promptPresetId) {
+            defaults.rewrite = {
+                ...(defaults.rewrite || {}),
+                promptPresetId: 'builtin_rewrite_default',
+            } as StageConfig;
+        }
+        if (!defaults.analyze?.promptPresetId) {
+            defaults.analyze = {
+                ...(defaults.analyze || {}),
+                promptPresetId: 'builtin_analyze_default',
+            } as StageConfig;
+        }
+
+        // Remove structured output default if it was set
+        if (defaults.score) defaults.score.useStructuredOutput = false;
+        if (defaults.analyze) defaults.analyze.useStructuredOutput = false;
+    },
 };
 
 function runMigrations(settings: Partial<Settings>, oldVersion: number): void {

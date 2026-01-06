@@ -14,6 +14,7 @@ import {
     MAX_SESSIONS_PER_CHARACTER,
     loadLargeData,
     storeLargeData,
+    log,
 } from '../../shared';
 import type {
     Session,
@@ -111,16 +112,33 @@ async function loadIndex(): Promise<SessionIndex> {
     return index;
 }
 
-async function saveSessions(): Promise<void> {
+async function saveSessions(): Promise<boolean> {
     const cache = getSessionsCache();
-    if (!cache) return;
-    await storeLargeData(STORAGE_KEYS.SESSIONS, Object.fromEntries(cache));
+    if (!cache) {
+        log.warn('saveSessions: No cache to save');
+        return false;
+    }
+    const success = await storeLargeData(
+        STORAGE_KEYS.SESSIONS,
+        Object.fromEntries(cache),
+    );
+    if (!success) {
+        log.error('Failed to save sessions to storage');
+    }
+    return success;
 }
 
-async function saveIndex(): Promise<void> {
+async function saveIndex(): Promise<boolean> {
     const cache = getIndexCache();
-    if (!cache) return;
-    await storeLargeData(STORAGE_KEYS.SESSION_INDEX, cache);
+    if (!cache) {
+        log.warn('saveIndex: No cache to save');
+        return false;
+    }
+    const success = await storeLargeData(STORAGE_KEYS.SESSION_INDEX, cache);
+    if (!success) {
+        log.error('Failed to save index to storage');
+    }
+    return success;
 }
 
 // =============================================================================
@@ -271,15 +289,20 @@ export async function updateSession(session: Session): Promise<void> {
 /**
  * Delete a session.
  */
-export async function deleteSession(sessionId: SessionId): Promise<void> {
+export async function deleteSession(sessionId: SessionId): Promise<boolean> {
     const sessions = await loadSessions();
     const index = await loadIndex();
 
     const session = sessions.get(sessionId);
-    if (!session) return;
+    if (!session) {
+        log.warn('deleteSession: Session not found:', sessionId);
+        return false;
+    }
 
+    // Remove from sessions cache
     sessions.delete(sessionId);
 
+    // Remove from index
     const charIndex = index[session.characterId];
     if (charIndex) {
         const idx = charIndex.indexOf(sessionId);
@@ -287,8 +310,17 @@ export async function deleteSession(sessionId: SessionId): Promise<void> {
         if (charIndex.length === 0) delete index[session.characterId];
     }
 
-    await saveSessions();
-    await saveIndex();
+    // Persist changes
+    const sessionsOk = await saveSessions();
+    const indexOk = await saveIndex();
+
+    if (!sessionsOk || !indexOk) {
+        log.error('deleteSession: Failed to persist deletion');
+        return false;
+    }
+
+    log.debug('Session deleted:', sessionId);
+    return true;
 }
 
 /**
@@ -296,18 +328,64 @@ export async function deleteSession(sessionId: SessionId): Promise<void> {
  */
 export async function deleteAllSessionsForCharacter(
     characterId: CharacterId,
-): Promise<void> {
+): Promise<{ success: boolean; count: number }> {
     const sessions = await loadSessions();
     const index = await loadIndex();
 
     const ids = index[characterId] ?? [];
+    const count = ids.length;
+
+    if (count === 0) {
+        return { success: true, count: 0 };
+    }
+
     for (const id of ids) {
         sessions.delete(id);
     }
     delete index[characterId];
 
-    await saveSessions();
-    await saveIndex();
+    const sessionsOk = await saveSessions();
+    const indexOk = await saveIndex();
+
+    if (!sessionsOk || !indexOk) {
+        log.error('deleteAllSessionsForCharacter: Failed to persist');
+        return { success: false, count: 0 };
+    }
+
+    log.debug(`Deleted ${count} sessions for character:`, characterId);
+    return { success: true, count };
+}
+
+/**
+ * Delete ALL sessions for ALL characters (global purge).
+ * This is a destructive operation - use with caution.
+ */
+export async function purgeAllSessions(): Promise<{
+    success: boolean;
+    count: number;
+}> {
+    const sessions = await loadSessions();
+    const count = sessions.size;
+
+    if (count === 0) {
+        return { success: true, count: 0 };
+    }
+
+    // Clear both caches
+    sessions.clear();
+    setIndexCache({});
+
+    // Persist empty state
+    const sessionsOk = await saveSessions();
+    const indexOk = await saveIndex();
+
+    if (!sessionsOk || !indexOk) {
+        log.error('deleteAllSessions: Failed to persist');
+        return { success: false, count: 0 };
+    }
+
+    log.info(`Deleted ALL ${count} sessions`);
+    return { success: true, count };
 }
 
 /**

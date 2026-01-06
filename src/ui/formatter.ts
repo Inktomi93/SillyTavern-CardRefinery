@@ -19,6 +19,7 @@ interface ParsedSection {
     score?: { value: number; max: number };
     content?: string;
     items?: string[];
+    listType?: 'bullet' | 'numbered';
     children?: ParsedSection[];
     language?: string;
 }
@@ -127,10 +128,54 @@ function parseMarkdownSections(text: string): ParsedSection[] {
             return;
         }
 
-        // Check if it's a list
-        const listItems = extractListItems(content);
-        if (listItems.length > 0) {
-            const section: ParsedSection = { type: 'list', items: listItems };
+        // Try to extract list items
+        const extractedList = extractListItems(content);
+
+        // Check if there's text before the list
+        const lines = content.split('\n');
+        const prefixLines: string[] = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (
+                line.match(/^[\s]*[-*•]\s+.+$/) ||
+                line.match(/^[\s]*\d+[.)]\s+.+$/)
+            ) {
+                break;
+            }
+            if (line.trim()) {
+                prefixLines.push(line);
+            }
+        }
+
+        // Add prefix text as paragraph(s)
+        if (prefixLines.length > 0 && extractedList) {
+            const prefixContent = prefixLines.join('\n').trim();
+            if (prefixContent) {
+                const paragraphs = prefixContent.split(/\n\n+/);
+                for (const para of paragraphs) {
+                    if (!para.trim()) continue;
+                    const section: ParsedSection = {
+                        type: 'paragraph',
+                        content: para.trim(),
+                    };
+                    if (currentSection) {
+                        currentSection.children = currentSection.children || [];
+                        currentSection.children.push(section);
+                    } else {
+                        sections.push(section);
+                    }
+                }
+            }
+        }
+
+        // Add list if we found items
+        if (extractedList) {
+            const section: ParsedSection = {
+                type: 'list',
+                items: extractedList.items,
+                listType: extractedList.listType,
+            };
             if (currentSection) {
                 currentSection.children = currentSection.children || [];
                 currentSection.children.push(section);
@@ -138,7 +183,7 @@ function parseMarkdownSections(text: string): ParsedSection[] {
                 sections.push(section);
             }
         } else {
-            // Parse as paragraph(s) with potential inline scores
+            // No list found - parse as paragraph(s) with potential inline scores
             const paragraphs = content.split(/\n\n+/);
             for (const para of paragraphs) {
                 if (!para.trim()) continue;
@@ -262,6 +307,20 @@ function parseMarkdownSections(text: string): ParsedSection[] {
             continue;
         }
 
+        // Check for bold label lines like "**Strengths:**" - treat as sub-section
+        const boldLabelMatch = line.match(/^\*\*([^*]+):\*\*\s*$/);
+        if (boldLabelMatch && currentSection) {
+            flushContent();
+            // Add as a styled label paragraph
+            const labelSection: ParsedSection = {
+                type: 'paragraph',
+                content: line, // Keep the bold markers for inline formatting
+            };
+            currentSection.children = currentSection.children || [];
+            currentSection.children.push(labelSection);
+            continue;
+        }
+
         // Regular content
         contentBuffer.push(line);
     }
@@ -297,37 +356,55 @@ function parseMarkdownSections(text: string): ParsedSection[] {
     return sections;
 }
 
+interface ExtractedList {
+    items: string[];
+    listType: 'bullet' | 'numbered';
+}
+
 /**
- * Extract list items from content
+ * Extract list items from content.
+ * Now handles content that has leading text before the list starts.
+ * Returns items array and list type (bullet or numbered).
  */
-function extractListItems(content: string): string[] {
+function extractListItems(content: string): ExtractedList | null {
     const lines = content.split('\n');
     const items: string[] = [];
     let currentItem = '';
+    let foundListStart = false;
+    let listType: 'bullet' | 'numbered' = 'bullet';
 
     for (const line of lines) {
-        const listMatch = line.match(/^[\s]*[-*•]\s+(.+)$/);
+        const bulletMatch = line.match(/^[\s]*[-*•]\s+(.+)$/);
         const numberedMatch = line.match(/^[\s]*\d+[.)]\s+(.+)$/);
 
-        if (listMatch || numberedMatch) {
+        if (bulletMatch || numberedMatch) {
+            if (!foundListStart) {
+                foundListStart = true;
+                listType = numberedMatch ? 'numbered' : 'bullet';
+            }
             if (currentItem) items.push(currentItem.trim());
-            currentItem = (listMatch || numberedMatch)![1];
-        } else if (currentItem && line.match(/^\s+/)) {
-            // Continuation of list item
+            currentItem = (bulletMatch || numberedMatch)![1];
+        } else if (foundListStart && currentItem && line.match(/^\s+\S/)) {
+            // Continuation of list item (indented with content)
             currentItem += ' ' + line.trim();
         } else if (line.trim() === '') {
+            // Empty line - finalize current item if any
             if (currentItem) items.push(currentItem.trim());
             currentItem = '';
-        } else {
-            // Not a list
-            if (items.length === 0) return [];
+        } else if (foundListStart && line.trim()) {
+            // Non-empty, non-list, non-continuation line after list started
+            // End the list here - don't swallow unrelated content
             if (currentItem) items.push(currentItem.trim());
-            currentItem = '';
+            break;
         }
+        // If we haven't found list start yet, skip non-list lines
+        // (they'll be handled as prefix text in flushContent)
     }
 
     if (currentItem) items.push(currentItem.trim());
-    return items;
+
+    if (items.length === 0) return null;
+    return { items, listType };
 }
 
 /**
@@ -508,7 +585,7 @@ function renderParagraph(section: ParsedSection): string {
 }
 
 /**
- * Render list
+ * Render list (supports both bullet and numbered lists)
  */
 function renderList(section: ParsedSection): string {
     const items = section.items || [];
@@ -521,7 +598,8 @@ function renderList(section: ParsedSection): string {
         })
         .join('');
 
-    return /* html */ `<ul class="cr-list">${listItems}</ul>`;
+    const tag = section.listType === 'numbered' ? 'ol' : 'ul';
+    return /* html */ `<${tag} class="cr-list">${listItems}</${tag}>`;
 }
 
 /**

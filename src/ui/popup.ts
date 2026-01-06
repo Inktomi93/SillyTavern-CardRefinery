@@ -82,7 +82,7 @@ function renderPopupContent(): string {
         </div>
         <div class="cr-header__center">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <h2>Character Tools</h2>
+            <h2>Card Refinery</h2>
             <div id="${MODULE_NAME}_api_status_container">
                 ${renderApiStatusCompact()}
             </div>

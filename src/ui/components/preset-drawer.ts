@@ -1534,7 +1534,7 @@ async function handleImport(): Promise<void> {
             }
         } catch (error) {
             toast.error('Failed to import presets');
-            console.error('Import error:', error);
+            log.error('Import error:', error);
         }
     };
 

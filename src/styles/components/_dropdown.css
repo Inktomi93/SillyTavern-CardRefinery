@@ -224,12 +224,23 @@
     }
 
     &__footer {
+        display: flex;
+        gap: var(--cr-space-2);
         padding: var(--cr-space-2);
         border-top: 1px solid var(--cr-border-muted);
     }
 
     &__new-btn {
-        width: 100%;
+        flex: 1;
         justify-content: center;
+    }
+
+    &__delete-all-btn {
+        color: var(--cr-danger);
+        flex-shrink: 0;
+
+        &:hover {
+            background: color-mix(in srgb, var(--cr-danger) 15%, transparent);
+        }
     }
 }

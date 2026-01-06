@@ -3,15 +3,20 @@
 // SESSION-RELATED STATE ACTIONS
 // =============================================================================
 
-import { STAGES, log, toast } from '../shared';
+import { STAGES, log } from '../shared';
 import {
     getSessionsForCharacter,
     getSession,
     createSession as storageCreateSession,
     deleteSession as storageDeleteSession,
+    deleteAllSessionsForCharacter as storageDeleteAllSessions,
 } from '../data';
-import { buildOriginalData, ensureUnshallowed } from '../domain';
-import type { PopupState, Character, Session } from '../types';
+import {
+    buildOriginalData,
+    ensureUnshallowed,
+    getPopulatedFields,
+} from '../domain';
+import type { PopupState, Character, Session, FieldSelection } from '../types';
 
 // =============================================================================
 // SESSION ACTIONS
@@ -19,6 +24,8 @@ import type { PopupState, Character, Session } from '../types';
 
 /**
  * Set active character and load sessions.
+ * Sessions are loaded but NOT auto-selected. Use ensureActiveSessionAction
+ * to lazily create/select a session when the user takes an action.
  */
 export async function setCharacterAction(
     state: PopupState,
@@ -60,78 +67,72 @@ export async function setCharacterAction(
                 state.character = char; // Use as-is
             }
 
-            // Load sessions for this character
+            // Auto-select all populated fields
+            const populatedFields = getPopulatedFields(state.character);
+            const baseSelection: FieldSelection = {};
+            for (const field of populatedFields) {
+                baseSelection[field.key] = true;
+            }
+            state.stageFields = {
+                base: baseSelection,
+                linked: true,
+                overrides: {},
+            };
+            state.selectedFields = baseSelection; // Keep legacy in sync
+
+            // Load sessions for this character (but don't auto-select)
             state.sessions = await getSessionsForCharacter(char.avatar);
             state.sessionsLoaded = true;
 
-            // Auto-activate or create session
-            if (state.sessions.length > 0) {
-                // Load the most recent session (first in the sorted list)
-                const mostRecent = state.sessions[0];
-                const _ = SillyTavern.libs.lodash;
-                state.activeSessionId = mostRecent.id;
-                state.stageFields = _.cloneDeep(mostRecent.stageFields);
-                state.selectedFields = _.cloneDeep(mostRecent.stageFields.base);
-                state.stageConfigs = _.cloneDeep(mostRecent.configs);
-                state.iterationHistory = _.cloneDeep(mostRecent.history);
-                state.iterationCount = mostRecent.iterationCount;
-                state.userGuidance = mostRecent.userGuidance || '';
-
-                // Restore results - prefer saved stageResults, fall back to deriving from history
-                if (mostRecent.stageResults) {
-                    state.stageResults = _.cloneDeep(mostRecent.stageResults);
-                } else {
-                    // Legacy: derive from history (last result per stage)
-                    for (const result of mostRecent.history) {
-                        state.stageResults[result.stage] = result;
-                    }
-                }
-
-                // Update status based on results
-                for (const stage of STAGES) {
-                    state.stageStatus[stage] = state.stageResults[stage]
-                        ? state.stageResults[stage]!.error
-                            ? 'error'
-                            : 'complete'
-                        : 'pending';
-                }
-
-                log.debug(`Loaded most recent session: ${mostRecent.id}`);
-                toast.info(
-                    `Resumed session${mostRecent.name ? `: ${mostRecent.name}` : ''}`,
-                );
-            } else {
-                // No existing sessions - create one automatically
-                // Validate character is properly loaded before using
-                if (!state.character?.data) {
-                    log.warn(
-                        'Character data not fully loaded for session creation',
-                    );
-                }
-
-                const originalData = buildOriginalData(
-                    state.character,
-                    state.stageFields.base,
-                );
-
-                const session = await storageCreateSession({
-                    characterId: state.character.avatar,
-                    characterName: state.character.name,
-                    stageFields: state.stageFields,
-                    originalData,
-                    configs: state.stageConfigs,
-                });
-
-                state.sessions.unshift(session);
-                state.activeSessionId = session.id;
-                log.debug(`Auto-created new session: ${session.id}`);
-                toast.info('New session started');
-            }
+            // No auto-selection - sessions are lazy-created on first meaningful action
+            log.debug(
+                `Character ${char.name}: ${state.sessions.length} sessions, ${populatedFields.length} fields selected`,
+            );
         }
     } finally {
         // Clear loading flag
         (state as unknown as { _isLoading?: boolean })._isLoading = false;
     }
+}
+
+/**
+ * Ensure an active session exists, creating one lazily if needed.
+ * Call this before any action that requires session persistence.
+ */
+export async function ensureActiveSessionAction(
+    state: PopupState,
+    forceSave: () => Promise<void>,
+): Promise<Session | null> {
+    // Already have an active session
+    if (state.activeSessionId) {
+        const existing = state.sessions.find(
+            (s) => s.id === state.activeSessionId,
+        );
+        if (existing) return existing;
+    }
+
+    // No character - can't create session
+    if (!state.character) return null;
+
+    // Create new session lazily
+    const originalData = buildOriginalData(
+        state.character,
+        state.stageFields.base,
+    );
+
+    const session = await storageCreateSession({
+        characterId: state.character.avatar,
+        characterName: state.character.name,
+        stageFields: state.stageFields,
+        originalData,
+        configs: state.stageConfigs,
+    });
+
+    state.sessions.unshift(session);
+    state.activeSessionId = session.id;
+    log.debug(`Lazy-created new session: ${session.id}`);
+
+    return session;
 }
 
 /**
@@ -251,8 +252,13 @@ export async function loadSessionAction(
 export async function deleteSessionAction(
     state: PopupState,
     sessionId: string,
-): Promise<void> {
-    await storageDeleteSession(sessionId);
+): Promise<boolean> {
+    const success = await storageDeleteSession(sessionId);
+
+    if (!success) {
+        log.error('Failed to delete session:', sessionId);
+        return false;
+    }
 
     // Remove from state
     const idx = state.sessions.findIndex((sess) => sess.id === sessionId);
@@ -270,4 +276,38 @@ export async function deleteSessionAction(
             analyze: 'pending',
         };
     }
+
+    return true;
+}
+
+/**
+ * Delete all sessions for the current character.
+ */
+export async function deleteAllSessionsAction(
+    state: PopupState,
+): Promise<{ success: boolean; count: number }> {
+    if (!state.character) {
+        return { success: false, count: 0 };
+    }
+
+    const result = await storageDeleteAllSessions(state.character.avatar);
+
+    if (!result.success) {
+        log.error('Failed to delete all sessions');
+        return result;
+    }
+
+    // Clear state
+    state.sessions = [];
+    state.activeSessionId = null;
+    state.iterationHistory = [];
+    state.iterationCount = 0;
+    state.stageResults = { score: null, rewrite: null, analyze: null };
+    state.stageStatus = {
+        score: 'pending',
+        rewrite: 'pending',
+        analyze: 'pending',
+    };
+
+    return result;
 }

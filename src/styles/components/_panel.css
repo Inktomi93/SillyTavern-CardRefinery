@@ -6,21 +6,53 @@
  * ST variables directly rather than cr- prefixed ones.
  */
 
-.cr-panel-version {
-    color: var(--SmartThemeEmColor, #999);
-    font-size: var(--cr-text-sm, 0.875rem);
-    margin-bottom: var(--cr-space-2, 0.5rem);
+.cr-panel-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .cr-panel-desc {
-    margin: 0 0 var(--cr-space-4, 1rem) 0;
-    font-size: var(--cr-text-sm, 0.875rem);
-    color: var(--SmartThemeBodyColor);
-    line-height: 1.5;
+    margin: 0;
+    font-size: 0.8125rem;
+    color: var(--SmartThemeEmColor, #999);
+    line-height: 1.4;
 }
 
-.cr-panel-actions {
+.cr-panel-launch {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--cr-space-2, 0.5rem);
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.cr-panel-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--SmartThemeBorderColor, #333);
+}
+
+.cr-panel-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--SmartThemeEmColor, #999);
+    cursor: pointer;
+
+    & input[type='checkbox'] {
+        margin: 0;
+        cursor: pointer;
+    }
+}
+
+.cr-panel-version {
+    font-size: 0.6875rem;
+    color: var(--SmartThemeEmColor, #666);
 }
