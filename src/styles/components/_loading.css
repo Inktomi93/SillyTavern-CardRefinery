@@ -57,13 +57,13 @@
     }
 
     &--avatar {
-        width: 48px;
-        height: 48px;
+        width: var(--cr-avatar-size);
+        height: var(--cr-avatar-size);
         border-radius: var(--cr-radius);
     }
 
     &--button {
-        height: 32px;
+        height: var(--cr-avatar-size-sm);
         width: 80px;
     }
 

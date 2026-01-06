@@ -144,6 +144,12 @@
     --cr-panel-max: 480px;
     --cr-header-height: 48px;
 
+    /* Component sizes */
+    --cr-avatar-size: 48px;
+    --cr-avatar-size-sm: 32px;
+    --cr-icon-size: 24px;
+    --cr-icon-size-sm: 18px;
+
     /* ═══════════════════════════════════════════════════════════════════════════
        SCORE COLORS - For numeric score display (1-10 ratings)
        ═══════════════════════════════════════════════════════════════════════════ */

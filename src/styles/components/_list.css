@@ -47,15 +47,15 @@
     }
 
     &__avatar {
-        width: 48px;
-        height: 48px;
+        width: var(--cr-avatar-size);
+        height: var(--cr-avatar-size);
         border-radius: var(--cr-radius-sm);
         object-fit: cover;
         flex-shrink: 0;
 
         &--sm {
-            width: 32px;
-            height: 32px;
+            width: var(--cr-avatar-size-sm);
+            height: var(--cr-avatar-size-sm);
         }
 
         &--circle {

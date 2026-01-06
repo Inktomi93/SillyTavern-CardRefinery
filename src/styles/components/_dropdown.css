@@ -66,15 +66,15 @@
     }
 
     &__trigger-avatar {
-        width: 24px;
-        height: 24px;
+        width: var(--cr-icon-size);
+        height: var(--cr-icon-size);
         border-radius: var(--cr-radius-sm);
         object-fit: cover;
         flex-shrink: 0;
     }
 
     &__trigger-icon {
-        width: 24px;
+        width: var(--cr-icon-size);
         text-align: center;
         color: var(--cr-text-muted);
         flex-shrink: 0;
