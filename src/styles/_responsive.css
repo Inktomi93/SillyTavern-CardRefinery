@@ -10,21 +10,68 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 @media (--mobile) {
+    /* Buttons: 44px minimum tap target */
     .cr-popup .menu_button {
         min-height: 44px;
         padding: var(--cr-space-3);
     }
 
+    /* Tabs: 44px minimum tap target */
     .cr-tab {
         min-height: 44px;
     }
 
+    /* List items: larger touch area */
     .cr-list-item {
         padding: var(--cr-space-4);
     }
 
     /* Always show action buttons on mobile (no hover) */
     .cr-list-item__actions {
+        opacity: 1;
+    }
+
+    /* Form inputs: 44px min height, 16px font to prevent iOS zoom */
+    .cr-popup input[type='text'],
+    .cr-popup input[type='number'],
+    .cr-popup input[type='search'],
+    .cr-popup select {
+        min-height: 44px;
+        font-size: 16px; /* Prevents iOS zoom on focus */
+    }
+
+    /* Selects: larger touch target */
+    .cr-select {
+        min-height: 44px;
+        padding: var(--cr-space-2) var(--cr-space-3);
+        font-size: var(--cr-text-sm);
+    }
+
+    /* Checkboxes: larger tap area */
+    .cr-checkbox {
+        min-height: 44px;
+        padding: var(--cr-space-2) 0;
+    }
+
+    .cr-checkbox input[type='checkbox'] {
+        width: 20px;
+        height: 20px;
+    }
+
+    /* Search clear button: larger tap target */
+    .cr-search__clear {
+        min-width: 44px;
+        min-height: 44px;
+        right: 0;
+    }
+
+    /* Drawer tabs: full-width tap targets */
+    .cr-drawer__tab {
+        min-height: 48px;
+    }
+
+    /* Preset list actions: always visible on touch */
+    .cr-preset-list__actions {
         opacity: 1;
     }
 }

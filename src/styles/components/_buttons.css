@@ -95,6 +95,11 @@
         filter: grayscale(0.5);
     }
 
+    /* Pressed/active feedback - subtle scale for tactile feel */
+    &:active:not(:disabled) {
+        transform: scale(0.97);
+    }
+
     /* Active toggle state */
     &.cr-active {
         color: var(--cr-accent);

@@ -2,6 +2,7 @@
  * Loading Indicator Component
  *
  * Generating/loading states with spinner animation.
+ * Includes skeleton placeholders for perceived performance.
  */
 
 .cr-loading {
@@ -20,6 +21,69 @@
     }
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   SKELETON LOADING - Shimmer effect for content placeholders
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cr-skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--cr-bg-tertiary);
+    border-radius: var(--cr-radius-sm);
+
+    /* Shimmer animation overlay */
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+            90deg,
+            transparent 0%,
+            color-mix(in srgb, var(--cr-text) 8%, transparent) 50%,
+            transparent 100%
+        );
+        animation: cr-shimmer 1.5s ease-in-out infinite;
+    }
+
+    /* Size variants */
+    &--text {
+        height: 1em;
+        width: 60%;
+    }
+
+    &--text-sm {
+        height: 0.75em;
+        width: 40%;
+    }
+
+    &--avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--cr-radius);
+    }
+
+    &--button {
+        height: 32px;
+        width: 80px;
+    }
+
+    &--block {
+        height: 100px;
+        width: 100%;
+    }
+}
+
+/* Skeleton group for multiple lines */
+.cr-skeleton-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--cr-space-2);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
 @keyframes cr-spin {
     to {
         transform: rotate(360deg);
@@ -33,5 +97,14 @@
     }
     50% {
         opacity: 0.6;
+    }
+}
+
+@keyframes cr-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
     }
 }

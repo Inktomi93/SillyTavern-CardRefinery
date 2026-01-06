@@ -127,6 +127,11 @@
     --cr-shadow: 0 4px 12px var(--black30a, rgba(0, 0, 0, 0.3));
     --cr-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15); /* Card hover state */
     --cr-shadow-lg: 0 8px 24px var(--black50a, rgba(0, 0, 0, 0.5));
+    --cr-shadow-drawer: -4px 0 24px rgba(0, 0, 0, 0.4); /* Drawer slide-in */
+
+    /* Overlays & Backdrops */
+    --cr-backdrop: rgba(0, 0, 0, 0.6);
+    --cr-backdrop-blur: blur(4px);
 
     /* Transitions - use ST's animation-duration */
     --cr-transition-fast: var(--animation-duration, 150ms) ease;
