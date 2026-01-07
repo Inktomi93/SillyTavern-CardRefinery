@@ -180,16 +180,24 @@ export async function renameSession(
     newName: string,
 ): Promise<void> {
     const state = getState();
-    const session = state.sessions.find((s) => s.id === sessionId);
-    if (!session) return;
+    const sessionIndex = state.sessions.findIndex((s) => s.id === sessionId);
+    if (sessionIndex === -1) return;
 
-    // Update the session name and save
-    session.name = newName.trim() || undefined;
-    session.updatedAt = Date.now();
+    // Create updated session (immutable update)
+    const updatedSession = {
+        ...state.sessions[sessionIndex],
+        name: newName.trim() || undefined,
+        updatedAt: Date.now(),
+    };
+
+    // Update state through store to notify subscribers (UI session list)
+    const newSessions = [...state.sessions];
+    newSessions[sessionIndex] = updatedSession;
+    setState('session', { sessions: newSessions });
 
     // Persist to storage
     const { updateSession: storageUpdateSession } = await import('../data');
-    await storageUpdateSession(session);
+    await storageUpdateSession(updatedSession);
 }
 
 // =============================================================================
