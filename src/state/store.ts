@@ -170,6 +170,12 @@ class StoreImpl implements Store {
     }
 
     reset(): void {
+        // Abort any active generation before clearing state
+        // This prevents orphaned operations from erroring on null state
+        if (this.state?.abortController) {
+            this.state.abortController.abort();
+        }
+
         // Notify all listeners that state is being cleared
         this.notifyAll();
 

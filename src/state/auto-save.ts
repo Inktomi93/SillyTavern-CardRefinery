@@ -12,6 +12,7 @@ import {
 import { buildOriginalData } from '../domain';
 import { log } from '../shared';
 import type { PopupState } from '../types';
+import { setState } from './store';
 
 // =============================================================================
 // AUTO-SAVE IMPLEMENTATION
@@ -60,8 +61,11 @@ export function createAutoSave(
                 configs: s.stageConfigs,
             });
 
-            s.sessions.unshift(session);
-            s.activeSessionId = session.id;
+            // Update state through store to notify subscribers (UI session list)
+            setState('session', {
+                sessions: [session, ...s.sessions],
+                activeSessionId: session.id,
+            });
             log.debug(`Lazy-created session on auto-save: ${session.id}`);
         } else {
             session = await getSession(s.activeSessionId);
