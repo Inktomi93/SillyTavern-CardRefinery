@@ -234,7 +234,7 @@ describe('buildUserPrompt', () => {
 
         const result = buildUserPrompt(ctx, deps);
 
-        expect(result).toContain('USER GUIDANCE');
+        expect(result).toContain('## User Guidance');
         expect(result).toContain('more mysterious');
     });
 
@@ -253,7 +253,7 @@ describe('buildUserPrompt', () => {
 
         const result = buildUserPrompt(ctx, deps);
 
-        expect(result).not.toContain('USER GUIDANCE');
+        expect(result).not.toContain('## User Guidance');
     });
 
     it('includes iteration info for refinements', () => {
@@ -270,7 +270,7 @@ describe('buildUserPrompt', () => {
 
         const result = buildUserPrompt(ctx, deps);
 
-        expect(result).toContain('iteration 3'); // 0-indexed + 1
+        expect(result).toContain('Refinement #3'); // 0-indexed + 1
     });
 
     it('includes instructions from config', () => {
@@ -289,7 +289,7 @@ describe('buildUserPrompt', () => {
 
         const result = buildUserPrompt(ctx, deps);
 
-        expect(result).toContain('INSTRUCTIONS');
+        expect(result).toContain('## Instructions');
         expect(result).toContain('Rate on a scale');
     });
 
@@ -315,7 +315,7 @@ describe('buildUserPrompt', () => {
 
             const result = buildUserPrompt(ctx, deps);
 
-            expect(result).toContain('SCORE RESULTS');
+            expect(result).toContain('## Score Results');
             expect(result).toContain('7/10');
         });
     });
@@ -348,8 +348,8 @@ describe('buildUserPrompt', () => {
 
             const result = buildUserPrompt(ctx, deps);
 
-            expect(result).toContain('ORIGINAL CHARACTER');
-            expect(result).toContain('REWRITTEN VERSION');
+            expect(result).toContain('## Original Character');
+            expect(result).toContain('## Rewritten Version');
             expect(result).toContain('Improved version');
         });
     });

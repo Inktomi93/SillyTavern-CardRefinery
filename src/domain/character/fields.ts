@@ -162,30 +162,61 @@ function formatObjectValue(value: unknown, key: string): string {
     if (key === 'character_book') {
         const book = value as {
             name?: string;
+            description?: string;
             entries?: Array<{
+                id?: number;
+                keys?: string[];
+                secondary_keys?: string[];
                 comment?: string;
-                keys: string[];
-                content: string;
-                enabled: boolean;
+                content?: string;
+                enabled?: boolean;
+                name?: string;
             }>;
         };
         if (!book.entries?.length) return '';
 
-        const lines: string[] = [];
-        if (book.name) lines.push(`Lorebook: ${book.name}`);
-        lines.push(`Entries: ${book.entries.length}`);
+        const sections: string[] = [];
 
-        for (const entry of book.entries.slice(0, 10)) {
-            const status = entry.enabled ? '✓' : '✗';
-            const label = entry.comment || entry.keys.slice(0, 3).join(', ');
-            lines.push(`  ${status} ${label}`);
+        // Header
+        if (book.name) {
+            sections.push(`## Lorebook: ${book.name}`);
+        } else {
+            sections.push('## Character Lorebook');
+        }
+        if (book.description) {
+            sections.push(book.description);
+        }
+        sections.push(`Total Entries: ${book.entries.length}`);
+        sections.push('');
+
+        // Format each entry with LLM-relevant fields only
+        for (const entry of book.entries) {
+            const title =
+                entry.name || entry.comment || `Entry ${entry.id ?? '?'}`;
+            const status = entry.enabled !== false ? 'Active' : 'Inactive';
+
+            sections.push(`### ${title}`);
+            if (entry.id !== undefined) {
+                sections.push(`ID: ${entry.id}`);
+            }
+            sections.push(`Status: ${status}`);
+
+            if (entry.keys?.length) {
+                sections.push(`Keys: ${entry.keys.join(', ')}`);
+            }
+            if (entry.secondary_keys?.length) {
+                sections.push(
+                    `Secondary Keys: ${entry.secondary_keys.join(', ')}`,
+                );
+            }
+
+            sections.push('');
+            sections.push('Content:');
+            sections.push(entry.content?.trim() || '(empty)');
+            sections.push('');
         }
 
-        if (book.entries.length > 10) {
-            lines.push(`  ... and ${book.entries.length - 10} more`);
-        }
-
-        return lines.join('\n');
+        return sections.join('\n');
     }
 
     try {

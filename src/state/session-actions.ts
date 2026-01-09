@@ -83,7 +83,26 @@ export async function setCharacterAction(
         const populatedFields = getPopulatedFields(loadedChar);
         const baseSelection: FieldSelection = {};
         for (const field of populatedFields) {
-            baseSelection[field.key] = true;
+            // For array-based fields, select all indices
+            if (
+                field.key === 'alternate_greetings' &&
+                Array.isArray(field.rawValue)
+            ) {
+                const count = (field.rawValue as string[]).length;
+                baseSelection[field.key] = Array.from(
+                    { length: count },
+                    (_, i) => i,
+                );
+            } else if (field.key === 'character_book' && field.rawValue) {
+                const book = field.rawValue as { entries?: unknown[] };
+                const count = book.entries?.length || 0;
+                baseSelection[field.key] = Array.from(
+                    { length: count },
+                    (_, i) => i,
+                );
+            } else {
+                baseSelection[field.key] = true;
+            }
         }
 
         // Load sessions for this character (but don't auto-select)

@@ -33,6 +33,18 @@ export interface Settings {
     profileId: string | null;
     maxTokensOverride: number | null;
 
+    /** Disable extended thinking for Anthropic models */
+    disableThinking: boolean;
+
+    /** Enable assistant message prefill */
+    useAssistantPrefill: boolean;
+    /** Assistant prefill text (inserted as assistant message after user content) */
+    assistantPrefill: string;
+
+    // Processing
+    /** Replace {{user}} macro with current persona name in character fields */
+    replaceUserMacro: boolean;
+
     // UI
     debugMode: boolean;
 }

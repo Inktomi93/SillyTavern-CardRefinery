@@ -262,34 +262,6 @@ function bindPromptEvents(drawer: HTMLElement): void {
         );
         updateTokens();
     }
-
-    // Variables help button
-    const varsBtn = $(`#${MODULE_NAME}_drawer_prompt_vars`, drawer);
-    if (varsBtn) {
-        addCleanup(
-            on(varsBtn, 'click', async () => {
-                await popup.alert(
-                    'Available Variables',
-                    /* html */ `
-                    <div class="cr-stack">
-                        <p>Use these placeholders in your prompt:</p>
-                        <ul class="cr-list cr-text-sm">
-                            <li><code>{{character}}</code> - Full character summary</li>
-                            <li><code>{{name}}</code> - Character name</li>
-                            <li><code>{{description}}</code> - Character description</li>
-                            <li><code>{{personality}}</code> - Personality traits</li>
-                            <li><code>{{scenario}}</code> - Scenario/setting</li>
-                            <li><code>{{first_mes}}</code> - First message</li>
-                            <li><code>{{mes_example}}</code> - Example messages</li>
-                            <li><code>{{system_prompt}}</code> - System prompt</li>
-                            <li><code>{{creator_notes}}</code> - Creator notes</li>
-                        </ul>
-                    </div>
-                `,
-                );
-            }),
-        );
-    }
 }
 
 // =============================================================================

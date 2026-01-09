@@ -15,9 +15,10 @@
 //
 // =============================================================================
 
-import { isApiReady, getApiStatus } from '../shared';
+import { isApiReady, getApiStatus, log } from '../shared';
 import type { StructuredOutputSchema } from '../shared';
 import { validateSchema, parseStructuredResponse } from './schema';
+import { getSettings } from '../data';
 
 // =============================================================================
 // TYPES
@@ -114,53 +115,121 @@ export async function generate(
         }
 
         const ctx = SillyTavern.getContext();
-        const response = await ctx.generateRaw({
-            prompt: options.prompt,
-            systemPrompt: options.systemPrompt ?? '',
-            responseLength: options.responseLength ?? null,
-            jsonSchema: options.jsonSchema ?? null,
-        });
+        const settings = getSettings();
 
-        // Check abort after API call
-        if (options.signal?.aborted) {
-            return { success: false, error: 'Generation cancelled' };
+        // Check if using Anthropic (for special handling)
+        const apiStatus = getApiStatus(settings.profileId);
+        const isAnthropic =
+            apiStatus.source?.toLowerCase().includes('anthropic') ||
+            apiStatus.model?.toLowerCase().includes('anthropic');
+
+        // Handle reasoning/thinking mode
+        // For Anthropic: must disable when using structured output (conflicts with tool_choice)
+        // For all: can be manually disabled via user setting
+        const ccs = ctx.chatCompletionSettings as Record<string, unknown>;
+        let originalReasoningEffort: string | undefined;
+        const shouldDisableReasoning =
+            settings.disableThinking || (isAnthropic && options.jsonSchema);
+
+        if (
+            shouldDisableReasoning &&
+            ccs?.reasoning_effort &&
+            typeof ccs.reasoning_effort === 'string' &&
+            ccs.reasoning_effort !== 'auto'
+        ) {
+            originalReasoningEffort = ccs.reasoning_effort;
+            ccs.reasoning_effort = 'auto';
+            log.debug('Disabled reasoning_effort for generation', {
+                reason: settings.disableThinking
+                    ? 'user setting'
+                    : 'anthropic structured output',
+                original: originalReasoningEffort,
+            });
         }
 
-        // Normalize response to string
-        const responseText = normalizeResponse(response);
+        // Determine prefill - skip for Anthropic + structured output (incompatible)
+        const canUsePrefill =
+            settings.useAssistantPrefill &&
+            settings.assistantPrefill &&
+            !(isAnthropic && options.jsonSchema);
 
-        // Handle empty response
-        if (!responseText || responseText.trim() === '') {
-            return { success: false, error: 'Empty response from API' };
-        }
+        const prefill = canUsePrefill ? settings.assistantPrefill : '';
 
-        // Parse structured output if schema was provided
-        if (options.jsonSchema) {
-            const parsed = parseStructuredResponse(
-                responseText,
-                options.jsonSchema,
+        if (canUsePrefill) {
+            log.debug('Using assistant prefill', { prefill });
+        } else if (
+            settings.useAssistantPrefill &&
+            settings.assistantPrefill &&
+            isAnthropic &&
+            options.jsonSchema
+        ) {
+            log.debug(
+                'Skipped assistant prefill (incompatible with Anthropic structured output)',
             );
-            if (parsed) {
+        }
+
+        try {
+            const response = await ctx.generateRaw({
+                prompt: options.prompt,
+                systemPrompt: options.systemPrompt ?? '',
+                responseLength: options.responseLength ?? null,
+                jsonSchema: options.jsonSchema ?? null,
+                prefill,
+            });
+
+            // Check abort after API call
+            if (options.signal?.aborted) {
+                return { success: false, error: 'Generation cancelled' };
+            }
+
+            // Normalize response to string
+            const responseText = normalizeResponse(response);
+
+            // Handle empty response
+            if (!responseText || responseText.trim() === '') {
+                return { success: false, error: 'Empty response from API' };
+            }
+
+            // Parse structured output if schema was provided
+            if (options.jsonSchema) {
+                const parsed = parseStructuredResponse(
+                    responseText,
+                    options.jsonSchema,
+                );
+                if (parsed) {
+                    return {
+                        success: true,
+                        response: responseText,
+                        parsed: parsed.data,
+                        isStructured: true,
+                    };
+                }
+                // Parsing failed but we still have text
                 return {
                     success: true,
                     response: responseText,
-                    parsed: parsed.data,
-                    isStructured: true,
+                    isStructured: false,
                 };
             }
-            // Parsing failed but we still have text
+
             return {
                 success: true,
                 response: responseText,
                 isStructured: false,
             };
+        } finally {
+            // Restore reasoning_effort if we disabled it
+            if (originalReasoningEffort !== undefined) {
+                const ccsRestore = ctx.chatCompletionSettings as Record<
+                    string,
+                    unknown
+                >;
+                ccsRestore.reasoning_effort = originalReasoningEffort;
+                log.debug('Restored reasoning_effort', {
+                    value: originalReasoningEffort,
+                });
+            }
         }
-
-        return {
-            success: true,
-            response: responseText,
-            isStructured: false,
-        };
     } catch (err) {
         return categorizeError(err);
     }

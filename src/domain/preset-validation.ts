@@ -50,10 +50,10 @@ export function validatePromptPreset(
 
     // Check for common issues
     if (preset.prompt) {
-        // Warn about {{user}} since we don't replace it
+        // Note about {{user}} behavior
         if (/\{\{user\}\}/i.test(preset.prompt)) {
             warnings.push(
-                '{{user}} is not replaced - user persona is not relevant to card analysis',
+                '{{user}} replacement depends on the "Replace {{user}} with persona name" setting',
             );
         }
     }

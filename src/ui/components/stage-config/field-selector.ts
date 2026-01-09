@@ -68,7 +68,7 @@ const _renderFieldItem = (field: PopulatedField): string => {
     const selection = getCurrentFieldSelection();
     const isSelected = field.key in selection && selection[field.key] !== false;
 
-    // Handle alternate_greetings specially
+    // Handle alternate_greetings - expandable list of individual greetings
     if (field.key === 'alternate_greetings' && Array.isArray(field.rawValue)) {
         const greetings = field.rawValue as string[];
         const selectedIndices = Array.isArray(selection[field.key])
@@ -111,6 +111,84 @@ const _renderFieldItem = (field: PopulatedField): string => {
                         </div>
                     `,
                         )
+                        .join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    // Handle character_book - expandable list of lorebook entries
+    if (field.key === 'character_book' && field.rawValue) {
+        const book = field.rawValue as {
+            name?: string;
+            entries?: Array<{
+                id?: number;
+                name?: string;
+                comment?: string;
+                keys?: string[];
+                enabled?: boolean;
+            }>;
+        };
+        const entries = book.entries || [];
+        if (entries.length === 0) {
+            return ''; // No entries to show
+        }
+
+        const selectedIndices = Array.isArray(selection[field.key])
+            ? (selection[field.key] as number[])
+            : [];
+        const allSelected = selectedIndices.length === entries.length;
+        const bookName = book.name || 'Character Lorebook';
+
+        return /* html */ `
+            <div class="cr-field-group cr-field-group--expandable" data-field="${field.key}">
+                <div class="cr-field-item cr-field-item--parent">
+                    <label class="cr-field-label">
+                        <input type="checkbox"
+                               class="cr-field-checkbox cr-field-checkbox--parent"
+                               data-field="${field.key}"
+                               ${allSelected ? 'checked' : ''}
+                               ${selectedIndices.length > 0 && !allSelected ? 'indeterminate' : ''}/>
+                        <span class="cr-field-name">${DOMPurify.sanitize(bookName)}</span>
+                    </label>
+                    <span class="cr-field-count">${entries.length} entries</span>
+                    <button class="cr-field-expand" type="button" aria-label="Expand">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+                <div class="cr-field-children">
+                    ${entries
+                        .map((entry, i) => {
+                            const title =
+                                entry.name ||
+                                entry.comment ||
+                                entry.keys?.slice(0, 2).join(', ') ||
+                                `Entry ${i + 1}`;
+                            const keysPreview =
+                                entry.keys?.slice(0, 3).join(', ') || '';
+                            const status = entry.enabled !== false ? '✓' : '✗';
+                            const statusClass =
+                                entry.enabled !== false
+                                    ? 'cr-entry-enabled'
+                                    : 'cr-entry-disabled';
+
+                            return /* html */ `
+                        <div class="cr-field-item cr-field-item--child">
+                            <label class="cr-field-label">
+                                <input type="checkbox"
+                                       class="cr-field-checkbox cr-field-checkbox--child"
+                                       data-field="${field.key}"
+                                       data-index="${i}"
+                                       ${selectedIndices.includes(i) ? 'checked' : ''}/>
+                                <span class="cr-entry-status ${statusClass}">${status}</span>
+                                <span class="cr-field-name" title="${DOMPurify.sanitize(keysPreview)}">${DOMPurify.sanitize(title)}</span>
+                            </label>
+                            <button class="cr-field-preview-btn" type="button" data-field="${field.key}" data-index="${i}" title="Preview entry">
+                                <i class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    `;
+                        })
                         .join('')}
                 </div>
             </div>

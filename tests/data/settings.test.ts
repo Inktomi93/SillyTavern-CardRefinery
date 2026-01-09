@@ -61,6 +61,11 @@ vi.mock('../../src/data/settings/defaults', () => ({
         },
         baseRefinementPrompt: 'Base refinement prompt.',
         userRefinementPrompt: '',
+        generationMode: 'current',
+        profileId: null,
+        maxTokensOverride: null,
+        replaceUserMacro: false,
+        debugMode: false,
     },
     BUILTIN_PROMPT_PRESETS: [
         {

@@ -14,14 +14,33 @@
     flex-direction: column;
     gap: var(--cr-space-1);
     min-height: 80px;
-    max-height: 280px;
-    overflow-y: auto;
+    max-height: 400px;
+    overflow: hidden auto;
     padding: var(--cr-space-2);
     background: var(--cr-bg-secondary);
     border: 1px solid var(--cr-border-muted);
     border-radius: var(--cr-radius) var(--cr-radius) 0 0;
     border-bottom: none;
     text-align: left;
+    scrollbar-width: thin;
+    scrollbar-color: var(--cr-border) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--cr-border);
+        border-radius: var(--cr-radius-pill);
+
+        &:hover {
+            background: var(--cr-accent);
+        }
+    }
 }
 
 /* Field total footer */
@@ -153,7 +172,27 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   EXPANDABLE FIELD GROUPS (for alternate greetings)
+   LOREBOOK ENTRY STATUS
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.cr-entry-status {
+    flex-shrink: 0;
+    width: 1em;
+    text-align: center;
+    font-size: var(--cr-text-xs);
+}
+
+.cr-entry-enabled {
+    color: var(--cr-success);
+}
+
+.cr-entry-disabled {
+    color: var(--cr-text-dim);
+    opacity: 0.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   EXPANDABLE FIELD GROUPS (for alternate greetings and lorebook entries)
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 .cr-field-group {

@@ -285,6 +285,45 @@ const _renderDrawerBody = (): string => {
                         </span>
                     </div>
                 </details>
+
+                <!-- Advanced Options -->
+                <details class="cr-collapsible">
+                    <summary>Advanced Options</summary>
+                    <div class="cr-setting-item">
+                        <label class="cr-setting-label cr-checkbox-label">
+                            <input type="checkbox"
+                                   id="${MODULE_NAME}_disable_thinking"
+                                   ${settings.disableThinking ? 'checked' : ''}/>
+                            <span>Disable reasoning</span>
+                        </label>
+                        <span class="cr-setting-hint">
+                            Disables model reasoning/thinking during generation.
+                            Reasoning is automatically disabled for Anthropic when using structured output.
+                        </span>
+                    </div>
+                    <div class="cr-setting-item cr-mt-3">
+                        <label class="cr-setting-label cr-checkbox-label">
+                            <input type="checkbox"
+                                   id="${MODULE_NAME}_use_assistant_prefill"
+                                   ${settings.useAssistantPrefill ? 'checked' : ''}/>
+                            <span>Enable assistant prefill</span>
+                        </label>
+                        <span class="cr-setting-hint">
+                            Inserts text as the start of the assistant's response to guide output format.
+                        </span>
+                    </div>
+                    <div class="cr-setting-item cr-mt-2" id="${MODULE_NAME}_prefill_container" ${!settings.useAssistantPrefill ? 'style="display: none;"' : ''}>
+                        <label class="cr-setting-label">Prefill Text</label>
+                        <input type="text"
+                               id="${MODULE_NAME}_assistant_prefill"
+                               class="cr-input text_pole"
+                               value="${DOMPurify.sanitize(settings.assistantPrefill)}"
+                               placeholder="e.g., { or Here is my analysis:"/>
+                        <span class="cr-setting-hint">
+                            Common prefills: <code>{</code> for JSON, <code>&lt;response&gt;</code> for XML
+                        </span>
+                    </div>
+                </details>
             </section>
 
             <!-- System Prompt -->
@@ -361,6 +400,31 @@ const _renderDrawerBody = (): string => {
                         </button>
                     </div>
                 </details>
+            </section>
+
+            <!-- Processing Options -->
+            <section class="cr-settings-section">
+                <h3>
+                    <i class="fa-solid fa-gears"></i>
+                    Processing
+                </h3>
+                <p class="cr-setting-desc">
+                    Options for how character card content is processed before analysis.
+                </p>
+
+                <div class="cr-setting-item">
+                    <label class="cr-setting-label cr-checkbox-label">
+                        <input type="checkbox"
+                               id="${MODULE_NAME}_replace_user_macro"
+                               ${settings.replaceUserMacro ? 'checked' : ''}/>
+                        <span>Replace {{user}} with persona name</span>
+                    </label>
+                    <span class="cr-setting-hint">
+                        When enabled, {{user}} in character fields will be replaced with your current persona name.
+                        This helps the LLM provide gender-specific and persona-aware suggestions.
+                        When disabled, {{user}} is shown literally to the LLM.
+                    </span>
+                </div>
             </section>
 
             <!-- Reset Settings -->

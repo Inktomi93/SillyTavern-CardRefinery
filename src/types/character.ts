@@ -33,6 +33,50 @@ export interface PopulatedField {
 }
 
 /**
+ * A single lorebook/character book entry.
+ * Based on TavernCardV2 spec: https://github.com/malfoyslastname/character-card-spec-v2
+ *
+ * Note: All fields are marked optional for compatibility with ST's internal types,
+ * though the V2 spec requires keys, content, extensions, enabled, and insertion_order.
+ */
+export interface CharacterBookEntry {
+    // Core fields (required in V2 spec, but optional here for ST compatibility)
+    keys?: string[];
+    content?: string;
+    extensions?: Record<string, unknown>;
+    enabled?: boolean;
+    insertion_order?: number;
+
+    // Optional fields
+    id?: number;
+    name?: string;
+    comment?: string;
+    priority?: number;
+    secondary_keys?: string[];
+    selective?: boolean;
+    constant?: boolean;
+    case_sensitive?: boolean;
+    use_regex?: boolean;
+    position?: 'before_char' | 'after_char';
+}
+
+/**
+ * Character book / embedded lorebook structure.
+ * Based on TavernCardV2 spec.
+ *
+ * Note: Fields marked optional for compatibility with ST's internal types.
+ */
+export interface CharacterBook {
+    name?: string;
+    description?: string;
+    scan_depth?: number;
+    token_budget?: number;
+    recursive_scanning?: boolean;
+    extensions?: Record<string, unknown>;
+    entries?: CharacterBookEntry[];
+}
+
+/**
  * Nested character data (V2 card spec extensions).
  */
 export interface CharacterData {
@@ -45,16 +89,7 @@ export interface CharacterData {
     extensions?: {
         depth_prompt?: { prompt: string; depth: number; role: string };
     };
-    character_book?: {
-        name?: string;
-        entries?: Array<{
-            id: number;
-            keys: string[];
-            content: string;
-            comment?: string;
-            enabled: boolean;
-        }>;
-    };
+    character_book?: CharacterBook;
 }
 
 /**

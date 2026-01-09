@@ -137,6 +137,41 @@ export function saveSettingsFromDrawer(): void {
         settings.baseRefinementPrompt = baseRefinementPrompt.value;
     }
 
+    // Replace {{user}} macro setting
+    const replaceUserMacro = $(
+        `#${MODULE_NAME}_replace_user_macro`,
+        drawer,
+    ) as HTMLInputElement;
+    if (replaceUserMacro) {
+        settings.replaceUserMacro = replaceUserMacro.checked;
+    }
+
+    // Disable thinking mode
+    const disableThinking = $(
+        `#${MODULE_NAME}_disable_thinking`,
+        drawer,
+    ) as HTMLInputElement;
+    if (disableThinking) {
+        settings.disableThinking = disableThinking.checked;
+    }
+
+    // Assistant prefill settings
+    const useAssistantPrefill = $(
+        `#${MODULE_NAME}_use_assistant_prefill`,
+        drawer,
+    ) as HTMLInputElement;
+    if (useAssistantPrefill) {
+        settings.useAssistantPrefill = useAssistantPrefill.checked;
+    }
+
+    const assistantPrefill = $(
+        `#${MODULE_NAME}_assistant_prefill`,
+        drawer,
+    ) as HTMLInputElement;
+    if (assistantPrefill) {
+        settings.assistantPrefill = assistantPrefill.value;
+    }
+
     save();
     toast.success('Settings saved');
 }
@@ -290,6 +325,22 @@ export function bindDrawerEvents(drawer: HTMLElement): void {
         addCleanupFn(
             on(maxTokensEnabled, 'change', () => {
                 maxTokensInput.disabled = !maxTokensEnabled.checked;
+            }),
+        );
+    }
+
+    // Assistant prefill toggle - show/hide prefill input
+    const useAssistantPrefill = $(
+        `#${MODULE_NAME}_use_assistant_prefill`,
+        drawer,
+    ) as HTMLInputElement;
+    const prefillContainer = $(`#${MODULE_NAME}_prefill_container`, drawer);
+    if (useAssistantPrefill && prefillContainer) {
+        addCleanupFn(
+            on(useAssistantPrefill, 'change', () => {
+                prefillContainer.style.display = useAssistantPrefill.checked
+                    ? ''
+                    : 'none';
             }),
         );
     }

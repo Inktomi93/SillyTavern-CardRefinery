@@ -97,74 +97,96 @@ export function getStageSystemPrompt(
 
 /**
  * Build the user prompt for a stage.
+ *
+ * Prompt structure:
+ * 1. TASK - Stage name and iteration context
+ * 2. INSTRUCTIONS - What to do (from preset or custom)
+ * 3. CHARACTER DATA - Source material to work with
+ * 4. CONTEXT - Previous stage results (scores, rewrites, analysis)
+ * 5. USER GUIDANCE - Additional direction from user (if any)
  */
 export function buildUserPrompt(
     ctx: PromptContext,
     deps: Pick<PromptDependencies, 'getPromptPreset'>,
 ): string {
-    const parts: string[] = [];
+    const sections: string[] = [];
 
-    // For Analyze stage, we want to show both original and rewritten versions
+    // ==========================================================================
+    // 1. TASK HEADER - What we're doing
+    // ==========================================================================
+    const stageLabels: Record<StageName, string> = {
+        score: 'Score & Evaluate',
+        rewrite: 'Rewrite & Improve',
+        analyze: 'Analyze Changes',
+    };
+    let taskHeader = `# TASK: ${stageLabels[ctx.stage]}`;
+    if (ctx.iterationCount > 0) {
+        taskHeader += ` (Refinement #${ctx.iterationCount + 1})`;
+    }
+    sections.push(taskHeader);
+
+    // ==========================================================================
+    // 2. INSTRUCTIONS - What to do
+    // ==========================================================================
+    const instructions = getInstructions(ctx.config, deps);
+    if (instructions) {
+        sections.push(`## Instructions\n\n${instructions}`);
+    }
+
+    // ==========================================================================
+    // 3. CHARACTER DATA - Source material
+    // ==========================================================================
     if (ctx.stage === 'analyze') {
-        // Original character data - labeled clearly
-        parts.push('## ORIGINAL CHARACTER\n\n');
-        parts.push(buildCharacterSummary(ctx.character, ctx.selection));
+        // For analyze: show original and rewritten side by side
+        sections.push(
+            '## Original Character\n\n' +
+                buildCharacterSummary(ctx.character, ctx.selection),
+        );
 
-        // Include score results if available (context for what was being fixed)
-        if (ctx.previousResults.score) {
-            parts.push(
-                '\n\n---\n\n## SCORE RESULTS\n\n' +
-                    ctx.previousResults.score.output,
-            );
-        }
-
-        // Rewritten version for comparison
         if (ctx.previousResults.rewrite) {
-            parts.push(
-                '\n\n---\n\n## REWRITTEN VERSION\n\n' +
-                    ctx.previousResults.rewrite.output,
+            sections.push(
+                '## Rewritten Version\n\n' + ctx.previousResults.rewrite.output,
             );
         }
     } else {
-        // Standard character data for other stages
-        parts.push(buildCharacterSummary(ctx.character, ctx.selection));
-
-        // Previous results based on stage
-        if (ctx.stage === 'rewrite') {
-            if (ctx.previousResults.score) {
-                parts.push(
-                    '\n\n---\n\n## SCORE RESULTS\n\n' +
-                        ctx.previousResults.score.output,
-                );
-            }
-
-            // For refinement, include analysis feedback
-            if (ctx.isRefinement && ctx.previousResults.analyze) {
-                parts.push(
-                    '\n\n---\n\n## ANALYSIS FEEDBACK\n\n' +
-                        ctx.previousResults.analyze.output,
-                );
-            }
-        }
-    }
-
-    // User guidance
-    if (ctx.guidance?.trim()) {
-        parts.push('\n\n---\n\n## USER GUIDANCE\n\n' + ctx.guidance.trim());
-    }
-
-    // Iteration info
-    if (ctx.iterationCount > 0) {
-        parts.push(
-            `\n\n---\n\n*Refinement iteration ${ctx.iterationCount + 1}*`,
+        // For score/rewrite: just the character data
+        sections.push(
+            '## Character Data\n\n' +
+                buildCharacterSummary(ctx.character, ctx.selection),
         );
     }
 
-    // Stage instructions
-    const instructions = getInstructions(ctx.config, deps);
-    if (instructions) {
-        parts.push('\n\n---\n\n## INSTRUCTIONS\n\n' + instructions);
+    // ==========================================================================
+    // 4. CONTEXT - Previous stage results
+    // ==========================================================================
+    if (ctx.stage === 'rewrite' && ctx.previousResults.score) {
+        sections.push(
+            '## Score Results\n\n' + ctx.previousResults.score.output,
+        );
     }
 
-    return parts.join('');
+    if (
+        ctx.stage === 'rewrite' &&
+        ctx.isRefinement &&
+        ctx.previousResults.analyze
+    ) {
+        sections.push(
+            '## Analysis Feedback\n\n' + ctx.previousResults.analyze.output,
+        );
+    }
+
+    if (ctx.stage === 'analyze' && ctx.previousResults.score) {
+        sections.push(
+            '## Score Results (Context)\n\n' + ctx.previousResults.score.output,
+        );
+    }
+
+    // ==========================================================================
+    // 5. USER GUIDANCE - Additional direction
+    // ==========================================================================
+    if (ctx.guidance?.trim()) {
+        sections.push('## User Guidance\n\n' + ctx.guidance.trim());
+    }
+
+    return sections.join('\n\n---\n\n');
 }

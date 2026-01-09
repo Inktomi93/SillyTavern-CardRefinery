@@ -78,27 +78,15 @@ const _renderPromptEditor = (): string => {
 
     return /* html */ `
         <div class="cr-form-group cr-form-group--grow">
-            <div class="cr-row cr-row--between">
-                <label class="cr-label" for="${MODULE_NAME}_drawer_prompt">
-                    Prompt Template <span class="cr-required">*</span>
-                </label>
-                <div class="cr-row cr-gap-1">
-                    <button id="${MODULE_NAME}_drawer_prompt_vars"
-                            class="menu_button menu_button--sm menu_button--ghost"
-                            type="button"
-                            title="View available variables">
-                        <i class="fa-solid fa-code"></i>
-                        Variables
-                    </button>
-                </div>
-            </div>
+            <label class="cr-label" for="${MODULE_NAME}_drawer_prompt">
+                Prompt Template <span class="cr-required">*</span>
+            </label>
             <div class="cr-editor-wrap">
                 <textarea id="${MODULE_NAME}_drawer_prompt"
                           class="cr-textarea cr-textarea--editor text_pole"
-                          placeholder="Enter your prompt template...
+                          placeholder="Enter instructions for the LLM.
 
-Use {{character}} for character data, {{field_name}} for specific fields.
-The prompt will be sent to the LLM along with the selected character fields."
+Your prompt will be combined with the selected character fields and any previous stage results."
                           spellcheck="false">${DOMPurify.sanitize(promptText)}</textarea>
             </div>
             <div class="cr-form-group__hint cr-row cr-row--between">

@@ -408,6 +408,14 @@ export const DEFAULT_SETTINGS: Settings = {
     generationMode: 'current',
     profileId: null,
     maxTokensOverride: null,
+
+    disableThinking: false,
+
+    useAssistantPrefill: false,
+    assistantPrefill: '',
+
+    replaceUserMacro: false,
+
     debugMode: false,
 };
 

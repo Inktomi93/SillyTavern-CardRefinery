@@ -221,6 +221,23 @@ export function replaceCharMacro(text: string, charName: string): string {
     return text.replace(/\{\{char\}\}/gi, charName);
 }
 
+/**
+ * Replace {{user}} with actual user/persona name.
+ * This allows the LLM to understand user-specific context in character cards.
+ */
+export function replaceUserMacro(text: string, userName?: string): string {
+    if (!text) return text;
+    const name = userName || SillyTavern.getContext().name1 || 'User';
+    return text.replace(/\{\{user\}\}/gi, name);
+}
+
+/**
+ * Get the current user/persona name from ST context.
+ */
+export function getUserName(): string {
+    return SillyTavern.getContext().name1 || 'User';
+}
+
 // =============================================================================
 // PROMPT BUILDING HELPERS
 // =============================================================================

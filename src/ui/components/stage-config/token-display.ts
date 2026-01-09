@@ -13,7 +13,14 @@ import { getState, getCurrentFieldSelection } from '../../../state';
 import { getSettings } from '../../../data';
 import { $, formatTokenCount } from '../base';
 import { fieldTokenCounts } from './state';
-import type { PopulatedField } from '../../../types';
+import type { PopulatedField, CharacterBookEntry } from '../../../types';
+
+// =============================================================================
+// CONSTANTS
+// =============================================================================
+
+/** Fields with per-entry selection that need individual token counting */
+const EXPANDABLE_FIELDS = ['alternate_greetings', 'character_book'] as const;
 
 // =============================================================================
 // FIELD TOKEN LOADING
@@ -21,11 +28,42 @@ import type { PopulatedField } from '../../../types';
 
 /**
  * Load token counts for fields and update the display.
+ * Handles both simple fields and expandable fields with per-entry counting.
  */
 export async function loadFieldTokens(fields: PopulatedField[]): Promise<void> {
-    const items = fields
-        .filter((f) => f.key !== 'alternate_greetings') // Skip grouped fields
-        .map((f) => ({ key: f.key, text: f.value }));
+    const items: Array<{ key: string; text: string }> = [];
+
+    for (const field of fields) {
+        if (
+            field.key === 'alternate_greetings' &&
+            Array.isArray(field.rawValue)
+        ) {
+            // Per-entry counting for alternate greetings
+            const greetings = field.rawValue as string[];
+            for (let i = 0; i < greetings.length; i++) {
+                items.push({
+                    key: `${field.key}:${i}`,
+                    text: greetings[i],
+                });
+            }
+        } else if (field.key === 'character_book' && field.rawValue) {
+            // Per-entry counting for lorebook entries
+            const book = field.rawValue as { entries?: CharacterBookEntry[] };
+            const entries = book.entries || [];
+            for (let i = 0; i < entries.length; i++) {
+                const entry = entries[i];
+                // Lorebook entry content is the main text
+                const text = entry.content || '';
+                items.push({
+                    key: `${field.key}:${i}`,
+                    text,
+                });
+            }
+        } else {
+            // Simple field - whole field token count
+            items.push({ key: field.key, text: field.value });
+        }
+    }
 
     if (items.length === 0) return;
 
@@ -36,9 +74,12 @@ export async function loadFieldTokens(fields: PopulatedField[]): Promise<void> {
         if (tokens !== null) {
             fieldTokenCounts.set(key, tokens);
         }
-        const el = $(`.cr-field-tokens[data-field="${key}"]`);
-        if (el) {
-            el.textContent = formatTokenCount(tokens);
+        // Only update display elements for simple fields (expandable don't have per-item displays)
+        if (!key.includes(':')) {
+            const el = $(`.cr-field-tokens[data-field="${key}"]`);
+            if (el) {
+                el.textContent = formatTokenCount(tokens);
+            }
         }
     }
 
@@ -62,11 +103,36 @@ export function updateFieldTotal(): void {
     let total = 0;
     let selectedCount = 0;
 
+    // Count tokens from simple fields (keys without ":")
     for (const [key, tokens] of fieldTokenCounts) {
+        // Skip expandable field entries (they have ":" in the key)
+        if (key.includes(':')) continue;
+
         const isSelected = key in selection && selection[key] !== false;
         if (isSelected) {
             total += tokens;
             selectedCount++;
+        }
+    }
+
+    // Count tokens from expandable fields based on selected indices
+    for (const fieldKey of EXPANDABLE_FIELDS) {
+        if (!(fieldKey in selection)) continue;
+
+        const selectionValue = selection[fieldKey];
+        if (!Array.isArray(selectionValue) || selectionValue.length === 0)
+            continue;
+
+        // Count this field as selected
+        selectedCount++;
+
+        // Sum tokens for selected entries
+        for (const index of selectionValue as number[]) {
+            const entryKey = `${fieldKey}:${index}`;
+            const entryTokens = fieldTokenCounts.get(entryKey);
+            if (entryTokens !== undefined) {
+                total += entryTokens;
+            }
         }
     }
 

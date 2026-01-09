@@ -281,12 +281,13 @@ function registerComponentUpdates(): void {
         ]),
     );
 
-    // Stage config updates on stage/config/fields/character changes
+    // Stage config updates on stage/config/character changes
+    // Note: 'fields' intentionally excluded - checkbox updates are handled locally
+    // by updateFieldCheckboxes() to avoid full re-renders fighting with DOM state
     eventCleanups.push(
         registerUpdate('stageConfig', safeUpdateStageConfig, [
             'stage',
             'config',
-            'fields',
             'character',
         ]),
     );
