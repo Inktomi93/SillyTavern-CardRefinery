@@ -222,6 +222,23 @@ export const renderFieldItem = withRenderBoundary(_renderFieldItem, {
 // CHECKBOX STATE UPDATES
 // =============================================================================
 
+// Track which field groups are expanded (persists across re-renders)
+const expandedGroups = new Set<string>();
+
+/**
+ * Toggle expanded state for a field group.
+ * Persists across re-renders.
+ */
+export function toggleFieldGroupExpanded(fieldKey: string): boolean {
+    if (expandedGroups.has(fieldKey)) {
+        expandedGroups.delete(fieldKey);
+        return false;
+    } else {
+        expandedGroups.add(fieldKey);
+        return true;
+    }
+}
+
 /**
  * Update field checkboxes state from current selection.
  * Uses state as source of truth, not DOM, to handle re-renders correctly.
@@ -237,6 +254,11 @@ export function updateFieldCheckboxes(): void {
     for (const group of groups) {
         const fieldKey = (group as HTMLElement).dataset.field;
         if (!fieldKey) continue;
+
+        // Restore expanded state from persistent tracking
+        if (expandedGroups.has(fieldKey)) {
+            group.classList.add('cr-field-group--expanded');
+        }
 
         const parentCheckbox = $(
             '.cr-field-checkbox--parent',

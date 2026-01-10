@@ -35,7 +35,10 @@ import {
 import { $, $$, on } from '../base';
 import { openDrawerWithList } from '../preset-drawer';
 import { addPendingInput, removePendingInput } from './state';
-import { updateFieldCheckboxes } from './field-selector';
+import {
+    updateFieldCheckboxes,
+    toggleFieldGroupExpanded,
+} from './field-selector';
 import { updatePromptTokenCount } from './token-display';
 import { updateStageConfig } from './stage-config';
 
@@ -157,17 +160,22 @@ function bindFieldEvents(
         }),
     );
 
-    // Expand/collapse for field groups
+    // Expand/collapse for field groups (persisted across re-renders)
     cleanups.push(
         on(fieldsContainer, 'click', (e) => {
             const target = e.target as HTMLElement;
             const expandBtn = target.closest('.cr-field-expand');
             if (!expandBtn) return;
 
-            const group = expandBtn.closest('.cr-field-group');
+            const group = expandBtn.closest('.cr-field-group') as HTMLElement;
             if (!group) return;
 
-            group.classList.toggle('cr-field-group--expanded');
+            const fieldKey = group.dataset.field;
+            if (!fieldKey) return;
+
+            // Toggle persistent state and update DOM
+            const isExpanded = toggleFieldGroupExpanded(fieldKey);
+            group.classList.toggle('cr-field-group--expanded', isExpanded);
         }),
     );
 
