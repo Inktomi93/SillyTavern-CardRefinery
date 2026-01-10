@@ -247,6 +247,10 @@ export function updateFieldCheckboxes(): void {
     const fieldsContainer = $(`#${MODULE_NAME}_fields_container`);
     if (!fieldsContainer) return;
 
+    // Preserve scroll position before any DOM changes
+    const scrollable = $('.cr-field-list', fieldsContainer);
+    const scrollTop = scrollable?.scrollTop ?? 0;
+
     const selection = getCurrentFieldSelection();
 
     // Update expandable groups (alternate_greetings, character_book)
@@ -313,4 +317,9 @@ export function updateFieldCheckboxes(): void {
 
     // Update token total
     updateFieldTotal();
+
+    // Restore scroll position
+    if (scrollable && scrollTop > 0) {
+        scrollable.scrollTop = scrollTop;
+    }
 }
