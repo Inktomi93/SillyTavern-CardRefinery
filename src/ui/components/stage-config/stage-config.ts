@@ -8,7 +8,7 @@ import { getState, areStagesLinked } from '../../../state';
 import { getPromptPreset, getSchemaPreset } from '../../../data';
 import { $, cx } from '../base';
 import { withRenderBoundary } from '../../error-boundary';
-import { renderFieldSelector } from './field-selector';
+import { renderFieldSelector, updateFieldCheckboxes } from './field-selector';
 import { renderPresetDropdown, refreshPresetDropdown } from './preset-dropdown';
 import { updatePromptTokenCount } from './token-display';
 
@@ -172,6 +172,10 @@ export const renderStageConfig = withRenderBoundary(_renderStageConfig, {
 // UPDATE
 // =============================================================================
 
+// Track last rendered state to detect when full re-render is needed
+let lastRenderedCharacterId: string | null = null;
+let lastRenderedStage: string | null = null;
+
 /**
  * Update stage config display.
  */
@@ -182,6 +186,7 @@ export function updateStageConfig(): void {
     const state = getState();
     const stage = state.activeStage;
     const config = state.stageConfigs[stage];
+    const characterId = state.character?.avatar ?? null;
 
     // Update header
     const headerTitle = container.querySelector('.cr-section__title');
@@ -192,10 +197,21 @@ export function updateStageConfig(): void {
         `;
     }
 
-    // Update fields
+    // Only re-render field selector when character or stage changes
     const fieldsContainer = $(`#${MODULE_NAME}_fields_container`);
     if (fieldsContainer) {
-        fieldsContainer.innerHTML = renderFieldSelector();
+        if (
+            characterId !== lastRenderedCharacterId ||
+            stage !== lastRenderedStage
+        ) {
+            // Full re-render needed - character or stage changed
+            fieldsContainer.innerHTML = renderFieldSelector();
+            lastRenderedCharacterId = characterId;
+            lastRenderedStage = stage;
+        } else {
+            // Just sync checkbox state, don't re-render
+            updateFieldCheckboxes();
+        }
     }
 
     // Update prompt
