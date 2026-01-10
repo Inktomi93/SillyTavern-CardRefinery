@@ -195,35 +195,20 @@ const _renderFieldItem = (field: PopulatedField): string => {
         `;
     }
 
-    // Truncate preview text for display (shorter to fit nicely)
-    const MAX_PREVIEW = 150;
-    const previewText =
-        field.value.length > MAX_PREVIEW
-            ? field.value.substring(0, MAX_PREVIEW).trim() + '…'
-            : field.value;
-
+    // Standard field - simple checkbox row
     return /* html */ `
-        <div class="cr-field-group cr-field-group--expandable" data-field="${field.key}">
-            <div class="cr-field-item cr-field-item--has-preview">
-                <label class="cr-field-label">
-                    <input type="checkbox"
-                           class="cr-field-checkbox"
-                           data-field="${field.key}"
-                           ${isSelected ? 'checked' : ''}/>
-                    <span class="cr-field-name">${DOMPurify.sanitize(field.label)}</span>
-                </label>
-                <span class="cr-field-tokens" data-field="${field.key}">${formatTokenCount(field.tokens)}</span>
-                <button class="cr-field-expand" type="button" aria-label="Expand field preview">
-                    <i class="fa-solid fa-chevron-down"></i>
-                </button>
-            </div>
-            <div class="cr-field-preview">
-                <pre class="cr-field-preview__text">${DOMPurify.sanitize(previewText)}</pre>
-                <button class="cr-field-preview__more" type="button" data-field="${field.key}" title="View full content in popup">
-                    <i class="fa-solid fa-expand"></i>
-                    <span>View full content</span>
-                </button>
-            </div>
+        <div class="cr-field-item" data-field="${field.key}">
+            <label class="cr-field-label">
+                <input type="checkbox"
+                       class="cr-field-checkbox"
+                       data-field="${field.key}"
+                       ${isSelected ? 'checked' : ''}/>
+                <span class="cr-field-name">${DOMPurify.sanitize(field.label)}</span>
+            </label>
+            <span class="cr-field-tokens" data-field="${field.key}">${formatTokenCount(field.tokens)}</span>
+            <button class="cr-field-preview-btn" type="button" data-field="${field.key}" title="Preview content">
+                <i class="fa-solid fa-eye"></i>
+            </button>
         </div>
     `;
 };

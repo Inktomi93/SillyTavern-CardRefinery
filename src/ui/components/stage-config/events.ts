@@ -171,14 +171,14 @@ function bindFieldEvents(
         }),
     );
 
-    // View full field content button
+    // Preview button - handles both regular fields and array entries
     cleanups.push(
         on(fieldsContainer, 'click', async (e) => {
             const target = e.target as HTMLElement;
-            const viewFullBtn = target.closest('.cr-field-preview__more');
-            if (!viewFullBtn) return;
+            const previewBtn = target.closest('.cr-field-preview-btn');
+            if (!previewBtn) return;
 
-            const fieldKey = (viewFullBtn as HTMLElement).dataset.field;
+            const fieldKey = (previewBtn as HTMLElement).dataset.field;
             if (!fieldKey) return;
 
             const state = getState();
@@ -188,38 +188,48 @@ function bindFieldEvents(
             const field = fields.find((f) => f.key === fieldKey);
             if (!field) return;
 
+            const indexStr = (previewBtn as HTMLElement).dataset.index;
+
+            // Handle array field entries (greetings, lorebook)
+            if (indexStr !== undefined) {
+                const index = parseInt(indexStr, 10);
+
+                if (
+                    fieldKey === 'alternate_greetings' &&
+                    Array.isArray(field.rawValue)
+                ) {
+                    const greeting = (field.rawValue as string[])[index];
+                    if (greeting) {
+                        popup.alert(
+                            `Greeting ${index + 1}`,
+                            `<pre class="cr-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(greeting)}</pre>`,
+                        );
+                    }
+                } else if (fieldKey === 'character_book' && field.rawValue) {
+                    const book = field.rawValue as {
+                        entries?: Array<{
+                            content?: string;
+                            name?: string;
+                            comment?: string;
+                        }>;
+                    };
+                    const entry = book.entries?.[index];
+                    if (entry) {
+                        const title =
+                            entry.name || entry.comment || `Entry ${index + 1}`;
+                        popup.alert(
+                            title,
+                            `<pre class="cr-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(entry.content || '(empty)')}</pre>`,
+                        );
+                    }
+                }
+                return;
+            }
+
+            // Handle regular field preview
             popup.alert(
                 field.label,
                 `<pre class="cr-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(field.value)}</pre>`,
-            );
-        }),
-    );
-
-    // Preview greeting button
-    cleanups.push(
-        on(fieldsContainer, 'click', async (e) => {
-            const target = e.target as HTMLElement;
-            const previewBtn = target.closest('.cr-field-preview-btn');
-            if (!previewBtn) return;
-
-            const fieldKey = (previewBtn as HTMLElement).dataset.field;
-            const indexStr = (previewBtn as HTMLElement).dataset.index;
-            if (!fieldKey || indexStr === undefined) return;
-
-            const state = getState();
-            if (!state.character) return;
-
-            const fields = getPopulatedFields(state.character);
-            const field = fields.find((f) => f.key === fieldKey);
-            if (!field || !Array.isArray(field.rawValue)) return;
-
-            const index = parseInt(indexStr, 10);
-            const greeting = field.rawValue[index];
-            if (!greeting) return;
-
-            popup.alert(
-                `Greeting ${index + 1}`,
-                `<pre class="cr-popup-preview">${SillyTavern.libs.DOMPurify.sanitize(greeting)}</pre>`,
             );
         }),
     );

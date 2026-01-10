@@ -196,27 +196,39 @@
    ═══════════════════════════════════════════════════════════════════════════════ */
 
 .cr-field-group {
-    border: 1px solid var(--cr-border-muted);
     border-radius: var(--cr-radius-sm);
-    overflow: hidden;
 
+    /* Parent row styling - matches regular field items */
     & .cr-field-item--parent {
         background: var(--cr-bg-tertiary);
-        border-bottom: 1px solid var(--cr-border-muted);
+        border-radius: var(--cr-radius-sm);
     }
 
+    /* Children container - hidden by default, scrollable when expanded */
     & .cr-field-children {
         display: none;
-        padding: var(--cr-space-1);
-        background: var(--cr-bg-secondary);
+        max-height: 200px;
+        overflow-y: auto;
+        margin-top: var(--cr-space-1);
+        margin-left: var(--cr-space-4);
+        padding-left: var(--cr-space-2);
+        border-left: 2px solid var(--cr-border-muted);
+        scrollbar-width: thin;
+        scrollbar-color: var(--cr-border) transparent;
     }
 
     &--expanded .cr-field-children {
         display: block;
     }
 
+    /* Child items - slightly indented */
     & .cr-field-item--child {
-        padding-left: var(--cr-space-4);
+        padding: var(--cr-space-1) var(--cr-space-2);
+        border-radius: var(--cr-radius-sm);
+
+        &:hover {
+            background: var(--cr-bg-tertiary);
+        }
     }
 }
 
@@ -227,6 +239,7 @@
     color: var(--cr-text-muted);
     cursor: pointer;
     transition: transform var(--cr-transition-fast);
+    flex-shrink: 0;
 
     &:hover {
         color: var(--cr-text);
@@ -238,69 +251,8 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════
-   FIELD PREVIEW (collapsible content preview)
+   FIELD PREVIEW BUTTON
    ═══════════════════════════════════════════════════════════════════════════════ */
-
-.cr-field-preview {
-    display: none;
-    flex-direction: column;
-    gap: var(--cr-space-2);
-    padding: var(--cr-space-2);
-    background: var(--cr-bg-secondary);
-    border-top: 1px solid var(--cr-border-muted);
-
-    .cr-field-group--expanded & {
-        display: flex;
-    }
-
-    &__text {
-        position: relative;
-        margin: 0;
-        padding: var(--cr-space-2);
-        max-height: 80px;
-        overflow: hidden;
-        font-size: var(--cr-text-xs);
-        font-family: var(--cr-font-mono);
-        white-space: pre-wrap;
-        word-break: break-word;
-        line-height: 1.4;
-        background: var(--cr-bg-tertiary);
-        border-radius: var(--cr-radius-sm);
-        color: var(--cr-text-muted);
-
-        /* Fade out effect at bottom when content is truncated */
-        &::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 24px;
-            background: linear-gradient(transparent, var(--cr-bg-tertiary));
-            pointer-events: none;
-        }
-    }
-
-    &__more {
-        display: inline-flex;
-        align-items: center;
-        align-self: flex-start;
-        gap: var(--cr-space-1);
-        padding: var(--cr-space-1) var(--cr-space-2);
-        font-size: var(--cr-text-xs);
-        color: var(--cr-accent);
-        background: var(--cr-bg-tertiary);
-        border: 1px solid var(--cr-accent-muted);
-        border-radius: var(--cr-radius-sm);
-        cursor: pointer;
-        transition: all var(--cr-transition-fast);
-        flex-shrink: 0;
-
-        &:hover {
-            background: var(--cr-accent-muted);
-        }
-    }
-}
 
 .cr-field-preview-btn {
     padding: var(--cr-space-1);
