@@ -247,9 +247,19 @@ export function updateFieldCheckboxes(): void {
     const fieldsContainer = $(`#${MODULE_NAME}_fields_container`);
     if (!fieldsContainer) return;
 
-    // Preserve scroll position before any DOM changes
+    // Preserve scroll positions before any DOM changes
     const scrollable = $('.cr-field-list', fieldsContainer);
     const scrollTop = scrollable?.scrollTop ?? 0;
+
+    // Also preserve children scroll positions (keyed by field)
+    const childScrollPositions = new Map<string, number>();
+    for (const children of $$('.cr-field-children', fieldsContainer)) {
+        const group = children.closest('.cr-field-group') as HTMLElement;
+        const fieldKey = group?.dataset.field;
+        if (fieldKey && children.scrollTop > 0) {
+            childScrollPositions.set(fieldKey, children.scrollTop);
+        }
+    }
 
     const selection = getCurrentFieldSelection();
 
@@ -318,8 +328,18 @@ export function updateFieldCheckboxes(): void {
     // Update token total
     updateFieldTotal();
 
-    // Restore scroll position
+    // Restore scroll positions
     if (scrollable && scrollTop > 0) {
         scrollable.scrollTop = scrollTop;
+    }
+    for (const [fieldKey, pos] of childScrollPositions) {
+        const group = $(
+            `.cr-field-group[data-field="${fieldKey}"]`,
+            fieldsContainer,
+        );
+        const children = group ? $('.cr-field-children', group) : null;
+        if (children) {
+            children.scrollTop = pos;
+        }
     }
 }
