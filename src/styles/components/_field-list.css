@@ -198,10 +198,13 @@
 .cr-field-group {
     border-radius: var(--cr-radius-sm);
 
-    /* Parent row styling - matches regular field items */
+    /* Parent row styling - matches regular field items (hover only) */
     & .cr-field-item--parent {
-        background: var(--cr-bg-tertiary);
         border-radius: var(--cr-radius-sm);
+
+        &:hover {
+            background: var(--cr-bg-tertiary);
+        }
     }
 
     /* Children container - hidden by default, scrollable when expanded */
