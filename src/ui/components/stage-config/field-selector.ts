@@ -38,8 +38,12 @@ const _renderFieldSelector = (): string => {
         `;
     }
 
-    // Trigger async token loading after render
-    requestAnimationFrame(() => loadFieldTokens(fields));
+    // Trigger async setup after render
+    requestAnimationFrame(() => {
+        loadFieldTokens(fields);
+        // Set indeterminate state (can't be done via HTML attribute)
+        updateFieldCheckboxes();
+    });
 
     return /* html */ `
         <div class="cr-field-list cr-scrollable">
@@ -83,8 +87,7 @@ const _renderFieldItem = (field: PopulatedField): string => {
                         <input type="checkbox"
                                class="cr-field-checkbox cr-field-checkbox--parent"
                                data-field="${field.key}"
-                               ${allSelected ? 'checked' : ''}
-                               ${selectedIndices.length > 0 && !allSelected ? 'indeterminate' : ''}/>
+                               ${allSelected ? 'checked' : ''}/>
                         <span class="cr-field-name">${DOMPurify.sanitize(field.label)}</span>
                     </label>
                     <span class="cr-field-count">${greetings.length} greetings</span>
@@ -147,8 +150,7 @@ const _renderFieldItem = (field: PopulatedField): string => {
                         <input type="checkbox"
                                class="cr-field-checkbox cr-field-checkbox--parent"
                                data-field="${field.key}"
-                               ${allSelected ? 'checked' : ''}
-                               ${selectedIndices.length > 0 && !allSelected ? 'indeterminate' : ''}/>
+                               ${allSelected ? 'checked' : ''}/>
                         <span class="cr-field-name">${DOMPurify.sanitize(bookName)}</span>
                     </label>
                     <span class="cr-field-count">${entries.length} entries</span>
@@ -221,13 +223,16 @@ export const renderFieldItem = withRenderBoundary(_renderFieldItem, {
 // =============================================================================
 
 /**
- * Update field checkboxes state.
+ * Update field checkboxes state from current selection.
+ * Uses state as source of truth, not DOM, to handle re-renders correctly.
  */
 export function updateFieldCheckboxes(): void {
     const fieldsContainer = $(`#${MODULE_NAME}_fields_container`);
     if (!fieldsContainer) return;
 
-    // Update parent checkboxes for groups
+    const selection = getCurrentFieldSelection();
+
+    // Update expandable groups (alternate_greetings, character_book)
     const groups = $$('.cr-field-group', fieldsContainer);
     for (const group of groups) {
         const fieldKey = (group as HTMLElement).dataset.field;
@@ -242,11 +247,24 @@ export function updateFieldCheckboxes(): void {
             group,
         ) as HTMLInputElement[];
 
-        if (!parentCheckbox) continue;
+        if (!parentCheckbox || childCheckboxes.length === 0) continue;
 
-        const checkedCount = childCheckboxes.filter((c) => c.checked).length;
+        // Get selection from state, not DOM
+        const fieldSelection = selection[fieldKey];
+        const selectedIndices = Array.isArray(fieldSelection)
+            ? (fieldSelection as number[])
+            : [];
         const totalCount = childCheckboxes.length;
+        const checkedCount = selectedIndices.filter(
+            (i) => i < totalCount,
+        ).length;
 
+        // Update child checkboxes from state
+        childCheckboxes.forEach((cb, i) => {
+            cb.checked = selectedIndices.includes(i);
+        });
+
+        // Update parent checkbox
         if (checkedCount === 0) {
             parentCheckbox.checked = false;
             parentCheckbox.indeterminate = false;
@@ -256,6 +274,18 @@ export function updateFieldCheckboxes(): void {
         } else {
             parentCheckbox.checked = false;
             parentCheckbox.indeterminate = true;
+        }
+    }
+
+    // Update regular field checkboxes
+    const regularCheckboxes = $$(
+        '.cr-field-item:not(.cr-field-item--parent):not(.cr-field-item--child) .cr-field-checkbox',
+        fieldsContainer,
+    ) as HTMLInputElement[];
+    for (const cb of regularCheckboxes) {
+        const fieldKey = cb.dataset.field;
+        if (fieldKey) {
+            cb.checked = fieldKey in selection && selection[fieldKey] !== false;
         }
     }
 
